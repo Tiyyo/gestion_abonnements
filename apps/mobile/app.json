@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Sluis",
+    "slug": "abonnements",
+    "scheme": "abonnements",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "fr.smatou.abonnements",
+      "adaptiveIcon": {
+        "backgroundColor": "#4C1E4F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_BIOMETRIC"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "@react-native-community/datetimepicker",
+      "expo-secure-store",
+      "expo-sharing",
+      [
+        "expo-notifications",
+        {
+          "color": "#4C1E4F"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#4C1E4F",
+          "imageWidth": 288
+        }
+      ],
+      "expo-font"
+    ]
+  }
+}

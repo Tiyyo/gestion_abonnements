@@ -1,0 +1,7 @@
+{
+  "category": "Vidéo",
+  "iconKey": "netflix",
+  "cancelUrl": "https://www.netflix.com/cancelplan",
+  "trialDays": 30,
+  "confidence": 0.92
+}
