@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 import { ScrollView, Text, XStack, YStack } from 'tamagui';
 import { useCategories } from '../features/categories';
-import { trialEndFrom, useSuggestion } from '../features/enrich';
+import { readEnrichConfig, trialEndFrom, useSuggestion } from '../features/enrich';
 import { useSettings } from '../features/settings';
 import {
   PERIODICITIES,
@@ -34,11 +34,15 @@ import {
   type SubscriptionFormValues,
 } from '../features/subscription-form';
 import { BRAND_ICONS } from '../ui/brand-icons';
-import { ActionButton, Amount, Body, Caption, Card, colors, Heading, Label, Overline, TOP_GAP } from '../ui/kit';
+import { RADIUS } from '../ui/elevation';
+import { GlassCard } from '../ui/Glass';
+import { Hero } from '../ui/Hero';
+import { ActionButton, Amount, Body, Caption, Card, colors, DISPLAY_FONT, Heading, Label, Overline } from '../ui/kit';
 import { formatDateFr, formatPercentBp as marginLabel, toIsoDate } from '../ui/format';
 import { haptic, Reveal } from '../ui/motion';
 import { Segmented } from '../ui/Segmented';
 import { BottomSheet, SheetOption } from '../ui/sheet';
+import { SheetScreen } from '../ui/SheetScreen';
 import { SubscriptionAvatar } from '../ui/SubscriptionAvatar';
 
 export const DEFAULT_TRIAL_DAYS = 30;
@@ -85,9 +89,9 @@ const SHEET_TITLES: Record<SheetKind, string> = {
   payment: 'Moyen de paiement',
 };
 
-function FieldError({ message, center }: { message?: string; center?: boolean }) {
+function FieldError({ message, center, onGlass }: { message?: string; center?: boolean; onGlass?: boolean }) {
   return message ? (
-    <Caption color="dangerText" text={center ? 'center' : undefined} accessibilityLiveRegion="polite">
+    <Caption color={onGlass ? 'onGlassDanger' : 'dangerText'} text={center ? 'center' : undefined} accessibilityLiveRegion="polite">
       {message}
     </Caption>
   ) : null;
@@ -153,13 +157,13 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 function StepButton({ icon: Icon, label, onPress }: { icon: LucideIcon; label: string; onPress: () => void }) {
   return (
     <YStack
-      w={40}
-      h={40}
+      w={44}
+      h={44}
       rounded="full"
       items="center"
       justify="center"
       bg="subtle"
-      scale="1 press:0.94"
+      scale="1 press:0.985"
       transition="fast"
       onPress={() => {
         haptic.select();
@@ -207,7 +211,8 @@ export function SubscriptionForm({ mode, title, submitLabel, defaultValues, lock
     return () => clearTimeout(timer);
   }, [name]);
 
-  const suggestion = useSuggestion(mode === 'create' ? lookupName : '');
+  const aiEnabled = settings.data?.ai_suggestion_enabled !== 0 && readEnrichConfig() !== null;
+  const suggestion = useSuggestion(mode === 'create' ? lookupName : '', aiEnabled);
   const showSuggestion = mode === 'create' && suggestion.data && handled !== lookupName;
   const suggestedCategory = categories.data?.find((c) => c.id === suggestion.data?.categoryId)?.name;
   const categoryName = categories.data?.find((c) => c.id === categoryId)?.name ?? 'Autre';
@@ -272,68 +277,68 @@ export function SubscriptionForm({ mode, title, submitLabel, defaultValues, lock
   const logoLabel = iconKey && BRAND_ICONS[iconKey] ? BRAND_ICONS[iconKey].title : 'Initiale du nom';
 
   return (
-    <YStack flex={1} bg="background" pt={insets.top + TOP_GAP.stack}>
-      <XStack px="2" minH={52} items="center" gap="1">
-        <ActionButton label="Annuler" variant="ghost" onPress={onCancel} />
-        <Heading flex={1} fontSize={20} numberOfLines={1}>
+    <SheetScreen>
+      <XStack px="2" minH={56} items="center" gap="1" bg="heroFrom">
+        <ActionButton label="Annuler" variant="glassGhost" onPress={onCancel} />
+        <Heading flex={1} fontSize={18} color="onGlass" numberOfLines={1}>
           {title}
         </Heading>
       </XStack>
-
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 32 }}>
-        <Card items="center" gap="4" py="6">
-          <YStack
-            onPress={() => openSheet('logo')}
-            scale="1 press:0.96"
-            transition="fast"
-            accessibilityRole="button"
-            accessibilityLabel={`Logo : ${logoLabel}. Changer`}
-          >
-            <SubscriptionAvatar name={name || '?'} iconKey={iconKey} size={72} />
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
+        <Hero px="4" pt="2" pb="5">
+          <GlassCard flexDirection="row" items="center" gap="3" p="3.5">
             <YStack
-              w={28}
-              h={28}
-              rounded="full"
-              items="center"
-              justify="center"
-              bg="primary"
-              borderWidth={2}
-              borderColor="surface"
-              style={styles.badge}
+              onPress={() => openSheet('logo')}
+              scale="1 press:0.985"
+              transition="fast"
+              accessibilityRole="button"
+              accessibilityLabel={`Logo : ${logoLabel}. Changer`}
             >
-              <Pencil color={colors.onPrimary} size={13} strokeWidth={2.5} />
+              <SubscriptionAvatar name={name || '?'} iconKey={iconKey} size={52} />
+              <YStack
+                w={22}
+                h={22}
+                rounded="full"
+                items="center"
+                justify="center"
+                bg="primary"
+                borderWidth={2}
+                borderColor="glassEdge"
+                style={styles.badge}
+              >
+                <Pencil color={colors.onPrimary} size={11} strokeWidth={2.5} />
+              </YStack>
             </YStack>
-          </YStack>
 
-          <YStack self="stretch" gap="1">
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <TextInput
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  onBlur={() => {
-                    field.onBlur();
-                    setLookupName(field.value);
-                  }}
-                  placeholder="Nom de l’abonnement"
-                  placeholderTextColor={colors.muted}
-                  autoCapitalize="words"
-                  returnKeyType="next"
-                  style={styles.name}
-                  accessibilityLabel="Nom de l’abonnement"
-                />
-              )}
-            />
-            <FieldError center message={errors.name?.message} />
-          </YStack>
+            <YStack flex={1} minW={0}>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field }) => (
+                  <TextInput
+                    value={field.value}
+                    onChangeText={field.onChange}
+                    onBlur={() => {
+                      field.onBlur();
+                      setLookupName(field.value);
+                    }}
+                    placeholder="Nom"
+                    placeholderTextColor={colors.onGlassMuted}
+                    cursorColor={colors.onGlass}
+                    selectionColor={colors.onGlassMuted}
+                    autoCapitalize="words"
+                    returnKeyType="next"
+                    style={styles.name}
+                    accessibilityLabel="Nom de l’abonnement"
+                  />
+                )}
+              />
+              <Caption color="onGlassMuted" numberOfLines={1}>
+                {`${categoryName} · ${PER[periodicity]}`}
+              </Caption>
+            </YStack>
 
-          <YStack self="stretch" h={1} bg="borderColor" />
-
-          <YStack self="stretch" items="center" gap="1">
-            <Caption>{status === 'trial' ? 'Montant après l’essai' : 'Montant'}</Caption>
-            <XStack items="center" justify="center" gap="1.5">
+            <XStack items="baseline" gap="1">
               <Controller
                 control={control}
                 name="amount"
@@ -343,190 +348,201 @@ export function SubscriptionForm({ mode, title, submitLabel, defaultValues, lock
                     onChangeText={field.onChange}
                     onBlur={field.onBlur}
                     placeholder="0,00"
-                    placeholderTextColor={colors.border}
+                    placeholderTextColor={colors.onGlassMuted}
+                    cursorColor={colors.onGlass}
+                    selectionColor={colors.onGlassMuted}
                     keyboardType="decimal-pad"
+                    textAlign="right"
                     style={styles.amount}
-                    accessibilityLabel="Montant en euros"
+                    accessibilityLabel={status === 'trial' ? 'Montant après l’essai, en euros' : 'Montant en euros'}
                   />
                 )}
               />
-              <Text fontSize={30} fontWeight="600" color={amount ? 'color' : 'colorMuted'}>
+              <Text style={styles.currency} color={amount ? 'onGlass' : 'onGlassMuted'}>
                 €
               </Text>
             </XStack>
-            <Caption>{PER[periodicity]}</Caption>
-            <FieldError center message={errors.amount?.message} />
-          </YStack>
-        </Card>
-
-        {showSuggestion && suggestion.data ? (
-          <Reveal>
-            <Card gap="3" borderColor="primary">
-              <XStack gap="2" items="center">
-                <Sparkles color={colors.primary} size={16} />
-                <Overline color="primary">{SOURCE_LABELS[suggestion.data.source]}</Overline>
-              </XStack>
-              <XStack gap="3" items="center">
-                <SubscriptionAvatar name={lookupName} iconKey={suggestion.data.iconKey} />
-                <YStack flex={1} gap="0.5">
-                  <Label>{suggestedCategory ?? 'Autre'}</Label>
-                  <Caption>
-                    {[
-                      suggestion.data.trialDays ? `essai usuel ${suggestion.data.trialDays} jours` : null,
-                      suggestion.data.cancelUrl ? 'lien de résiliation trouvé' : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ') || 'catégorie et logo'}
-                  </Caption>
-                </YStack>
-              </XStack>
-              <XStack gap="3">
-                <ActionButton flex={1} label="Ignorer" variant="outline" onPress={() => setHandled(lookupName)} />
-                <ActionButton flex={1} label="Appliquer" variant="primary" onPress={acceptSuggestion} />
-              </XStack>
-            </Card>
-          </Reveal>
-        ) : null}
-
-        {!lockedStatus ? (
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <Segmented
-                label="Statut"
-                value={field.value}
-                onChange={changeStatus}
-                options={[
-                  { key: 'trial', label: 'Période d’essai' },
-                  { key: 'active', label: 'Déjà actif' },
-                ]}
-              />
-            )}
-          />
-        ) : null}
-
-        <Group title="Détails">
-          <PickerRow icon={Tag} label="Catégorie" value={categoryName} onPress={() => openSheet('category')} />
-          <PickerRow
-            icon={Repeat}
-            label="Périodicité"
-            value={PERIODICITIES.find((p) => p.key === periodicity)?.label ?? ''}
-            onPress={() => openSheet('periodicity')}
-            last={status === 'cancelled'}
-          />
-          {status !== 'cancelled' ? (
-            <PickerRow icon={CalendarDays} label={dateLabel} value={formatDateFr(firstChargeDate)} onPress={pickDate} last />
+          </GlassCard>
+          {errors.name?.message || errors.amount?.message ? (
+            <YStack pt="2" px="1">
+              <FieldError onGlass message={errors.name?.message} />
+              <FieldError onGlass message={errors.amount?.message} />
+            </YStack>
           ) : null}
-        </Group>
-        <FieldError message={errors.firstChargeDate?.message} />
+        </Hero>
 
-        {funded > 0 && paymentMethod === 'revolut' ? (
-          <XStack bg="subtle" rounded="xl" p="4" gap="3" items="center">
-            <YStack w={40} h={40} rounded="full" bg="secondary" items="center" justify="center">
-              <PiggyBank color={colors.primary} size={20} />
-            </YStack>
-            <YStack flex={1} gap="0.5">
-              <Label>{`${formatEuros(funded)} à sortir du coffre`}</Label>
-              <Caption>
-                {monthly
-                  ? `à chaque prélèvement, mis de côté à ${formatEuros(monthly)} par mois · marge ${marginLabel(effectiveMargin)}`
-                  : `à chaque prélèvement · marge ${marginLabel(effectiveMargin)}`}
-              </Caption>
-            </YStack>
-          </XStack>
-        ) : null}
+        <YStack px="4" pt="5" gap="5">
+          {showSuggestion && suggestion.data ? (
+            <Reveal>
+              <Card gap="3" borderColor="primary">
+                <XStack gap="2" items="center">
+                  <Sparkles color={colors.primary} size={16} />
+                  <Overline color="primary">{SOURCE_LABELS[suggestion.data.source]}</Overline>
+                </XStack>
+                <XStack gap="3" items="center">
+                  <SubscriptionAvatar name={lookupName} iconKey={suggestion.data.iconKey} />
+                  <YStack flex={1} gap="0.5">
+                    <Label>{suggestedCategory ?? 'Autre'}</Label>
+                    <Caption>
+                      {[
+                        suggestion.data.trialDays ? `essai usuel ${suggestion.data.trialDays} jours` : null,
+                        suggestion.data.cancelUrl ? 'lien de résiliation trouvé' : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ') || 'catégorie et logo'}
+                    </Caption>
+                  </YStack>
+                </XStack>
+                <XStack gap="3">
+                  <ActionButton flex={1} label="Ignorer" variant="outline" onPress={() => setHandled(lookupName)} />
+                  <ActionButton flex={1} label="Appliquer" variant="soft" onPress={acceptSuggestion} />
+                </XStack>
+              </Card>
+            </Reveal>
+          ) : null}
 
-        {mode === 'edit' ? (
-          <Group title="Options">
-            <PickerRow
-              icon={CreditCard}
-              label="Paiement"
-              value={PAYMENT_METHODS.find((m) => m.key === paymentMethod)?.label ?? ''}
-              onPress={() => openSheet('payment')}
+          {!lockedStatus ? (
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Segmented
+                  label="Statut"
+                  value={field.value}
+                  onChange={changeStatus}
+                  options={[
+                    { key: 'trial', label: 'Période d’essai' },
+                    { key: 'active', label: 'Déjà actif' },
+                  ]}
+                />
+              )}
             />
-            <Row icon={Percent}>
-              <YStack flex={1} gap="0.5">
-                <Body>Marge</Body>
-                {marginOverrideBp === null ? (
-                  <Caption>{`globale (${marginLabel(globalMarginBp)})`}</Caption>
-                ) : (
-                  <Caption
-                    color="primary"
-                    fontWeight="600"
-                    onPress={() => setValue('marginOverrideBp', null)}
-                    accessibilityRole="button"
-                  >{`Revenir à la globale (${marginLabel(globalMarginBp)})`}</Caption>
-                )}
-              </YStack>
-              <StepButton
-                icon={Minus}
-                label="Diminuer la marge"
-                onPress={() => setValue('marginOverrideBp', Math.max(0, effectiveMargin - 50))}
-              />
-              <Amount minW={56} text="center" fontWeight="700">
-                {marginLabel(effectiveMargin)}
-              </Amount>
-              <StepButton
-                icon={Plus}
-                label="Augmenter la marge"
-                onPress={() => setValue('marginOverrideBp', Math.min(500, effectiveMargin + 50))}
-              />
-            </Row>
-            <Row icon={Link}>
-              <YStack flex={1} gap="0.5">
-                <Caption>Lien de résiliation</Caption>
-                <Controller
-                  control={control}
-                  name="cancelUrl"
-                  render={({ field }) => (
-                    <TextInput
-                      value={field.value}
-                      onChangeText={field.onChange}
-                      onBlur={field.onBlur}
-                      placeholder="https://…"
-                      placeholderTextColor={colors.muted}
-                      autoCapitalize="none"
-                      keyboardType="url"
-                      style={styles.inline}
-                      accessibilityLabel="Lien de résiliation"
-                    />
-                  )}
-                />
-                <FieldError message={errors.cancelUrl?.message} />
-              </YStack>
-            </Row>
-            <Row icon={NotebookPen} last>
-              <YStack flex={1} gap="0.5">
-                <Caption>Notes</Caption>
-                <Controller
-                  control={control}
-                  name="notes"
-                  render={({ field }) => (
-                    <TextInput
-                      value={field.value}
-                      onChangeText={field.onChange}
-                      onBlur={field.onBlur}
-                      placeholder="Identifiant, offre, rappel…"
-                      placeholderTextColor={colors.muted}
-                      multiline
-                      style={[styles.inline, styles.notes]}
-                      accessibilityLabel="Notes"
-                    />
-                  )}
-                />
-                <FieldError message={errors.notes?.message} />
-              </YStack>
-            </Row>
-          </Group>
-        ) : null}
+          ) : null}
 
-        {mode === 'create' ? (
-          <Caption text="center" px="4">
-            Seul le nom est envoyé à l’IA, jamais le montant.
-          </Caption>
-        ) : null}
-        <FieldError message={error ?? undefined} />
+          <Group title="Détails">
+            <PickerRow icon={Tag} label="Catégorie" value={categoryName} onPress={() => openSheet('category')} />
+            <PickerRow
+              icon={Repeat}
+              label="Périodicité"
+              value={PERIODICITIES.find((p) => p.key === periodicity)?.label ?? ''}
+              onPress={() => openSheet('periodicity')}
+              last={status === 'cancelled'}
+            />
+            {status !== 'cancelled' ? (
+              <PickerRow icon={CalendarDays} label={dateLabel} value={formatDateFr(firstChargeDate)} onPress={pickDate} last />
+            ) : null}
+          </Group>
+          <FieldError message={errors.firstChargeDate?.message} />
+
+          {funded > 0 && paymentMethod === 'revolut' ? (
+            <XStack bg="subtle" rounded={RADIUS.row} p="4" gap="3" items="center">
+              <YStack w={40} h={40} rounded="full" bg="secondary" items="center" justify="center">
+                <PiggyBank color={colors.primary} size={20} />
+              </YStack>
+              <YStack flex={1} gap="0.5">
+                <Label>{`${formatEuros(funded)} à sortir du coffre`}</Label>
+                <Caption>
+                  {monthly
+                    ? `à chaque prélèvement, mis de côté à ${formatEuros(monthly)} par mois · marge ${marginLabel(effectiveMargin)}`
+                    : `à chaque prélèvement · marge ${marginLabel(effectiveMargin)}`}
+                </Caption>
+              </YStack>
+            </XStack>
+          ) : null}
+
+          {mode === 'edit' ? (
+            <Group title="Options">
+              <PickerRow
+                icon={CreditCard}
+                label="Paiement"
+                value={PAYMENT_METHODS.find((m) => m.key === paymentMethod)?.label ?? ''}
+                onPress={() => openSheet('payment')}
+              />
+              <Row icon={Percent}>
+                <YStack flex={1} gap="0.5">
+                  <Body>Marge</Body>
+                  {marginOverrideBp === null ? (
+                    <Caption>{`globale (${marginLabel(globalMarginBp)})`}</Caption>
+                  ) : (
+                    <XStack>
+                      <ActionButton
+                        size="sm"
+                        variant="ghost"
+                        label={`Revenir à la globale (${marginLabel(globalMarginBp)})`}
+                        onPress={() => setValue('marginOverrideBp', null)}
+                      />
+                    </XStack>
+                  )}
+                </YStack>
+                <StepButton
+                  icon={Minus}
+                  label="Diminuer la marge"
+                  onPress={() => setValue('marginOverrideBp', Math.max(0, effectiveMargin - 50))}
+                />
+                <Amount minW={56} text="center" fontWeight="700">
+                  {marginLabel(effectiveMargin)}
+                </Amount>
+                <StepButton
+                  icon={Plus}
+                  label="Augmenter la marge"
+                  onPress={() => setValue('marginOverrideBp', Math.min(500, effectiveMargin + 50))}
+                />
+              </Row>
+              <Row icon={Link}>
+                <YStack flex={1} gap="0.5">
+                  <Caption>Lien de résiliation</Caption>
+                  <Controller
+                    control={control}
+                    name="cancelUrl"
+                    render={({ field }) => (
+                      <TextInput
+                        value={field.value}
+                        onChangeText={field.onChange}
+                        onBlur={field.onBlur}
+                        placeholder="https://…"
+                        placeholderTextColor={colors.muted}
+                        autoCapitalize="none"
+                        keyboardType="url"
+                        style={styles.inline}
+                        accessibilityLabel="Lien de résiliation"
+                      />
+                    )}
+                  />
+                  <FieldError message={errors.cancelUrl?.message} />
+                </YStack>
+              </Row>
+              <Row icon={NotebookPen} last>
+                <YStack flex={1} gap="0.5">
+                  <Caption>Notes</Caption>
+                  <Controller
+                    control={control}
+                    name="notes"
+                    render={({ field }) => (
+                      <TextInput
+                        value={field.value}
+                        onChangeText={field.onChange}
+                        onBlur={field.onBlur}
+                        placeholder="Identifiant, offre, rappel…"
+                        placeholderTextColor={colors.muted}
+                        multiline
+                        style={[styles.inline, styles.notes]}
+                        accessibilityLabel="Notes"
+                      />
+                    )}
+                  />
+                  <FieldError message={errors.notes?.message} />
+                </YStack>
+              </Row>
+            </Group>
+          ) : null}
+
+          {mode === 'create' && aiEnabled ? (
+            <Caption text="center" px="4">
+              Seul le nom est envoyé à l’IA, jamais le montant.
+            </Caption>
+          ) : null}
+          <FieldError message={error ?? undefined} />
+        </YStack>
       </ScrollView>
 
       <YStack p="4" pb={insets.bottom + 16} borderTopWidth={1} borderColor="borderColor" bg="surface">
@@ -584,10 +600,10 @@ export function SubscriptionForm({ mode, title, submitLabel, defaultValues, lock
               <YStack
                 key={key ?? 'initiale'}
                 p="1"
-                rounded="xl"
+                rounded={RADIUS.control + 4}
                 borderWidth={2}
                 borderColor={iconKey === key ? 'primary' : 'surface'}
-                scale="1 press:0.94"
+                scale="1 press:0.985"
                 transition="fast"
                 onPress={() => {
                   haptic.select();
@@ -605,14 +621,15 @@ export function SubscriptionForm({ mode, title, submitLabel, defaultValues, lock
           </XStack>
         ) : null}
       </BottomSheet>
-    </YStack>
+    </SheetScreen>
   );
 }
 
 const styles = StyleSheet.create({
   badge: { position: 'absolute', right: -6, bottom: -6 },
-  name: { fontSize: 22, fontWeight: '700', color: colors.text, textAlign: 'center', paddingVertical: 4 },
-  amount: { fontSize: 44, fontWeight: '700', color: colors.text, padding: 0, minWidth: 40, fontVariant: ['tabular-nums'] },
+  name: { fontSize: 17, fontWeight: '700', color: colors.onGlass, padding: 0 },
+  amount: { fontSize: 26, fontFamily: DISPLAY_FONT, color: colors.onGlass, padding: 0, minWidth: 56, fontVariant: ['tabular-nums'] },
+  currency: { fontSize: 20, fontFamily: DISPLAY_FONT },
   inline: { fontSize: 16, color: colors.text, padding: 0 },
   notes: { minHeight: 48, textAlignVertical: 'top' },
 });

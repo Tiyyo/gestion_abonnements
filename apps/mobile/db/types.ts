@@ -9,13 +9,7 @@ export type ChargeStatus = 'planned' | 'funded' | 'paid' | 'failed' | 'unfunded'
 export type TransferType = 'payday' | 'vault_to_main' | 'residual_return';
 export type TransferStatus = 'planned' | 'done' | 'skipped';
 export type EventType =
-  | 'price_change'
-  | 'unexpected_charge'
-  | 'duplicate'
-  | 'post_cancel_charge'
-  | 'charge_failed'
-  | 'status_change'
-  | 'note';
+  'price_change' | 'unexpected_charge' | 'duplicate' | 'post_cancel_charge' | 'charge_failed' | 'status_change' | 'note';
 export type NotificationKind = 'funding' | 'trial_end' | 'cancel_end' | 'payday' | 'residual';
 
 export interface SettingsTable {
@@ -29,6 +23,8 @@ export interface SettingsTable {
   cancel_reminder_days: Generated<string>;
   biometric_lock: Generated<Flag>;
   onboarding_done: Generated<Flag>;
+  reminders_enabled: Generated<Flag>;
+  ai_suggestion_enabled: Generated<Flag>;
   updated_at: Generated<string>;
 }
 

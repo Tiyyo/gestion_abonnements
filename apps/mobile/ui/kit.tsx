@@ -1,3 +1,4 @@
+import { formatEuros } from '@abonnements/core';
 import { router } from 'expo-router';
 import { CalendarDays, ChevronLeft, type LucideIcon } from 'lucide-react-native';
 import type { ReactNode } from 'react';
@@ -16,6 +17,9 @@ export const colors = {
   border: String(palette.borderColor?.val ?? '#E3E6E3'),
   danger: String(palette.dangerText?.val ?? '#8A1C1C'),
   warn: String(palette.warnText?.val ?? '#7A3E00'),
+  background: String(palette.background?.val ?? '#F5F6F4'),
+  surface: String(palette.surface?.val ?? '#FFFFFF'),
+  borderControl: String(palette.borderControl?.val ?? '#838C94'),
   scrim: String(palette.scrim?.val ?? 'rgba(20, 24, 27, 0.5)'),
   onGlass: String(palette.onGlass?.val ?? '#FFFFFF'),
   onGlassMuted: String(palette.onGlassMuted?.val ?? 'rgba(255, 255, 255, 0.72)'),
@@ -93,6 +97,23 @@ export const Display = styled(Text, {
   fontVariant: TABULAR as unknown as never,
 });
 
+/** Grand montant en verre : euros en blanc, « ,27 € » plus petit et atténué. */
+export function HeroAmount({ cents }: { cents: number | null }) {
+  if (cents === null) {
+    return <Display color="onGlassMuted">—</Display>;
+  }
+  const text = formatEuros(cents);
+  const comma = text.lastIndexOf(',');
+  return (
+    <Display color="onGlass" accessibilityLabel={text}>
+      {text.slice(0, comma)}
+      <Display fontSize={22} color="onGlassMuted">
+        {text.slice(comma)}
+      </Display>
+    </Display>
+  );
+}
+
 export type Tone = 'plain' | 'accent' | 'warn' | 'danger' | 'ok';
 
 // L'élévation passe par l'ombre (teintée selon le ton), plus par la bordure.
@@ -149,7 +170,8 @@ export function ListCard({ children, onPress, accessibilityLabel, ...props }: YS
   );
 }
 
-export type ButtonVariant = 'primary' | 'secondary' | 'soft' | 'outline' | 'onAccent' | 'danger' | 'dangerSolid' | 'warn' | 'ghost';
+export type ButtonVariant =
+  'primary' | 'secondary' | 'soft' | 'outline' | 'onAccent' | 'danger' | 'dangerSolid' | 'warn' | 'ghost' | 'glassGhost';
 
 const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }> = {
   primary: { bg: 'primary', border: 'primary', fg: 'onPrimary' },
@@ -161,6 +183,7 @@ const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }>
   dangerSolid: { bg: 'dangerText', border: 'dangerText', fg: 'onPrimary' },
   warn: { bg: 'warnText', border: 'warnText', fg: 'onPrimary' },
   ghost: { bg: 'transparent', border: 'transparent', fg: 'primary' },
+  glassGhost: { bg: 'transparent', border: 'transparent', fg: 'onGlass' },
 };
 
 const FILLED = new Set<ButtonVariant>(['primary', 'secondary', 'warn', 'dangerSolid']);
@@ -188,10 +211,10 @@ export function ActionButton({
 }) {
   const inactive = disabled || loading;
   const v = BUTTONS[variant];
-  const ghostOrAccent = variant === 'ghost' || variant === 'onAccent';
+  const ghostOrAccent = variant === 'ghost' || variant === 'onAccent' || variant === 'glassGhost';
   const bg = inactive && !ghostOrAccent ? 'subtle' : v.bg;
   const border = inactive && !ghostOrAccent ? 'subtle' : v.border;
-  const fg = inactive ? (variant === 'onAccent' ? 'onPrimary' : 'colorMuted') : v.fg;
+  const fg = inactive ? (variant === 'onAccent' || variant === 'glassGhost' ? 'onGlassMuted' : 'colorMuted') : v.fg;
   return (
     <Button
       flex={flex}
@@ -285,13 +308,23 @@ export function ScreenHeader({
   );
 }
 
-export function StackHeader({ title, trailing, onBack }: { title?: string; trailing?: ReactNode; onBack?: () => void }) {
+export function StackHeader({
+  title,
+  trailing,
+  onBack,
+  onHero,
+}: {
+  title?: string;
+  trailing?: ReactNode;
+  onBack?: () => void;
+  onHero?: boolean;
+}) {
   return (
-    <XStack px="2" minH={52} items="center" gap="1">
-      <IconButton icon={ChevronLeft} label="Retour" variant="ghost" onPress={onBack ?? (() => router.back())} />
+    <XStack px="2" minH={52} items="center" gap="2">
+      <IconButton icon={ChevronLeft} label="Retour" variant={onHero ? 'glass' : 'ghost'} onPress={onBack ?? (() => router.back())} />
       <YStack flex={1}>
         {title ? (
-          <Heading numberOfLines={1} fontSize={22}>
+          <Heading numberOfLines={1} fontSize={22} color={onHero ? 'onGlass' : 'color'}>
             {title}
           </Heading>
         ) : null}

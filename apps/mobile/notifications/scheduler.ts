@@ -67,6 +67,12 @@ async function rescheduleNow(database: Kysely<DB>): Promise<void> {
   await database.deleteFrom('scheduled_notification').where('fire_at', '>', nowKey).execute();
   await database.deleteFrom('scheduled_notification').where('fire_at', '<', addMonthsAnchored(now.date, -PURGE_MONTHS, 1)).execute();
 
+  // Rappels coupés dans les Réglages : tout est annulé ci-dessus, rien n'est replanifié.
+  const settings = await database.selectFrom('settings').select('reminders_enabled').where('id', '=', 1).executeTakeFirst();
+  if (settings?.reminders_enabled === 0) {
+    return;
+  }
+
   for (const n of await planNotifications(database, now)) {
     const osId = await schedule(n);
     await database

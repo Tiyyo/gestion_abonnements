@@ -7,7 +7,8 @@ import {
   periodMonths,
   type SubscriptionStatus,
 } from '@abonnements/core';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronDown, Plus } from 'lucide-react-native';
@@ -18,6 +19,7 @@ import { useSubscriptions } from '../../features/subscriptions';
 import { formatDayMonth } from '../../ui/format';
 import { Appear, haptic, Reveal, Settle } from '../../ui/motion';
 import { ActionButton, Amount, Caption, Card, colors, EmptyState, IconButton, Label, Overline, ScreenHeader, TOP_GAP } from '../../ui/kit';
+import { Hero } from '../../ui/Hero';
 import { TAB_BAR_CLEARANCE } from '../../ui/TabBar';
 import { SubscriptionAvatar } from '../../ui/SubscriptionAvatar';
 
@@ -105,6 +107,7 @@ function byNextDate(a: SubscriptionRow, b: SubscriptionRow): number {
 
 export default function SubscriptionsScreen() {
   const insets = useSafeAreaInsets();
+  const focused = useIsFocused();
   const subscriptions = useSubscriptions();
   const settings = useSettings();
   const [showCancelled, setShowCancelled] = useState(false);
@@ -119,14 +122,18 @@ export default function SubscriptionsScreen() {
   const globalMarginBp = settings.data?.global_margin_bp ?? 0;
 
   return (
-    <YStack flex={1} bg="background" pt={insets.top + TOP_GAP.tab}>
-      <ScreenHeader
-        overline={`${count} abonnement${count > 1 ? 's' : ''} en cours`}
-        title="Abonnements"
-        trailing={
-          <IconButton icon={Plus} label="Ajouter un abonnement" variant="primary" onPress={() => router.push('/subscriptions/new')} />
-        }
-      />
+    <YStack flex={1} bg="background">
+      {focused ? <StatusBar style="light" /> : null}
+      <Hero pt={insets.top + TOP_GAP.tab} pb="4">
+        <ScreenHeader
+          onHero
+          overline={`${count} abonnement${count > 1 ? 's' : ''} en cours`}
+          title="Abonnements"
+          trailing={
+            <IconButton icon={Plus} label="Ajouter un abonnement" variant="glass" onPress={() => router.push('/subscriptions/new')} />
+          }
+        />
+      </Hero>
 
       {subscriptions.isPending ? (
         <Spinner mt="8" color="primary" />

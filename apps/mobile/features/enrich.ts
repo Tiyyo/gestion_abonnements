@@ -81,11 +81,12 @@ export function fromEnrich(response: EnrichResponse): Suggestion {
   };
 }
 
-export function useSuggestion(name: string) {
+/** `aiEnabled` à false (interrupteur des Réglages) : rien n'est envoyé à /enrich, seules les corrections et les marques connues servent. */
+export function useSuggestion(name: string, aiEnabled = true) {
   const db = useDb();
   const key = normalizeName(name);
   return useQuery({
-    queryKey: ['suggestion', key],
+    queryKey: ['suggestion', key, aiEnabled],
     enabled: key.length >= 2,
     staleTime: Infinity,
     queryFn: async (): Promise<Suggestion | null> => {
@@ -99,7 +100,7 @@ export function useSuggestion(name: string) {
           trialDays: null,
         };
       }
-      const config = readEnrichConfig();
+      const config = aiEnabled ? readEnrichConfig() : null;
       const ai = config ? await callEnrich(name, config) : null;
       if (ai) {
         return fromEnrich(ai);

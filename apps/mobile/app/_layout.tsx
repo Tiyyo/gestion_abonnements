@@ -19,6 +19,8 @@ import { DialogHost } from '../ui/dialog';
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 const MODAL = { presentation: 'modal', animation: 'slide_from_bottom', gestureEnabled: false } as const;
+// Feuille du bas (ui/SheetScreen) : l'écran précédent reste visible derrière ; la feuille glisse elle-même, la route ne fait qu'un fondu.
+const SHEET = { presentation: 'transparentModal', animation: 'fade', gestureEnabled: false } as const;
 
 function NotificationRouting() {
   const response = Notifications.useLastNotificationResponse();
@@ -53,8 +55,8 @@ function AppContent() {
     <LockGate enabled={settings.data.biometric_lock === 1}>
       <Stack screenOptions={{ headerShown: false, animation: 'ios_from_right' }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="subscriptions/new" options={MODAL} />
-        <Stack.Screen name="subscriptions/edit/[id]" options={MODAL} />
+        <Stack.Screen name="subscriptions/new" options={SHEET} />
+        <Stack.Screen name="subscriptions/edit/[id]" options={SHEET} />
         <Stack.Screen name="charges/[id]" options={MODAL} />
         <Stack.Screen name="charges/unknown" options={MODAL} />
       </Stack>

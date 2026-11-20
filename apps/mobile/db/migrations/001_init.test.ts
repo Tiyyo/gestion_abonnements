@@ -35,19 +35,28 @@ describe('migration 001_init', () => {
 
   it('rejette une marge de surcharge supérieure à 5 %', async () => {
     await expect(
-      db.insertInto('subscription').values({ ...baseSubscription, margin_override_bp: 501 }).execute(),
+      db
+        .insertInto('subscription')
+        .values({ ...baseSubscription, margin_override_bp: 501 })
+        .execute(),
     ).rejects.toThrow();
   });
 
   it('rejette un essai sans date de fin ni montant après essai', async () => {
     await expect(
-      db.insertInto('subscription').values({ ...baseSubscription, status: 'trial' }).execute(),
+      db
+        .insertInto('subscription')
+        .values({ ...baseSubscription, status: 'trial' })
+        .execute(),
     ).rejects.toThrow();
   });
 
   it('rejette un abonnement à résilier sans fin de période', async () => {
     await expect(
-      db.insertInto('subscription').values({ ...baseSubscription, status: 'to_cancel' }).execute(),
+      db
+        .insertInto('subscription')
+        .values({ ...baseSubscription, status: 'to_cancel' })
+        .execute(),
     ).rejects.toThrow();
   });
 
@@ -81,8 +90,16 @@ describe('migration 001_init', () => {
   it('interdit deux prélèvements identiques pour le même abonnement et la même date', async () => {
     await db.insertInto('subscription').values(baseSubscription).execute();
     const charge = { subscription_id: 'sub-1', due_date: '2026-11-21', expected_amount_cents: 1199 };
-    await db.insertInto('charge').values({ id: 'c-1', ...charge }).execute();
-    await expect(db.insertInto('charge').values({ id: 'c-2', ...charge }).execute()).rejects.toThrow();
+    await db
+      .insertInto('charge')
+      .values({ id: 'c-1', ...charge })
+      .execute();
+    await expect(
+      db
+        .insertInto('charge')
+        .values({ id: 'c-2', ...charge })
+        .execute(),
+    ).rejects.toThrow();
   });
 
   it('supprime les prélèvements en cascade avec leur abonnement', async () => {

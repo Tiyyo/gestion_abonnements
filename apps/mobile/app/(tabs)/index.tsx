@@ -1,6 +1,5 @@
 import { diffDays, formatEuros, todayIn } from '@abonnements/core';
 import { router, useIsFocused } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { ChartColumn } from 'lucide-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
@@ -35,7 +34,7 @@ import {
 } from '../../ui/kit';
 import { pickRescheduleDate } from '../../ui/reschedule';
 import { showDialog, showError } from '../../ui/dialog';
-import { Hero } from '../../ui/Hero';
+import { Hero, HeroStatusBar, useHeroStatusBar } from '../../ui/Hero';
 import { Appear } from '../../ui/motion';
 import { TAB_BAR_CLEARANCE } from '../../ui/TabBar';
 
@@ -178,6 +177,7 @@ function QuestionCard({
 export default function HomeScreen() {
   useDailyMaintenance();
   const insets = useSafeAreaInsets();
+  const heroBar = useHeroStatusBar();
   const focused = useIsFocused();
   const today = todayIn();
   const home = useHome();
@@ -212,8 +212,10 @@ export default function HomeScreen() {
   };
   return (
     <YStack flex={1} bg="background">
-      {focused ? <StatusBar style="light" /> : null}
+      <HeroStatusBar past={heroBar.past} active={focused} />
       <ScrollView
+        onScroll={heroBar.onScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: insets.bottom + TAB_BAR_CLEARANCE }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} progressViewOffset={insets.top} />

@@ -4,7 +4,7 @@ import { XStack } from 'tamagui';
 import { ConsentExpiredError, daysUntil, RENEWAL_NOTICE_DAYS, useBalances, vaultShortfallCents } from '../features/balances';
 import { readBalancesConfig } from '../features/function-config';
 import { GlassCard, GlassPanel } from '../ui/Glass';
-import { Amount, Caption, colors, Display } from '../ui/kit';
+import { Amount, Caption, colors, HeroAmount } from '../ui/kit';
 import { formatDayMonth } from '../ui/format';
 import { haptic } from '../ui/motion';
 
@@ -25,27 +25,6 @@ function Notice({ icon: Icon, color, tone, children }: { icon: LucideIcon; color
         {children}
       </Caption>
     </XStack>
-  );
-}
-
-function splitEuros(cents: number): [string, string] {
-  const text = formatEuros(cents);
-  const comma = text.lastIndexOf(',');
-  return [text.slice(0, comma), text.slice(comma)];
-}
-
-function VaultTotal({ cents }: { cents: number | null }) {
-  if (cents === null) {
-    return <Display color="onGlassMuted">—</Display>;
-  }
-  const [units, rest] = splitEuros(cents);
-  return (
-    <Display color="onGlass" accessibilityLabel={formatEuros(cents)}>
-      {units}
-      <Display fontSize={22} color="onGlassMuted">
-        {rest}
-      </Display>
-    </Display>
   );
 }
 
@@ -98,7 +77,7 @@ export function BalancesCard({ pendingTransfersCents }: { pendingTransfersCents:
         </XStack>
       </XStack>
 
-      <VaultTotal cents={data?.vault.amountCents ?? null} />
+      <HeroAmount cents={data?.vault.amountCents ?? null} />
 
       <XStack gap="2">
         <Pocket label="Compte" cents={data?.current.amountCents ?? null} />

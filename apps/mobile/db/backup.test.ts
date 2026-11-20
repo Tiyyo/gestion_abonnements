@@ -19,7 +19,16 @@ async function seeded(): Promise<Kysely<DB>> {
   await db.updateTable('settings').set({ global_margin_bp: 250, payday_day: 28 }).execute();
   await createSubscription(
     db,
-    { name: 'Spotify', amountCents: 1199, periodUnit: 'month', periodCount: 1, status: 'active', firstChargeDate: '2026-11-21', categoryId: 'cat-musique', iconKey: 'spotify' },
+    {
+      name: 'Spotify',
+      amountCents: 1199,
+      periodUnit: 'month',
+      periodCount: 1,
+      status: 'active',
+      firstChargeDate: '2026-11-21',
+      categoryId: 'cat-musique',
+      iconKey: 'spotify',
+    },
     today,
     randomUUID,
   );
@@ -43,12 +52,20 @@ describe('export / import', () => {
     expect(file.migration).toBe(LATEST_MIGRATION);
 
     const target = await freshDb();
-    await createSubscription(target, { name: 'Ancien', amountCents: 100, periodUnit: 'month', periodCount: 1, status: 'active', firstChargeDate: '2026-11-30' }, today, randomUUID);
+    await createSubscription(
+      target,
+      { name: 'Ancien', amountCents: 100, periodUnit: 'month', periodCount: 1, status: 'active', firstChargeDate: '2026-11-30' },
+      today,
+      randomUUID,
+    );
     await importData(target, file, await exportData(target));
 
     expect(await counts(target)).toEqual(await counts(source));
     expect(await target.selectFrom('subscription').select('name').execute()).toEqual([{ name: 'Spotify' }]);
-    expect(await target.selectFrom('settings').select(['global_margin_bp', 'payday_day']).executeTakeFirst()).toEqual({ global_margin_bp: 250, payday_day: 28 });
+    expect(await target.selectFrom('settings').select(['global_margin_bp', 'payday_day']).executeTakeFirst()).toEqual({
+      global_margin_bp: 250,
+      payday_day: 28,
+    });
   });
 
   it('importe un fichier d’une migration plus ancienne puis remonte à la dernière', async () => {
@@ -59,7 +76,7 @@ describe('export / import', () => {
       migration: '001_init',
       tables: {
         ...file.tables,
-        settings: file.tables.settings.map(({ onboarding_done: _o, ...rest }) => rest),
+        settings: file.tables.settings.map(({ onboarding_done: _o, reminders_enabled: _r, ai_suggestion_enabled: _a, ...rest }) => rest),
         transfer: file.tables.transfer.map(({ rescheduled_date: _r, ...rest }) => rest),
       },
     };
@@ -67,13 +84,33 @@ describe('export / import', () => {
     await importData(target, parseExport(JSON.stringify(old)), await exportData(target));
     expect(await counts(target)).toEqual(await counts(source));
     expect(await target.selectFrom('transfer').select('rescheduled_date').executeTakeFirst()).toEqual({ rescheduled_date: null });
+    expect(await target.selectFrom('settings').select(['reminders_enabled', 'ai_suggestion_enabled']).executeTakeFirst()).toEqual({
+      reminders_enabled: 1,
+      ai_suggestion_enabled: 1,
+    });
   });
 
   it('refuse un fichier invalide ou plus récent que l’app, sans toucher à la base', () => {
     expect(() => parseExport('pas du json')).toThrow(ImportError);
     expect(() => parseExport(JSON.stringify({ format: 1 }))).toThrow(/format d’export/);
     expect(() =>
-      parseExport(JSON.stringify({ format: 1, migration: '999_futur', exportedAt: 'x', tables: { settings: [{ id: 1 }], category: [], subscription: [], charge: [], transfer: [], transfer_charge: [], event: [], ai_correction: [] } })),
+      parseExport(
+        JSON.stringify({
+          format: 1,
+          migration: '999_futur',
+          exportedAt: 'x',
+          tables: {
+            settings: [{ id: 1 }],
+            category: [],
+            subscription: [],
+            charge: [],
+            transfer: [],
+            transfer_charge: [],
+            event: [],
+            ai_correction: [],
+          },
+        }),
+      ),
     ).toThrow(/mets à jour l’app/);
   });
 

@@ -10,7 +10,7 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
       borderWidth={1}
       borderColor={selected ? 'primary' : 'borderControl'}
       backgroundColor={selected ? 'secondary' : 'surface'}
-      scale="1 press:0.98"
+      scale="1 press:0.985"
       transition="fast"
       onPress={() => {
         haptic.select();

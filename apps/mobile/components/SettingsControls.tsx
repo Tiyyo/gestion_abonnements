@@ -23,7 +23,7 @@ export function PaydayGrid({ value, onChange }: { value: number; onChange: (day:
             bg={value === day ? 'primary' : 'surface'}
             borderWidth={1}
             borderColor={value === day ? 'primary' : 'borderControl'}
-            scale="1 press:0.96"
+            scale="1 press:0.985"
             transition="fast"
             onPress={() => {
               haptic.select();
@@ -53,7 +53,7 @@ export function MarginStepper({ value, onChange }: { value: number; onChange: (b
         borderWidth={1}
         borderColor="borderControl"
         disabled={value <= 0}
-        scale="1 press:0.96"
+        scale="1 press:0.985"
         transition="fast"
         onPress={() => {
           haptic.select();
@@ -74,7 +74,7 @@ export function MarginStepper({ value, onChange }: { value: number; onChange: (b
         borderWidth={1}
         borderColor="borderControl"
         disabled={value >= 500}
-        scale="1 press:0.96"
+        scale="1 press:0.985"
         transition="fast"
         onPress={() => {
           haptic.select();

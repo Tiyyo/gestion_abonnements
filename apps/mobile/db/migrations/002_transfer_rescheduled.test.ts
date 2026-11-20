@@ -18,10 +18,7 @@ afterEach(async () => {
 
 describe('migration 002_transfer_rescheduled', () => {
   it('ajoute une date de report vide par défaut', async () => {
-    await db
-      .insertInto('transfer')
-      .values({ id: 't-1', type: 'vault_to_main', planned_date: '2026-11-20', amount_cents: 1235 })
-      .execute();
+    await db.insertInto('transfer').values({ id: 't-1', type: 'vault_to_main', planned_date: '2026-11-20', amount_cents: 1235 }).execute();
     const row = await db.selectFrom('transfer').select('rescheduled_date').executeTakeFirstOrThrow();
     expect(row.rescheduled_date).toBeNull();
   });

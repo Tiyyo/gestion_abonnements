@@ -3,12 +3,15 @@ import { XStack, YStack } from 'tamagui';
 import { Body, Caption, Card, Overline } from './kit';
 import { Settle } from './motion';
 
-export function Section({ title, children }: { title: string; children: ReactNode }) {
+/** `onHero` : premier bloc qui chevauche le dégradé du Hero (titre en blanc, carte surélevée). */
+export function Section({ title, children, onHero }: { title: string; children: ReactNode; onHero?: boolean }) {
   return (
     <Settle>
       <YStack gap="2">
-        <Overline px="1">{title}</Overline>
-        <Card py="0" gap="0">
+        <Overline px="1" color={onHero ? 'onGlassMuted' : undefined}>
+          {title}
+        </Overline>
+        <Card py="0" gap="0" lift={onHero}>
           {children}
         </Card>
       </YStack>

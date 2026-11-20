@@ -19,6 +19,7 @@
     "@tamagui/config": "3.3.3",
     "@tanstack/react-query": "^5.108.0",
     "expo": "~58.0.26",
+    "expo-battery": "~58.0.4",
     "expo-blur": "~58.0.6",
     "expo-constants": "~58.0.16",
     "expo-crypto": "~58.0.8",
