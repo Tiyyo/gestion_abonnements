@@ -92,12 +92,8 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
     (raw) => {
       const submitted = auto.classify(raw);
       const aiSuggestion = lookup.suggestion?.source === 'ai' ? JSON.stringify(lookup.suggestion) : null;
-      onSubmit(
-        submitted,
-        auto.touched ? { categoryId: submitted.categoryId, iconKey: submitted.iconKey ?? 'tag' } : null,
-        aiSuggestion,
-        guard.leave,
-      );
+      const manual = auto.touched ? { categoryId: submitted.categoryId, iconKey: submitted.iconKey ?? 'tag' } : null;
+      onSubmit(submitted, manual, aiSuggestion, guard.leave);
     },
     () => haptic.error(),
   );
