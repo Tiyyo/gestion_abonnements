@@ -26,6 +26,7 @@ export function SecurityDataSection({ settings, save }: { settings: Settings; sa
       <SettingRow label="Verrouillage biométrique" hint={bioAvailable ? undefined : 'Aucune empreinte enregistrée sur le téléphone'}>
         <Toggle
           label="Verrouillage biométrique"
+          testID="settings.biometric-lock"
           value={settings.biometric_lock === 1 && bioAvailable}
           disabled={!bioAvailable}
           onChange={(checked) => toggleBiometric(checked)}

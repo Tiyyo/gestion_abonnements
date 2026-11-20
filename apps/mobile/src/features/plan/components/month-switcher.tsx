@@ -17,11 +17,11 @@ export function MonthSwitcher({ year, month, onShift }: { year: number; month: n
       rounded={RADIUS.pill}
       p="1"
     >
-      <IconButton icon={ChevronLeft} label="Voir le mois précédent" variant="glass" onPress={() => onShift(-1)} />
+      <IconButton icon={ChevronLeft} label="Voir le mois précédent" variant="glass" onPress={() => onShift(-1)} testID="plan.month-prev" />
       <Label fontSize={17} color="onGlass" accessibilityRole="header" accessibilityLiveRegion="polite" shrink={1} text="center">
         {monthYearTitle(year, month)}
       </Label>
-      <IconButton icon={ChevronRight} label="Voir le mois suivant" variant="glass" onPress={() => onShift(1)} />
+      <IconButton icon={ChevronRight} label="Voir le mois suivant" variant="glass" onPress={() => onShift(1)} testID="plan.month-next" />
     </XStack>
   );
 }

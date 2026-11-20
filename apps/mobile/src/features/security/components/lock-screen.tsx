@@ -26,7 +26,7 @@ export function LockScreen({ onUnlock }: { onUnlock: () => void }) {
           <Lock color={colors.onGlassMuted} size={18} strokeWidth={2} />
           <Body color="onGlass">L’app est verrouillée.</Body>
         </XStack>
-        <ActionButton size="lg" label="Déverrouiller" variant="secondary" onPress={onUnlock} />
+        <ActionButton size="lg" label="Déverrouiller" variant="secondary" onPress={onUnlock} testID="lock.unlock" />
       </GlassCard>
     </Hero>
   );

@@ -21,11 +21,13 @@ export function Toggle({
   onChange,
   disabled,
   label,
+  testID,
 }: {
   value: boolean;
   onChange: (value: boolean) => void;
   disabled?: boolean;
   label: string;
+  testID?: string;
 }) {
   const on = useSharedValue(value ? 1 : 0);
   useEffect(() => {
@@ -48,6 +50,7 @@ export function Toggle({
       accessibilityRole="switch"
       accessibilityState={{ checked: value, disabled }}
       accessibilityLabel={label}
+      testID={testID}
       style={{ opacity: disabled ? 0.45 : 1 }}
     >
       <Animated.View style={[styles.track, track]}>

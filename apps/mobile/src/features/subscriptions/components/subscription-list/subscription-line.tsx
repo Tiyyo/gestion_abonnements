@@ -4,6 +4,7 @@ import { XStack, YStack } from 'tamagui';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
 import { SubscriptionAvatar } from '@/features/subscriptions/components/subscription-avatar';
 import { lineAccessibilityLabel, lineSubtitle, periodSuffix } from '@/features/subscriptions/subscription-groups';
+import { testIdSlug } from '@/lib/test-id';
 import { Amount, Caption, Label } from '@/ui/text/typography';
 
 export function SubscriptionLine({ row, globalMarginBp, last }: { row: SubscriptionRow; globalMarginBp: number; last: boolean }) {
@@ -17,6 +18,7 @@ export function SubscriptionLine({ row, globalMarginBp, last }: { row: Subscript
       borderBottomWidth={last ? 0 : 1}
       borderColor="borderColor"
       onPress={() => router.push(`/subscriptions/${row.id}`)}
+      testID={`subscriptions.row-${testIdSlug(row.name)}`}
       opacity="1 press:0.6"
       transition="fast"
       accessible

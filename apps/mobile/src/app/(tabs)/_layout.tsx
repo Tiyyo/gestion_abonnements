@@ -24,8 +24,12 @@ export default function TabsLayout() {
           screenListeners={{ tabPress: () => haptic.select() }}
           screenOptions={{ headerShown: false, animation: 'shift', lazy: false }}
         >
-          {TABS.map(({ name, title, icon: Icon }) => (
-            <Tabs.Screen key={name} name={name} options={{ title, tabBarIcon: ({ color, size }) => <Icon color={color} size={size} /> }} />
+          {TABS.map(({ name, title, icon: Icon, testID }) => (
+            <Tabs.Screen
+              key={name}
+              name={name}
+              options={{ title, tabBarButtonTestID: testID, tabBarIcon: ({ color, size }) => <Icon color={color} size={size} /> }}
+            />
           ))}
         </Tabs>
       </BlurTargetView>

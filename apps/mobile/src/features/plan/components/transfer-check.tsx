@@ -27,6 +27,7 @@ export function TransferCheck({
       accessibilityRole="checkbox"
       accessibilityState={{ checked: done }}
       accessibilityLabel={label}
+      testID="plan.transfer-check"
     >
       <YStack
         w={26}

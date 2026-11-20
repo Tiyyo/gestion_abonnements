@@ -49,7 +49,9 @@ export function Onboarding() {
       </ScrollView>
 
       <XStack px="4" gap="3">
-        {step > 0 && <ActionButton flex={1} size="lg" label="Retour" variant="glass" onPress={() => setStep(step - 1)} />}
+        {step > 0 && (
+          <ActionButton flex={1} size="lg" label="Retour" variant="glass" onPress={() => setStep(step - 1)} testID="onboarding.back" />
+        )}
         <ActionButton
           flex={1}
           size="lg"
@@ -57,6 +59,7 @@ export function Onboarding() {
           variant="secondary"
           loading={update.isPending}
           onPress={() => (lastStep ? finish() : setStep(step + 1))}
+          testID="onboarding.next"
         />
       </XStack>
     </Hero>

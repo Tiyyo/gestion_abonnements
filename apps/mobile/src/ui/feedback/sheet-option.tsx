@@ -12,6 +12,7 @@ export function SheetOption({
   leading,
   last,
   onPress,
+  testID,
 }: {
   label: string;
   hint?: string;
@@ -19,6 +20,7 @@ export function SheetOption({
   leading?: ReactNode;
   last?: boolean;
   onPress: () => void;
+  testID?: string;
 }) {
   return (
     <XStack
@@ -36,6 +38,7 @@ export function SheetOption({
       transition="fast"
       accessible
       tabIndex={0}
+      testID={testID}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
       accessibilityLabel={hint ? `${label}, ${hint}` : label}

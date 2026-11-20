@@ -19,16 +19,24 @@ interface Props {
 export function DetailsGroup({ categoryName, periodicity, status, firstChargeDate, onOpen, onPickDate }: Props) {
   return (
     <FormGroup title="Détails">
-      <PickerRow icon={Tag} label="Catégorie" value={categoryName} onPress={() => onOpen('category')} />
+      <PickerRow icon={Tag} label="Catégorie" value={categoryName} onPress={() => onOpen('category')} testID="subscription-form.category" />
       <PickerRow
         icon={Repeat}
         label="Périodicité"
         value={periodicityLabel(periodicity)}
         onPress={() => onOpen('periodicity')}
+        testID="subscription-form.periodicity"
         last={status === 'cancelled'}
       />
       {status !== 'cancelled' ? (
-        <PickerRow icon={CalendarDays} label={dateLabel(status)} value={dateShort(firstChargeDate, todayIn())} onPress={onPickDate} last />
+        <PickerRow
+          icon={CalendarDays}
+          label={dateLabel(status)}
+          value={dateShort(firstChargeDate, todayIn())}
+          onPress={onPickDate}
+          last
+          testID="subscription-form.date"
+        />
       ) : null}
     </FormGroup>
   );

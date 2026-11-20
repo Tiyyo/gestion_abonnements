@@ -13,6 +13,7 @@ export function AmountInput({ control, trial }: { control: Control<SubscriptionF
           onChangeText={field.onChange}
           onBlur={field.onBlur}
           accessibilityLabel={trial ? 'Montant après l’essai, en euros' : 'Montant en euros'}
+          testID="subscription-form.amount"
         />
       )}
     />

@@ -46,19 +46,27 @@ export function DialogSheet({ dialog, onClose }: { dialog: Dialog; onClose: (but
             label={main.text}
             variant={main.style === 'destructive' ? 'dangerSolid' : 'primary'}
             onPress={() => onClose(main)}
+            testID="dialog.confirm"
           />
         ) : null}
-        {others.map((b) => (
+        {others.map((b, index) => (
           <ActionButton
             key={b.text}
             size="lg"
             label={b.text}
             variant={b.style === 'destructive' ? 'danger' : 'outline'}
             onPress={() => onClose(b)}
+            testID={`dialog.other-${index}`}
           />
         ))}
         {cancel ? (
-          <ActionButton size="lg" label={cancel.text} variant={main ? 'ghost' : 'outline'} onPress={() => onClose(cancel)} />
+          <ActionButton
+            size="lg"
+            label={cancel.text}
+            variant={main ? 'ghost' : 'outline'}
+            onPress={() => onClose(cancel)}
+            testID="dialog.cancel"
+          />
         ) : null}
       </YStack>
     </SheetPanel>

@@ -30,6 +30,7 @@ export function NextTransferCard({ transfer, today, busy, onDone, onReschedule, 
             variant="primary"
             disabled={busy}
             onPress={onDone}
+            testID="home.next-done"
           />
           <ActionButton
             flex={1}
@@ -38,6 +39,7 @@ export function NextTransferCard({ transfer, today, busy, onDone, onReschedule, 
             variant="soft"
             disabled={busy}
             onPress={onReschedule}
+            testID="home.next-reschedule"
           />
         </>
       }

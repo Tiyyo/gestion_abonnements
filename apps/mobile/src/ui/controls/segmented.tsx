@@ -10,6 +10,7 @@ export function Segmented<T extends string>({
   value,
   onChange,
   onGlass,
+  testID,
 }: {
   label: string;
   options: readonly { key: T; label: string }[];
@@ -17,6 +18,8 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void;
   /** Posé sur le dégradé du Hero : fond en verre, segment choisi blanc, texte aubergine. */
   onGlass?: boolean;
+  /** Préfixe des sélecteurs de test : chaque segment reçoit `<testID>-<clé>`. */
+  testID?: string;
 }) {
   return (
     <XStack
@@ -53,6 +56,7 @@ export function Segmented<T extends string>({
             accessibilityRole="radio"
             accessibilityState={{ checked: selected }}
             accessibilityLabel={o.label}
+            testID={testID ? `${testID}-${o.key}` : undefined}
           >
             <Text
               fontSize={15}

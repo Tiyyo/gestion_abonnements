@@ -11,6 +11,7 @@ export function UpcomingChargeRow({ upcoming }: { upcoming: HomeUpcoming }) {
   return (
     <ListCard
       onPress={() => router.push(`/subscriptions/${upcoming.subscriptionId}`)}
+      testID="home.upcoming-row"
       accessibilityLabel={upcomingAccessibilityLabel(upcoming)}
       accessibilityHint="Ouvre la fiche de l’abonnement"
     >

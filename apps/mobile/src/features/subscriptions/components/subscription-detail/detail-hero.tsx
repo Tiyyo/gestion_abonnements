@@ -24,7 +24,14 @@ export function DetailHero({ row, nextCharge, today }: Props) {
     <Hero pt={insets.top + TOP_GAP.stack} pb={HERO_OVERLAP + 20} gap="4">
       <StackHeader
         onHero
-        trailing={<ActionButton label="Modifier" variant="glassGhost" onPress={() => router.push(`/subscriptions/edit/${row.id}`)} />}
+        trailing={
+          <ActionButton
+            label="Modifier"
+            variant="glassGhost"
+            onPress={() => router.push(`/subscriptions/edit/${row.id}`)}
+            testID="subscription.edit"
+          />
+        }
       />
       <YStack px="4">
         <GlassCard>

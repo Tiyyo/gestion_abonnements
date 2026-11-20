@@ -20,6 +20,7 @@ export function OverdueTransferCard({ transfer, busy, onDone }: { transfer: Plan
           variant="danger"
           disabled={busy}
           onPress={onDone}
+          testID="home.overdue-done"
         />
       }
     />

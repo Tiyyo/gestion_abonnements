@@ -18,7 +18,9 @@ export function StatusField({
     <Controller
       control={control}
       name="status"
-      render={({ field }) => <Segmented label="Statut" value={field.value} onChange={onChange} options={STATUS_OPTIONS} />}
+      render={({ field }) => (
+        <Segmented label="Statut" value={field.value} onChange={onChange} options={STATUS_OPTIONS} testID="subscription-form.status" />
+      )}
     />
   );
 }

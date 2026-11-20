@@ -43,6 +43,7 @@ export function OnboardingRemindersStep({
           label="Autoriser les notifications"
           variant="glass"
           onPress={() => requestNotifications().then((ok) => setNotif(ok ? 'ok' : 'refused'))}
+          testID="onboarding.allow-notifications"
         />
       )}
       {notif === 'refused' && <Body color="onGlassWarn">Refusé : tu pourras les autoriser plus tard dans les Réglages.</Body>}

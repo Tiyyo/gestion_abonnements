@@ -31,7 +31,12 @@ export function ReviewChargeHero({ row, form }: Props) {
             {`Prévu le ${dateShort(row.due_date)}`}
           </Caption>
         </YStack>
-        <GlassAmountInput value={form.amount} onChangeText={form.setAmount} accessibilityLabel="Montant débité, en euros" />
+        <GlassAmountInput
+          value={form.amount}
+          onChangeText={form.setAmount}
+          accessibilityLabel="Montant débité, en euros"
+          testID="review.amount"
+        />
       </GlassCard>
       <YStack px="1" gap="1">
         <Caption color="onGlassMuted">{reviewAmountHint(row)}</Caption>

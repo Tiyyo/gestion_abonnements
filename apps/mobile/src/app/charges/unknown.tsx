@@ -24,7 +24,7 @@ export default function UnknownDebitScreen() {
 
   return (
     <SheetScreen>
-      <SheetHeader title="Prélèvement non prévu" onCancel={() => router.back()} />
+      <SheetHeader title="Prélèvement non prévu" onCancel={() => router.back()} cancelTestID="unknown-debit.cancel" />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
         <UnknownDebitHero form={form} />
         <YStack px="4" pt="5" gap="5">
@@ -35,12 +35,19 @@ export default function UnknownDebitScreen() {
               value={dateShort(form.date, today)}
               onPress={() => pickDebitDate(form.date, today, form.setDate)}
               last
+              testID="unknown-debit.date"
             />
           </FormGroup>
           <UnknownDebitOutcomes />
         </YStack>
       </ScrollView>
-      <SheetFooter label="Enregistrer le prélèvement" busy={record.busy} disabled={!form.valid} onPress={() => record.submit(form)} />
+      <SheetFooter
+        label="Enregistrer le prélèvement"
+        busy={record.busy}
+        disabled={!form.valid}
+        onPress={() => record.submit(form)}
+        testID="unknown-debit.save"
+      />
     </SheetScreen>
   );
 }
