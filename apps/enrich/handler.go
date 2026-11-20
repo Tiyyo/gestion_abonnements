@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -97,97 +96,3 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
-var (
-	defaultServer     *Server
-	balancesServer    *BalancesServer
-	once              sync.Once
-	dedicatedBalances *BalancesServer
-	balancesOnce      sync.Once
-
-	transactionsServer    *TransactionsServer
-	dedicatedTransactions *TransactionsServer
-	transactionsOnce      sync.Once
-)
-
-// Une interface qui contient un pointeur nil n'est pas nil : les serveurs ne reçoivent la banque que si elle est configurée.
-func newBalancesServer(secret string) *BalancesServer {
-	server := &BalancesServer{Secret: secret, Limiter: NewLimiter(10, time.Now)}
-	if bank := newBank(); bank != nil {
-		server.Bank = bank
-	}
-	return server
-}
-
-func newTransactionsServer(secret string) *TransactionsServer {
-	server := &TransactionsServer{Secret: secret, Limiter: NewLimiter(10, time.Now), Now: time.Now}
-	if bank := newBank(); bank != nil {
-		server.Bank = bank
-	}
-	return server
-}
-
-func newBank() *EnableBanking {
-	raw := os.Getenv("EB_PRIVATE_KEY")
-	if raw == "" {
-		return nil
-	}
-	key, err := ParsePrivateKey(raw)
-	if err != nil {
-		log.Printf("balances: %v", err)
-		return nil
-	}
-	return &EnableBanking{
-		BaseURL:        "https://api.enablebanking.com",
-		AppID:          os.Getenv("EB_APP_ID"),
-		Key:            key,
-		SessionID:      os.Getenv("EB_SESSION_ID"),
-		CurrentAccount: os.Getenv("EB_ACCOUNT_CURRENT"),
-		VaultAccount:   os.Getenv("EB_ACCOUNT_VAULT"),
-		Client:         &http.Client{Timeout: 10 * time.Second},
-		Now:            time.Now,
-	}
-}
-
-// Handle est le point d'entrée Scaleway Serverless Functions : « /balances » lit les soldes Revolut,
-// « /transactions » les mouvements du compte principal, le reste classe un abonnement.
-// Variables secrètes : ANTHROPIC_API_KEY (lue par le SDK), ENRICH_SECRET, EB_APP_ID, EB_PRIVATE_KEY, EB_SESSION_ID, EB_ACCOUNT_CURRENT, EB_ACCOUNT_VAULT.
-func Handle(w http.ResponseWriter, r *http.Request) {
-	once.Do(func() {
-		secret := os.Getenv("ENRICH_SECRET")
-		defaultServer = &Server{
-			Secret:     secret,
-			Classifier: NewClaudeClassifier(),
-			Limiter:    NewLimiter(30, time.Now),
-		}
-		balancesServer = newBalancesServer(secret)
-		transactionsServer = newTransactionsServer(secret)
-	})
-	path := strings.TrimSuffix(r.URL.Path, "/")
-	if strings.HasSuffix(path, "/balances") {
-		balancesServer.ServeHTTP(w, r)
-		return
-	}
-	if strings.HasSuffix(path, "/transactions") {
-		transactionsServer.ServeHTTP(w, r)
-		return
-	}
-	defaultServer.ServeHTTP(w, r)
-}
-
-// HandleBalances est le point d'entrée de la fonction dédiée aux soldes, à toute adresse.
-// Variables secrètes : ENRICH_SECRET, EB_APP_ID, EB_PRIVATE_KEY, EB_SESSION_ID, EB_ACCOUNT_CURRENT, EB_ACCOUNT_VAULT.
-func HandleBalances(w http.ResponseWriter, r *http.Request) {
-	balancesOnce.Do(func() {
-		dedicatedBalances = newBalancesServer(os.Getenv("ENRICH_SECRET"))
-	})
-	dedicatedBalances.ServeHTTP(w, r)
-}
-
-// HandleTransactions est le point d'entrée de la fonction dédiée aux mouvements du compte principal, à toute adresse.
-// Variables secrètes : ENRICH_SECRET, EB_APP_ID, EB_PRIVATE_KEY, EB_SESSION_ID, EB_ACCOUNT_CURRENT (les mêmes que HandleBalances).
-func HandleTransactions(w http.ResponseWriter, r *http.Request) {
-	transactionsOnce.Do(func() {
-		dedicatedTransactions = newTransactionsServer(os.Getenv("ENRICH_SECRET"))
-	})
-	dedicatedTransactions.ServeHTTP(w, r)
-}

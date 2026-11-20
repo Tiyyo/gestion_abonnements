@@ -42,7 +42,7 @@ type Transactions struct {
 }
 
 type TransactionBank interface {
-	Transactions(ctx context.Context, psu PSU, from string) (Transactions, error)
+	Transactions(ctx context.Context, psu PSU, target Target, from string) (Transactions, error)
 }
 
 type ebParty struct {
@@ -65,12 +65,9 @@ type ebTransaction struct {
 	RemittanceInformation []string `json:"remittance_information"`
 }
 
-func clip(value string) string {
-	value = strings.Join(strings.Fields(value), " ")
-	if runes := []rune(value); len(runes) > maxLabelRunes {
-		return string(runes[:maxLabelRunes])
-	}
-	return value
+// clipLabel ramène un libellé du relevé à une ligne et à maxLabelRunes caractères.
+func clipLabel(value string) string {
+	return clip(strings.Join(strings.Fields(value), " "), maxLabelRunes)
 }
 
 func firstNonEmpty(values ...string) string {
@@ -107,10 +104,10 @@ func normalize(raw ebTransaction, seen map[string]int) (Transaction, bool) {
 	if direction == "credit" {
 		party = raw.Debtor
 	}
-	remittance := clip(strings.Join(raw.RemittanceInformation, " "))
+	remittance := clipLabel(strings.Join(raw.RemittanceInformation, " "))
 	name := ""
 	if party != nil {
-		name = clip(party.Name)
+		name = clipLabel(party.Name)
 	}
 	tx := Transaction{
 		ID: strings.TrimSpace(raw.EntryReference), BookingDate: date, AmountCents: cents,
@@ -130,8 +127,12 @@ func normalize(raw ebTransaction, seen map[string]int) (Transaction, bool) {
 }
 
 // Transactions lit les mouvements du compte principal depuis `from` (AAAA-MM-JJ), toutes pages confondues.
-func (b *EnableBanking) Transactions(ctx context.Context, psu PSU, from string) (Transactions, error) {
-	if _, err := b.consentValidUntil(ctx); err != nil {
+func (b *EnableBanking) Transactions(ctx context.Context, psu PSU, target Target, from string) (Transactions, error) {
+	target, err := b.resolve(target)
+	if err != nil {
+		return Transactions{}, err
+	}
+	if _, err := b.consentValidUntil(ctx, target.SessionID); err != nil {
 		return Transactions{}, err
 	}
 	result := Transactions{From: from, Transactions: []Transaction{}, FetchedAt: b.Now().UTC()}
@@ -146,7 +147,7 @@ func (b *EnableBanking) Transactions(ctx context.Context, psu PSU, from string) 
 			Transactions    []ebTransaction `json:"transactions"`
 			ContinuationKey string          `json:"continuation_key"`
 		}
-		if err := b.get(ctx, "/accounts/"+b.CurrentAccount+"/transactions?"+query.Encode(), psu, &res); err != nil {
+		if err := b.get(ctx, "/accounts/"+target.Current+"/transactions?"+query.Encode(), "transactions", psu, &res); err != nil {
 			return Transactions{}, err
 		}
 		for _, raw := range res.Transactions {
@@ -209,7 +210,12 @@ func (s *TransactionsServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusTooManyRequests, "trop de requêtes")
 		return
 	}
-	result, err := s.Bank.Transactions(r.Context(), psuFrom(r), from)
+	target, ok := targetFrom(r)
+	if !ok {
+		writeError(w, http.StatusBadRequest, "session ou comptes invalides")
+		return
+	}
+	result, err := s.Bank.Transactions(r.Context(), psuFrom(r), target, from)
 	if errors.Is(err, ErrConsent) {
 		log.Printf("transactions: %v", err)
 		writeError(w, http.StatusConflict, ErrConsent.Error())
