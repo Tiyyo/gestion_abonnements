@@ -1,4 +1,5 @@
 import { fundedAmountCents } from '@abonnements/core';
+import { resolveIconKey } from '@/features/enrich/brands';
 import type { Suggestion } from '@/features/enrich/suggestion';
 import { BRAND_ICONS } from '@/features/subscriptions/brand-icons';
 import { monthlyProvisionCents } from '@/features/subscriptions/funding';
@@ -37,8 +38,10 @@ export function dateLabel(status: string): string {
   return status === 'trial' ? 'Fin d’essai' : status === 'cancelled' ? 'Dernière échéance' : 'Prochain prélèvement';
 }
 
-export function logoLabel(iconKey: string | null): string {
-  return iconKey && BRAND_ICONS[iconKey] ? BRAND_ICONS[iconKey].title : 'Initiale du nom';
+/** Libellé du logo affiché : celui enregistré, ou celui déduit du nom quand aucun n'a été choisi. */
+export function logoLabel(iconKey: string | null, name = ''): string {
+  const shown = resolveIconKey(name, iconKey);
+  return shown && BRAND_ICONS[shown] ? BRAND_ICONS[shown].title : 'Initiale du nom';
 }
 
 export function periodicityLabel(key: PeriodicityKey): string {

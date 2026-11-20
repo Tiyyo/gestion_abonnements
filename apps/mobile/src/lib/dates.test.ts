@@ -5,6 +5,7 @@ import {
   dateShort,
   dateShortYear,
   dateWithWeekday,
+  endSentence,
   monthTile,
   monthYearTitle,
   relativeDay,
@@ -125,5 +126,14 @@ describe('dateOfTimestamp', () => {
 describe('capitalize', () => {
   it('met la première lettre en majuscule', () => {
     expect(capitalize(dateWithWeekday('2026-11-27'))).toBe(`Ven.${S}27${S}nov.`);
+  });
+});
+
+describe('endSentence', () => {
+  it('ne double pas le point d’un mois abrégé', () => {
+    expect(endSentence(`Fin le ${dateShort('2026-12-20')}`)).toBe('Fin le 20 déc.');
+  });
+  it('ajoute le point après un mois non abrégé', () => {
+    expect(endSentence(`Fin le ${dateShort('2027-03-03')}`)).toBe('Fin le 3 mars.');
   });
 });

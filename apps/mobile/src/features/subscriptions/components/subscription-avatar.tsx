@@ -1,5 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 import { Text, YStack } from 'tamagui';
+import { resolveIconKey } from '@/features/enrich/brands';
 import { BRAND_ICONS } from '@/features/subscriptions/brand-icons';
 
 const PAIRS: readonly (readonly [string, string])[] = [
@@ -34,8 +35,10 @@ export function logoColor(hex: string): string {
   return contrastOnWhite >= 3 ? `#${hex}` : TEXT_COLOR;
 }
 
+/** Logo de la marque (enregistré, ou déduit du nom quand aucun n'a été choisi), sinon initiale sur fond coloré. */
 export function SubscriptionAvatar({ name, iconKey, size = 44 }: { name: string; iconKey?: string | null; size?: number }) {
-  const brand = iconKey ? BRAND_ICONS[iconKey] : undefined;
+  const resolved = resolveIconKey(name, iconKey);
+  const brand = resolved ? BRAND_ICONS[resolved] : undefined;
   if (brand) {
     return (
       <YStack

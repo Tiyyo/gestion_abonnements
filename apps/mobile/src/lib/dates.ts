@@ -88,3 +88,8 @@ export function dateOfTimestamp(timestamp: string): string {
 export function capitalize(label: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
+
+/** Termine une phrase par un point, sans doubler celui d'un mois abrégé : « … le 20 déc. », « … le 3 mars. ». */
+export function endSentence(text: string): string {
+  return text.endsWith('.') ? text : `${text}.`;
+}

@@ -51,6 +51,6 @@ describe('callEnrich', () => {
   });
 
   it('ignore un logo absent de la liste embarquée', () => {
-    expect(fromEnrich({ ...valid, iconKey: 'disneyplus' })).toMatchObject({ categoryId: 'cat-video', iconKey: null });
+    expect(fromEnrich({ ...valid, iconKey: 'canalplus' })).toMatchObject({ categoryId: 'cat-video', iconKey: null });
   });
 });
