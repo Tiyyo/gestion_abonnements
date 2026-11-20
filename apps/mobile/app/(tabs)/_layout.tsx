@@ -20,7 +20,7 @@ export default function TabsLayout() {
         <Tabs
           tabBar={renderBar}
           screenListeners={{ tabPress: () => haptic.select() }}
-          screenOptions={{ headerShown: false, animation: 'shift' }}
+          screenOptions={{ headerShown: false, animation: 'shift', lazy: false }}
         >
           <Tabs.Screen name="index" options={{ title: 'Accueil', tabBarIcon: ({ color, size }) => <House color={color} size={size} /> }} />
           <Tabs.Screen
