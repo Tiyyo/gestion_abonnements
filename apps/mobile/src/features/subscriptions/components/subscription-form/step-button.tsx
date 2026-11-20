@@ -18,6 +18,8 @@ export function StepButton({ icon: Icon, label, onPress }: { icon: LucideIcon; l
         haptic.select();
         onPress();
       }}
+      accessible
+      tabIndex={0}
       accessibilityRole="button"
       accessibilityLabel={label}
     >

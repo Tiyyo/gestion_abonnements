@@ -29,7 +29,7 @@ export function FormHero({ control, errors, name, iconKey, caption, trial, onLog
         <LogoButton name={name} iconKey={iconKey} label={logoLabel(iconKey, name)} onPress={onLogo} />
         <YStack flex={1} minW={0}>
           <NameInput control={control} onLookup={onLookup} />
-          <Caption color="onGlassMuted" numberOfLines={1}>
+          <Caption color="onGlassMuted" numberOfLines={2}>
             {caption}
           </Caption>
         </YStack>

@@ -21,8 +21,10 @@ export function LogoButton({
       onPress={onPress}
       scale="1 press:0.985"
       transition="fast"
+      accessible
+      tabIndex={0}
       accessibilityRole="button"
-      accessibilityLabel={`Logo : ${label}. Changer`}
+      accessibilityLabel={`Changer le logo, actuellement : ${label}`}
     >
       <SubscriptionAvatar name={name || '?'} iconKey={iconKey} size={52} />
       <YStack

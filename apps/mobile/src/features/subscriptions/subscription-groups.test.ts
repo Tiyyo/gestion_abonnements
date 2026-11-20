@@ -1,6 +1,14 @@
 import { formatEuros } from '@abonnements/core';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
-import { byNextDate, cancelledByName, groupByStatus, lineSubtitle, periodSuffix } from './subscription-groups';
+import {
+  byNextDate,
+  cancelledByName,
+  groupByStatus,
+  lineAccessibilityLabel,
+  lineSubtitle,
+  periodSuffix,
+  periodWords,
+} from './subscription-groups';
 
 function row(patch: Partial<SubscriptionRow>): SubscriptionRow {
   return {
@@ -75,5 +83,20 @@ describe('lineSubtitle', () => {
     expect(lineSubtitle(row({ period_unit: 'year', amount_cents: 12000 }), 0)).toBe(
       `prochain le 1er\u00a0déc., provisionné ${formatEuros(1000)}/mois`,
     );
+  });
+});
+
+describe('libellés TalkBack de la liste', () => {
+  it('écrit la périodicité en toutes lettres', () => {
+    expect(periodWords({ period_unit: 'month', period_count: 1 })).toBe('par mois');
+    expect(periodWords({ period_unit: 'week', period_count: 1 })).toBe('par semaine');
+    expect(periodWords({ period_unit: 'year', period_count: 1 })).toBe('par an');
+    expect(periodWords({ period_unit: 'month', period_count: 3 })).toBe('tous les 3 mois');
+    expect(periodWords({ period_unit: 'week', period_count: 2 })).toBe('toutes les 2 semaines');
+    expect(periodWords({ period_unit: 'year', period_count: 2 })).toBe('tous les 2 ans');
+  });
+
+  it('compose nom, montant, catégorie et état', () => {
+    expect(lineAccessibilityLabel(row({ status: 'cancelled' }), 300)).toBe(`Netflix, ${formatEuros(1000)} par mois. Vidéo, résilié`);
   });
 });
