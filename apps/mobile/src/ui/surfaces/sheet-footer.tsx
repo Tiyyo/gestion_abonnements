@@ -1,12 +1,44 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { YStack } from 'tamagui';
+import { XStack } from 'tamagui';
 import { ActionButton } from '@/ui/controls/action-button';
 
-export function SheetFooter({ busy, label, onPress, disabled }: { busy: boolean; label: string; onPress: () => void; disabled?: boolean }) {
+interface SecondaryAction {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+}
+
+interface Props {
+  busy: boolean;
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  /** Seconde réponse, en contour à gauche du bouton plein ; les libellés restent alors tels quels pendant l'enregistrement. */
+  secondary?: SecondaryAction;
+}
+
+export function SheetFooter({ busy, label, onPress, disabled, secondary }: Props) {
   const insets = useSafeAreaInsets();
   return (
-    <YStack p="4" pb={insets.bottom + 16} borderTopWidth={1} borderColor="borderColor" bg="surface">
-      <ActionButton size="lg" label={busy ? 'Enregistrement…' : label} loading={busy} disabled={disabled} onPress={onPress} />
-    </YStack>
+    <XStack p="4" pb={insets.bottom + 16} gap="3" borderTopWidth={1} borderColor="borderColor" bg="surface">
+      {secondary ? (
+        <ActionButton
+          flex={1}
+          size="lg"
+          variant="outline"
+          label={secondary.label}
+          disabled={busy || secondary.disabled}
+          onPress={secondary.onPress}
+        />
+      ) : null}
+      <ActionButton
+        flex={1}
+        size="lg"
+        label={busy && !secondary ? 'Enregistrement…' : label}
+        loading={busy}
+        disabled={disabled}
+        onPress={onPress}
+      />
+    </XStack>
   );
 }
