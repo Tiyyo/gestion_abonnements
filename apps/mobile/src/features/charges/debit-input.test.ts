@@ -1,4 +1,11 @@
-import { defaultDebitDate, isValidAmountInput, retryShortfallCents, unknownDebitLabel } from './debit-input';
+import {
+  defaultDebitDate,
+  isReviewDirty,
+  isUnknownDebitDirty,
+  isValidAmountInput,
+  retryShortfallCents,
+  unknownDebitLabel,
+} from './debit-input';
 
 describe('isValidAmountInput', () => {
   it('accepte virgule, point et espaces autour', () => {
@@ -38,5 +45,42 @@ describe('unknownDebitLabel', () => {
     expect(unknownDebitLabel('duplicate')).toBe('Double prélèvement enregistré. Réclame un remboursement au marchand.');
     expect(unknownDebitLabel('unexpected_charge')).toBe('Prélèvement inattendu enregistré.');
     expect(unknownDebitLabel('autre')).toBe('Débit enregistré.');
+  });
+});
+
+describe('isUnknownDebitDirty', () => {
+  const today = '2026-11-20';
+
+  it('ne voit aucune saisie sur le formulaire tel qu’il s’ouvre', () => {
+    expect(isUnknownDebitDirty({ name: '', amount: '', date: today }, today)).toBe(false);
+    expect(isUnknownDebitDirty({ name: '   ', amount: ' ', date: today }, today)).toBe(false);
+  });
+
+  it('voit une saisie dès qu’un nom ou un montant est tapé, même invalide', () => {
+    expect(isUnknownDebitDirty({ name: 'N', amount: '', date: today }, today)).toBe(true);
+    expect(isUnknownDebitDirty({ name: '', amount: '9,', date: today }, today)).toBe(true);
+  });
+
+  it('voit une saisie quand seule la date a changé', () => {
+    expect(isUnknownDebitDirty({ name: '', amount: '', date: '2026-11-18' }, today)).toBe(true);
+  });
+});
+
+describe('isReviewDirty', () => {
+  const initial = { amount: '12,99', date: '2026-11-19' };
+
+  it('ne voit aucune saisie sur les valeurs proposées', () => {
+    expect(isReviewDirty({ ...initial }, initial)).toBe(false);
+    expect(isReviewDirty({ amount: ' 12,99 ', date: '2026-11-19' }, initial)).toBe(false);
+  });
+
+  it('voit une saisie quand le montant ou la date diffère', () => {
+    expect(isReviewDirty({ ...initial, amount: '13,99' }, initial)).toBe(true);
+    expect(isReviewDirty({ ...initial, amount: '' }, initial)).toBe(true);
+    expect(isReviewDirty({ ...initial, date: '2026-11-20' }, initial)).toBe(true);
+  });
+
+  it('oublie une modification annulée à la main', () => {
+    expect(isReviewDirty({ amount: '12,99', date: '2026-11-19' }, initial)).toBe(false);
   });
 });

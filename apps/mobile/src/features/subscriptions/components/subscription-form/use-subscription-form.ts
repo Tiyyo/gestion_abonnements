@@ -10,13 +10,15 @@ import { subscriptionFormSchema, type SubscriptionFormValues } from '@/features/
 import { type Correction, DEFAULT_TRIAL_DAYS } from '@/features/subscriptions/subscription-form-values';
 import { haptic } from '@/ui/motion/haptics';
 import { useFormChoices } from './use-form-choices';
+import { useFormGuard } from './use-form-guard';
 import { useSuggestionLookup } from './use-suggestion-lookup';
 
 export interface SubscriptionFormOptions {
   mode: 'create' | 'edit';
   defaultValues: SubscriptionFormValues;
   lockedStatus?: 'trial' | 'active' | 'to_cancel' | 'cancelled';
-  onSubmit: (values: SubscriptionFormValues, correction: Correction | null, aiSuggestion: string | null) => void;
+  /** `close` ferme l'écran après un enregistrement réussi, sans redemander confirmation pour la saisie. */
+  onSubmit: (values: SubscriptionFormValues, correction: Correction | null, aiSuggestion: string | null, close: () => void) => void;
 }
 
 const WATCHED = [
@@ -47,6 +49,7 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
   });
   const values = { name, firstChargeDate, categoryId, iconKey, amount, periodicity, paymentMethod, marginOverrideBp };
   const status = lockedStatus ?? watchedStatus;
+  const guard = useFormGuard(control, defaultValues, mode);
   const globalMarginBp = settings.data?.global_margin_bp ?? 300;
   const lookup = useSuggestionLookup(mode, name, defaultValues.name);
   const [classificationTouched, setClassificationTouched] = useState(false);
@@ -90,6 +93,7 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
         submitted,
         classificationTouched ? { categoryId: submitted.categoryId, iconKey: submitted.iconKey ?? 'tag' } : null,
         aiSuggestion,
+        guard.leave,
       );
     },
     () => haptic.error(),
