@@ -89,6 +89,7 @@ primary `#4C1E4F`, secondary `#F6D5C4` (pêche) (fond uniquement, texte `#4C1E4F
 9. À faire : build APK release (`expo prebuild` nécessaire pour les plugins notifications et biométrie) ; usage réel un mois.
 
 - Développement au quotidien : Expo Go (`npx expo start --go` dans `apps/mobile`, `adb reverse tcp:8081 tcp:8081`). La base est ouverte une seule fois par app (`db/provider.tsx`) : deux connexions simultanées bloquent le thread JS en mode dev.
+- Onglet Abonnements, recherche et tri (20/11/2026) : logique pure dans `features/subscriptions/subscription-view.ts` (`buildSubscriptionView` : filtre nom + catégorie sans accents ni casse via `normalizeName`, tri à l'intérieur de chaque groupe de statut, résiliés affichés d'office pendant une recherche). Champ `ui/controls/glass-search-field.tsx` dans le Hero, puce `sort-control.tsx` en tête de liste. Affichés seulement au-delà de `SEARCH_SORT_THRESHOLD` (5) abonnements ; état gardé dans l'écran le temps de la session, rien en base.
 
 ## Build Android local
 
