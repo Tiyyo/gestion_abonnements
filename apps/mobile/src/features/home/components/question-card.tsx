@@ -1,7 +1,7 @@
 import { formatEuros } from '@abonnements/core';
 import type { HomeQuestion } from '@/db/repositories/home/types';
 import type { QuestionAnswer } from '@/features/home/types';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { ActionButton } from '@/ui/controls/action-button';
 import { HomeCard } from './home-card';
 
@@ -16,7 +16,7 @@ export function QuestionCard({ question, busy, onAnswer }: Props) {
     return (
       <HomeCard
         tone="warn"
-        caption={`Fin d’essai le ${formatDayMonth(question.date)}`}
+        caption={`Fin d’essai le ${dateShort(question.date)}`}
         title={`${question.name} : prélèvement passé ?`}
         body={`Le prélèvement de ${formatEuros(question.amountCents)} n’était pas financé. Vérifie ton relevé Revolut.`}
         actions={
@@ -31,7 +31,7 @@ export function QuestionCard({ question, busy, onAnswer }: Props) {
   return (
     <HomeCard
       tone="warn"
-      caption={`Fin de période le ${formatDayMonth(question.date)}`}
+      caption={`Fin de période le ${dateShort(question.date)}`}
       title={`As-tu bien résilié ${question.name} ?`}
       body="Tant que ce n’est pas fait, ses prélèvements restent non financés."
       actions={

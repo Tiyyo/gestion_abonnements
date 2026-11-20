@@ -87,7 +87,7 @@ describe('conversions vers le domaine', () => {
 describe('fundedChargesWarning', () => {
   it('liste les prélèvements déjà alimentés', () => {
     expect(fundedChargesWarning([{ due_date: '2026-12-05', funded_amount_cents: 2677 }])).toBe(
-      `Le prélèvement du 5 déc est déjà alimenté (${formatEuros(2677)}) : il ne change pas.\nLes prélèvements suivants seront recalculés.`,
+      `Le prélèvement du 5\u00a0déc. est déjà alimenté (${formatEuros(2677)}) : il ne change pas.\nLes prélèvements suivants seront recalculés.`,
     );
   });
 });

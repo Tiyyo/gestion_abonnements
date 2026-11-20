@@ -1,4 +1,4 @@
-import { formatDateFr } from '@/lib/format';
+import { dateShortYear } from '@/lib/dates';
 
 export type ServiceState = 'ok' | 'off' | 'warn';
 
@@ -7,7 +7,7 @@ export type ServiceStatus = { state: ServiceState; status: string };
 /** Revolut : l'accord Enable Banking est valable tant qu'une date de fin est connue. */
 export function revolutStatus(consentUntil: string | undefined): ServiceStatus {
   return consentUntil
-    ? { state: 'ok', status: `accord jusqu’au ${formatDateFr(consentUntil)}` }
+    ? { state: 'ok', status: `accord jusqu’au ${dateShortYear(consentUntil)}` }
     : { state: 'off', status: 'soldes indisponibles' };
 }
 

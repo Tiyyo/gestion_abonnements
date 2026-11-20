@@ -2,7 +2,7 @@ import { aiSuggestionStatus, remindersStatus, revolutStatus } from './service-st
 
 describe('revolutStatus', () => {
   it('affiche la date de fin de l’accord', () => {
-    expect(revolutStatus('2027-05-17')).toEqual({ state: 'ok', status: 'accord jusqu’au 17/05/2027' });
+    expect(revolutStatus('2027-05-17')).toEqual({ state: 'ok', status: 'accord jusqu’au 17\u00a0mai\u00a02027' });
   });
 
   it('signale des soldes indisponibles sans accord', () => {

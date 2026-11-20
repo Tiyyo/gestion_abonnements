@@ -2,7 +2,7 @@ import { formatEuros } from '@abonnements/core';
 import { CircleAlert, CircleCheck, TriangleAlert } from 'lucide-react-native';
 import type { Balances } from '@/features/balances/balances-schema';
 import { RENEWAL_NOTICE_DAYS } from '@/features/balances/balances-derivations';
-import { formatDayMonth } from '@/lib/format';
+import { dateOfTimestamp, dateShort } from '@/lib/dates';
 import { colors } from '@/theme/colors';
 import { Notice } from './notice';
 
@@ -43,7 +43,7 @@ export function BalancesNotices({ data, expired, unavailable, pendingTransfersCe
 
       {data && daysLeft !== null && daysLeft <= RENEWAL_NOTICE_DAYS ? (
         <Notice icon={TriangleAlert} color={colors.onGlassWarn} tone="onGlassWarn">
-          {`Accord bancaire à renouveler avant le ${formatDayMonth(data.consentValidUntil.slice(0, 10))}.`}
+          {`Accord bancaire à renouveler avant le ${dateShort(dateOfTimestamp(data.consentValidUntil))}.`}
         </Notice>
       ) : null}
     </>

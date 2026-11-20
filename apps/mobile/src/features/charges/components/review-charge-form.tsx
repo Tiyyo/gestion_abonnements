@@ -7,7 +7,7 @@ import { ReviewChargeSummary } from './review-charge-summary';
 import { useReviewActions } from '@/features/charges/hooks/use-review-actions';
 import { useReviewForm } from '@/features/charges/hooks/use-review-form';
 import type { ChargeToReview } from '@/features/charges/types';
-import { formatDateFr } from '@/lib/format';
+import { dateLong } from '@/lib/dates';
 import { TOP_GAP } from '@/theme/layout';
 import { ActionButton } from '@/ui/controls/action-button';
 import { ModalHeader } from '@/ui/navigation/modal-header';
@@ -28,7 +28,7 @@ export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: s
           date={form.date}
           today={today}
           onChange={form.setDate}
-          accessibilityLabel={`Date du débit : ${formatDateFr(form.date)}. Modifier`}
+          accessibilityLabel={`Date du débit : ${dateLong(form.date, today)}. Modifier`}
         />
       </ScrollView>
       <ModalFooter>

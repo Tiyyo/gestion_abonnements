@@ -35,7 +35,7 @@ describe('planNotifications', () => {
     expect(funding.map((n) => n.fireAt)).toEqual(['2026-11-20T09:00', '2026-12-18T09:00']);
     expect(funding[0]).toMatchObject({
       title: 'Transfert à faire : 12,35\u202f€',
-      body: 'Coffre → compte principal pour Spotify (prélevé le 21 nov).',
+      body: 'Coffre → compte principal pour Spotify (prélevé le 21\u00a0nov.).',
     });
   });
 
@@ -50,7 +50,7 @@ describe('planNotifications', () => {
     await add('Disney+', 999, '2026-11-25', 'trial');
     const trial = (await planNotifications(db, now)).filter((n) => n.kind === 'trial_end');
     expect(trial.map((n) => [n.fireAt, n.title])).toEqual([
-      ['2026-11-22T09:00', 'Fin d’essai Disney+ dans 3 jours'],
+      ['2026-11-22T09:00', 'Fin d’essai Disney+ dans 3\u00a0jours'],
       ['2026-11-24T09:00', 'Fin d’essai Disney+ demain'],
       ['2026-11-26T09:00', 'Disney+ : le prélèvement est-il passé ?'],
     ]);

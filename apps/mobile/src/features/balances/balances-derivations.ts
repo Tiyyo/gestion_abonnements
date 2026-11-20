@@ -1,4 +1,4 @@
-import { formatDayMonth } from '@/lib/format';
+import { dateOfTimestamp, dateShort } from '@/lib/dates';
 
 export const RENEWAL_NOTICE_DAYS = 14;
 
@@ -17,5 +17,5 @@ export function freshness(fetchedAt: string, now: Date): string {
     return 'à l’instant';
   }
   const time = at.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  return at.toDateString() === now.toDateString() ? `à ${time}` : `le ${formatDayMonth(fetchedAt.slice(0, 10))} à ${time}`;
+  return at.toDateString() === now.toDateString() ? `à ${time}` : `le ${dateShort(dateOfTimestamp(fetchedAt))} à ${time}`;
 }

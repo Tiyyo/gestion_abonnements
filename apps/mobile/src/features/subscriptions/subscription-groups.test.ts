@@ -65,15 +65,15 @@ describe('periodSuffix', () => {
 
 describe('lineSubtitle', () => {
   it('annonce la fin d’essai ou de période', () => {
-    expect(lineSubtitle(row({ status: 'trial', trial_end_date: '2026-12-05' }), 300)).toBe('fin d’essai 5 déc');
-    expect(lineSubtitle(row({ status: 'to_cancel', period_end_date: null }), 300)).toBe('fin de période 1 déc');
+    expect(lineSubtitle(row({ status: 'trial', trial_end_date: '2026-12-05' }), 300)).toBe('fin d’essai 5\u00a0déc.');
+    expect(lineSubtitle(row({ status: 'to_cancel', period_end_date: null }), 300)).toBe('fin de période 1er\u00a0déc.');
     expect(lineSubtitle(row({ status: 'cancelled' }), 300)).toBe('résilié');
   });
 
   it('ajoute la provision mensuelle d’un abonnement annuel', () => {
-    expect(lineSubtitle(row({ period_unit: 'month' }), 300)).toBe('prochain le 1 déc');
+    expect(lineSubtitle(row({ period_unit: 'month' }), 300)).toBe('prochain le 1er\u00a0déc.');
     expect(lineSubtitle(row({ period_unit: 'year', amount_cents: 12000 }), 0)).toBe(
-      `prochain le 1 déc, provisionné ${formatEuros(1000)}/mois`,
+      `prochain le 1er\u00a0déc., provisionné ${formatEuros(1000)}/mois`,
     );
   });
 });

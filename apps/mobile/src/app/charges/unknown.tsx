@@ -7,7 +7,7 @@ import { UnknownDebitHero } from '@/features/charges/components/unknown-debit-he
 import { UnknownDebitOutcomes } from '@/features/charges/components/unknown-debit-outcomes';
 import { useRecordUnknownDebit } from '@/features/charges/hooks/use-record-unknown-debit';
 import { useUnknownDebitForm } from '@/features/charges/hooks/use-unknown-debit-form';
-import { formatDateFr } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { PickerRow } from '@/ui/controls/picker-row';
 import { SheetHeader } from '@/ui/navigation/sheet-header';
 import { FormGroup } from '@/ui/surfaces/form-group';
@@ -29,7 +29,7 @@ export default function UnknownDebitScreen() {
             <PickerRow
               icon={CalendarDays}
               label="Date du débit"
-              value={formatDateFr(form.date)}
+              value={dateShort(form.date, today)}
               onPress={() => pickDebitDate(form.date, today, form.setDate)}
               last
             />

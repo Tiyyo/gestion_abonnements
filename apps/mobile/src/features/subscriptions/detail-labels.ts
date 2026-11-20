@@ -1,5 +1,6 @@
 import { formatEuros, type PeriodUnit, suggestedPeriodEnd } from '@abonnements/core';
-import { formatDayMonth, formatPercentBp } from '@/lib/format';
+import { dateShort, relativeDay } from '@/lib/dates';
+import { formatPercentBp } from '@/lib/format';
 
 const PERIOD_LABELS: Record<string, string> = { week: 'semaine', month: 'mois', year: 'an' };
 
@@ -8,26 +9,15 @@ export function rhythmLabel(amountCents: number, unit: PeriodUnit, count: number
   return `${formatEuros(amountCents)} / ${count > 1 ? `${count} ` : ''}${PERIOD_LABELS[unit]}${unit === 'year' && count > 1 ? 's' : ''}`;
 }
 
-/** Date longue avec jour de la semaine, capitalisée : « Ven. 20 nov. 2026 ». */
-export function longDate(date: string): string {
-  const label = new Date(`${date}T12:00:00`).toLocaleDateString('fr-FR', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-  return label.charAt(0).toUpperCase() + label.slice(1);
-}
-
 /** Échéance relative d'une fin d'essai à `days` jours. */
 export function trialWhenLabel(days: number): string {
-  return days > 1 ? `dans ${days} jours` : days === 1 ? 'demain' : days === 0 ? 'aujourd’hui' : 'passée';
+  return days < 0 ? 'passée' : relativeDay(days);
 }
 
 export function trialNoticeText(trialRisk: boolean, amountCents: number, trialEndDate: string): string {
   return trialRisk
-    ? `Attention : le compte aura assez d’argent ce jour-là, le prélèvement de ${formatEuros(amountCents)} du ${formatDayMonth(trialEndDate)} pourrait passer. Décide avant.`
-    : `Non financé : sans décision de ta part, le prélèvement de ${formatEuros(amountCents)} du ${formatDayMonth(trialEndDate)} échouera.`;
+    ? `Attention : le compte aura assez d’argent ce jour-là, le prélèvement de ${formatEuros(amountCents)} du ${dateShort(trialEndDate)} pourrait passer. Décide avant.`
+    : `Non financé : sans décision de ta part, le prélèvement de ${formatEuros(amountCents)} du ${dateShort(trialEndDate)} échouera.`;
 }
 
 export function toCancelNoticeText(cancelDone: boolean): string {
@@ -37,9 +27,7 @@ export function toCancelNoticeText(cancelDone: boolean): string {
 }
 
 export function transferLabel(nextCharge: { transfer_date: string | null; funded_amount_cents: number } | null): string {
-  return nextCharge?.transfer_date
-    ? `${formatDayMonth(nextCharge.transfer_date)} · ${formatEuros(nextCharge.funded_amount_cents)}`
-    : 'Aucun';
+  return nextCharge?.transfer_date ? `${dateShort(nextCharge.transfer_date)} · ${formatEuros(nextCharge.funded_amount_cents)}` : 'Aucun';
 }
 
 export function appliedMarginLabel(marginBp: number, overrideBp: number | null): string {
