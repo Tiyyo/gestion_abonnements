@@ -1,7 +1,9 @@
 import { todayIn } from '@abonnements/core';
 import { router } from 'expo-router';
 import { Linking } from 'react-native';
-import type { HomeQuestion } from '@/db/repositories/home/types';
+import type { HomeQuestion, HomeUnexpectedDebit } from '@/db/repositories/home/types';
+import { unknownDebitParams } from '@/features/bank-sync/bank-wording';
+import { useDismissDebit } from '@/features/bank-sync/hooks/use-dismiss-debit';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import { pickRescheduleDate } from '@/features/plan/pick-reschedule-date';
 import { usePlanRun } from '@/features/plan/hooks/use-plan-run';
@@ -15,13 +17,14 @@ import { useReviewCharge } from '@/features/charges/hooks/use-review-charge';
 
 const onError = { onError: (error: Error) => showError('Action impossible', error.message) };
 
-/** Actions des cartes de l'Accueil : transferts (faits tout de suite, annulables depuis le message), questions J+1 et essais. */
+/** Actions des cartes de l'Accueil : transferts (faits tout de suite, annulables depuis le message), questions J+1, débits non prévus et essais. */
 export function useHomeActions() {
   const plan = usePlanRun();
   const review = useReviewCharge();
   const followUp = useFollowUp();
   const lifecycle = useSubscriptionTransitionFor();
-  const busy = plan.busy || review.isPending || followUp.isPending || lifecycle.isPending;
+  const dismiss = useDismissDebit();
+  const busy = plan.busy || review.isPending || followUp.isPending || lifecycle.isPending || dismiss.isPending;
 
   const markTransferDone = (transferId: string) => plan.run({ type: 'transfer_done', transferId }, transferDoneFeedback(transferId));
 
@@ -57,7 +60,15 @@ export function useHomeActions() {
       },
     ]);
 
-  return { busy, markTransferDone, reschedule, openRevolut, answer, keepTrial, cancelTrial };
+  const reviewDebit = (debit: HomeUnexpectedDebit) => router.push({ pathname: '/charges/unknown', params: unknownDebitParams(debit) });
+
+  const dismissDebit = (debit: HomeUnexpectedDebit) =>
+    showDialog('Ignorer ce débit ?', 'Il ne sera plus signalé et ne comptera pas dans le solde estimé.', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Ignorer', onPress: () => dismiss.mutate(debit.transactionId, onError) },
+    ]);
+
+  return { busy, markTransferDone, reschedule, openRevolut, answer, keepTrial, cancelTrial, reviewDebit, dismissDebit };
 }
 
 export type HomeActions = ReturnType<typeof useHomeActions>;

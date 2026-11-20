@@ -3,6 +3,7 @@ import { router, useIsFocused } from 'expo-router';
 import { RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, YStack } from 'tamagui';
+import { useAutoBankSync } from '@/features/bank-sync/hooks/use-auto-bank-sync';
 import { HomeFeed } from '@/features/home/components/home-feed';
 import { HomeFeedSkeleton } from '@/features/home/components/home-feed-skeleton';
 import { HomeHero } from '@/features/home/components/home-hero';
@@ -22,6 +23,7 @@ import { useHeroStatusBar } from '@/ui/navigation/use-hero-status-bar';
 
 export default function HomeScreen() {
   useDailyMaintenance();
+  useAutoBankSync();
   const insets = useSafeAreaInsets();
   const heroBar = useHeroStatusBar();
   const focused = useIsFocused();

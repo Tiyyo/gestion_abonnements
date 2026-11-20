@@ -19,8 +19,9 @@ import type { DiscardGuard } from '@/ui/navigation/use-discard-guard';
  * Enregistre un débit inconnu : s'il correspond à un prélèvement attendu, propose de le marquer passé ;
  * sinon l'enregistre selon son classement et propose, si besoin, de créer l'abonnement.
  * Une fois le débit enregistré, l'écran se ferme par la garde (`guard.leave` / `guard.release`), sans question.
+ * `bankTransactionId` : le débit lu sur le compte à l'origine de la saisie, soldé avec elle.
  */
-export function useRecordUnknownDebit(guard: DiscardGuard) {
+export function useRecordUnknownDebit(guard: DiscardGuard, bankTransactionId?: string) {
   const db = useDb();
   const queryClient = useQueryClient();
   const review = useReviewCharge();
@@ -46,14 +47,14 @@ export function useRecordUnknownDebit(guard: DiscardGuard) {
             text: 'Oui',
             onPress: () =>
               review.mutate(
-                { chargeId: outcome.chargeId, answer: { kind: 'paid', amountCents: debit.amountCents, date } },
+                { chargeId: outcome.chargeId, answer: { kind: 'paid', amountCents: debit.amountCents, date }, bankTransactionId },
                 { onSuccess: () => done('Prélèvement marqué comme passé.'), onSettled: () => setBusy(false) },
               ),
           },
         ]);
         return;
       }
-      await recordUnknownDebit(db, debit, outcome, newId);
+      await recordUnknownDebit(db, debit, outcome, newId, bankTransactionId);
       if (outcome.offerCreateSubscription) {
         await queryClient.invalidateQueries();
         showDialog('Prélèvement inattendu', `${formatEuros(debit.amountCents)} débités par ${debit.name}. Créer l’abonnement ?`, [

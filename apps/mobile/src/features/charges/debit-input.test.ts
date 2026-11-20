@@ -49,20 +49,27 @@ describe('unknownDebitLabel', () => {
 });
 
 describe('isUnknownDebitDirty', () => {
+  it('ne voit aucune saisie sur un débit prérempli depuis le compte tant qu’il n’est pas modifié', () => {
+    const prefill = { name: 'Netflix', amount: '13,49', date: '2026-11-18' };
+    expect(isUnknownDebitDirty(prefill, prefill)).toBe(false);
+    expect(isUnknownDebitDirty({ ...prefill, amount: '14' }, prefill)).toBe(true);
+  });
+
   const today = '2026-11-20';
+  const blank = { name: '', amount: '', date: today };
 
   it('ne voit aucune saisie sur le formulaire tel qu’il s’ouvre', () => {
-    expect(isUnknownDebitDirty({ name: '', amount: '', date: today }, today)).toBe(false);
-    expect(isUnknownDebitDirty({ name: '   ', amount: ' ', date: today }, today)).toBe(false);
+    expect(isUnknownDebitDirty({ name: '', amount: '', date: today }, blank)).toBe(false);
+    expect(isUnknownDebitDirty({ name: '   ', amount: ' ', date: today }, blank)).toBe(false);
   });
 
   it('voit une saisie dès qu’un nom ou un montant est tapé, même invalide', () => {
-    expect(isUnknownDebitDirty({ name: 'N', amount: '', date: today }, today)).toBe(true);
-    expect(isUnknownDebitDirty({ name: '', amount: '9,', date: today }, today)).toBe(true);
+    expect(isUnknownDebitDirty({ name: 'N', amount: '', date: today }, blank)).toBe(true);
+    expect(isUnknownDebitDirty({ name: '', amount: '9,', date: today }, blank)).toBe(true);
   });
 
   it('voit une saisie quand seule la date a changé', () => {
-    expect(isUnknownDebitDirty({ name: '', amount: '', date: '2026-11-18' }, today)).toBe(true);
+    expect(isUnknownDebitDirty({ name: '', amount: '', date: '2026-11-18' }, blank)).toBe(true);
   });
 });
 

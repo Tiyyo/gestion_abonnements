@@ -6,9 +6,10 @@ import { OverdueTransferCard } from './overdue-transfer-card';
 import { QuestionCard } from './question-card';
 import { ReviewList } from './review-list';
 import { TrialCard } from './trial-card';
+import { UnexpectedDebitCard } from './unexpected-debit-card';
 import { UpcomingChargesList } from './upcoming-charges-list';
 
-/** Contenu de l'Accueil quand il y a des abonnements : transferts, questions, essais, vérifications et prochains prélèvements. */
+/** Contenu de l'Accueil quand il y a des abonnements : transferts, questions, débits non prévus, essais, vérifications et prochains prélèvements. */
 export function HomeFeed({ data, today, actions }: { data: HomeData; today: string; actions: HomeActions }) {
   const { busy } = actions;
   const next = data.next;
@@ -36,6 +37,17 @@ export function HomeFeed({ data, today, actions }: { data: HomeData; today: stri
       {data.questions.map((q, index) => (
         <Appear key={`${q.kind}-${q.subscriptionId}`} index={index + 1}>
           <QuestionCard question={q} busy={busy} onAnswer={(kind) => actions.answer(q, kind)} />
+        </Appear>
+      ))}
+
+      {data.unexpectedDebits.map((debit, index) => (
+        <Appear key={debit.transactionId} index={index + 1}>
+          <UnexpectedDebitCard
+            debit={debit}
+            busy={busy}
+            onReview={() => actions.reviewDebit(debit)}
+            onDismiss={() => actions.dismissDebit(debit)}
+          />
         </Appear>
       ))}
 
