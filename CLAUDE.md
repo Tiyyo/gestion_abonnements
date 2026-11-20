@@ -3,12 +3,14 @@
 **Sluis** (« écluse » en néerlandais) : application mobile personnelle (un seul utilisateur, Android) qui suit les abonnements, calcule le plan d'alimentation Revolut et protège contre les essais gratuits oubliés. Langue du produit et des commentaires métier : français.
 
 ## Principe métier (à ne jamais casser)
+
 - Le compte Revolut reste à 0 € ; l'argent dort dans un coffre.
 - Chaque prélèvement **voulu** est financé juste avant sa date (J-1, ou dernier jour ouvré précédent) : coffre → compte principal, montant + marge.
 - Un prélèvement **non voulu** (essai oublié, abonnement à résilier) n'est jamais financé (`charge.status = 'unfunded'`) : il échoue faute de solde.
 - Marge en pourcentage, plafonnée à 5 %.
 
 ## Documents de conception
+
 - `docs/conception/stack.md` : stack, structure du dépôt, spike, ordre de réalisation. **Fait foi** pour la technique.
 - `docs/conception/modele-de-donnees.md` : entités, états, algorithmes, cas limites.
 - `docs/conception/schema-reference.sql` : schéma SQL de référence.
@@ -16,6 +18,7 @@
 - Maquettes des 7 écrans : https://claude.ai/artifact/AUntGw7RMDFjJAGtnMznwg
 
 ## Où la conception a évolué (le code et la fiche de stack priment)
+
 - Marges stockées en **points de base** (`*_margin_bp`, 300 = 3 %, plafond 500), pas en pourcentage décimal.
 - **Pas de trigger de cascade** à la résiliation : cette logique est dans `packages/core` (elle replanifie aussi les notifications). Seuls les triggers `updated_at` restent en base.
 - Pas de table `schema_migrations` : Kysely gère la sienne.
@@ -25,9 +28,11 @@
 - **Compléments v1** (section 10) : report de transfert via `transfer.rescheduled_date` (migration `002` à écrire), question J+1 en fin de période à résilier, rapprochement complet, logos Simple Icons avec repli initiales, contrat `contracts/enrich.schema.json`, import en remplacement seul, écrans complémentaires. Ils priment sur les sections 2, 3.8, 4, 6 et 7.
 
 ## Stack
+
 Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (routes dans `apps/mobile/src/app/`), Tamagui 3.3, Reanimated 4.7 + `react-native-worklets`, `expo-sqlite` + Kysely 0.29, TanStack Query 5, React Hook Form + Zod, notifications locales `expo-notifications`. Tests : Vitest 5 + `better-sqlite3`. Monorepo pnpm (`node-linker=hoisted`).
 
 ## Commandes
+
 - Dans `apps/mobile` : `npm run lint` (ESLint 9 + Prettier, config `eslint.config.js` ; `lint:fix`, `format`), `npx vitest run` (tests), `npx tsc --noEmit` (types), `npx expo-doctor`, `npx expo export --platform android` (vérifie le bundle Hermes).
 - Dans `apps/enrich` : `go test ./...`, `go vet ./...` ; `go test ./... -update` régénère `contracts/fixtures` (relues par `src/features/enrich/enrich-client.test.ts`).
 - Icône et écran de démarrage : `node scripts/gen-app-icons.mjs` dans `apps/mobile` régénère `assets/*.png` depuis `src/ui/brand/sluis-mark.json` (portes d'écluse, passerelle, vagues). La même géométrie anime `ui/brand/SplashOverlay.tsx` (écran de chargement JS qui prend le relais de l'écran natif). Le paquet Android reste `fr.smatou.abonnements` (le changer = nouvelle app, données perdues).
@@ -36,6 +41,7 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 - `android/` est généré (`expo prebuild`) et ignoré par git : configurer via `app.json` et les plugins.
 
 ## Pièges connus (spike du 19/11/2026)
+
 - **Dialecte Kysely maison** : `src/db/expo-sqlite-database.ts` adapte l'API synchrone d'`expo-sqlite` au `SqliteDialect` intégré à Kysely. Aucun dialecte communautaire n'était à jour pour le SDK 58.
 - **`kysely/migration` et Hermes** : l'entrée embarque `FileMigrationProvider` (`import()` dynamique, refusé par Hermes). `metro.config.js` redirige `kysely/migration` vers `migrator.js`. Ne pas retirer cette redirection.
 - **Tamagui 3** : valeurs de thème et de tokens **sans `$`** (`bg="primary"`, `gap="4"`) ; config v6 = **raccourcis obligatoires** (`p`, `px`, `pt`, `items`, `justify`, `rounded`, `minH`…) ; `animation` → `transition`, `enterStyle` / `pressStyle` → modificateurs dans la valeur (`opacity="1 enter:0"`, `bg="primary press:…"`). Rayons : `rounded="xl"`. Icônes : `lucide-react-native`.
@@ -44,11 +50,13 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 - Pas de plugin Babel Tamagui (compilateur désactivé, cf. stack.md 4.1).
 
 ## Architecture du code (`apps/mobile/src`, refonte du 20/11/2026)
+
 - Organisation **par feature** : `app/` (routes Expo Router **minces** : paramètres de route + hooks + assemblage de composants, aucune logique), `features/<feature>/` (`components/`, `hooks/`, logique pure en `.ts` testée à côté, `*.test.ts`), `ui/` (design system sans métier : `text/`, `surfaces/`, `controls/`, `navigation/` dont `tab-bar/`, `feedback/`, `motion/`, `brand/`, `hooks/`), `theme/` (couleurs, `elevation`, `layout`, config Tamagui), `lib/` (utilitaires purs), `config/`, `db/` (client, migrations, `repositories/`, `commands/`, `reconcile/`, `sync/`), `notifications/`.
 - Features : `app-shell`, `home`, `plan`, `charges` (rapprochement, prélèvement inconnu), `subscriptions`, `settings`, `security`, `backup`, `balances`, `enrich`, `stats`.
 - Règles (vérifiées par ESLint) : fichiers et dossiers en **kebab-case** (sauf `_layout`, `[id]`, `(tabs)`, migrations `NNN-nom`) ; un fichier = une responsabilité (un composant ou un hook exporté par fichier) ; ≤ 200 lignes par fichier, ≤ 80 lignes par fonction ; imports par l'alias `@/` (→ `src/`), `./` pour un voisin, jamais `../` ; pas de fichier barrel. Les calculs (libellés, dates, montants, regroupements) sont des fonctions pures testées, hors des composants. Seuls `db/repositories`, `db/commands`, `db/reconcile` et `db/sync` utilisent Kysely.
 
 ## Conventions
+
 - Montants en **centimes** (entiers), jamais de flottants. Arrondi au centime supérieur : `(montant × (10000 + marge_bp) + 9999) / 10000`.
 - Dates en `YYYY-MM-DD`, fuseau Europe/Paris ; horodatages en ISO 8601 UTC.
 - Identifiants UUID v4 générés côté app. Suppression logique via `archived_at`.
@@ -59,9 +67,11 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 - **Profondeur et verre** (20/11/2026) : ombres uniquement via `src/theme/elevation.ts` (`shadow.sm/md/lg/glow/…`, `RADIUS.card/row/control/glass`), jamais de `boxShadow` écrit à la main. Écrans d'onglet et Statistiques : en-tête `Hero` (`ui/surfaces/hero.tsx`, dégradé aubergine en `backgroundImage` natif) + `ScreenHeader onHero` / `StackHeader onHero`, barre d'état claire tant que l'écran a le focus. Sur le dégradé : `GlassCard` / `GlassPanel` (`ui/surfaces/glass-card.tsx`, `glass-panel.tsx`, verre sombre teinté, sans flou), `HeroAmount`, `IconButton variant="glass"`, `Segmented onGlass`, couleurs `onGlass*` (contrastes mesurés). Formulaires d'abonnement en feuille du bas (`ui/surfaces/sheet-screen.tsx`, route `transparentModal`, ni poignée ni fermeture par glissement). Barre d'onglets flottante unique (`ui/navigation/tab-bar/`, capsule « iris », flou Dimezis réglable par `ANDROID_BLUR`). Titres et grands montants en Space Grotesk (`DISPLAY_FONT`, sans `fontWeight`). Après un changement qui ne se voit pas dans Expo Go : `npx expo start --go --clear`.
 
 ## Palette (tokens Tamagui)
+
 primary `#4C1E4F`, secondary `#F6D5C4` (pêche) (fond uniquement, texte `#4C1E4F` dessus), succès `#214F1E`, fond `#F5F6F4`, surface `#FFFFFF`, bordure (séparateurs) `#E3E6E3`, bordure de contrôle `borderControl` `#838C94` (champs, puces, 3:1), fond neutre `subtle` `#E9ECE9`, texte `#14181B`, texte atténué `#5B6670`, alerte fond/bordure/texte `#FFF4E5` / `#F0C48A` / `#7A3E00`, danger fond/texte `#FDE8E8` / `#8A1C1C`. Zones tactiles ≥ 44 px, contrastes ≥ 4,5:1.
 
 ## État d'avancement
+
 1. Fait : conception, maquettes, schéma, décisions v1 (`modele-de-donnees.md` sections 9 et 10), migrations `001_init`, `002_transfer_rescheduled`, `003_settings_onboarding` et `004_settings_toggles` (interrupteurs `reminders_enabled` et `ai_suggestion_enabled`).
 2. Fait : **spike validé le 19/11/2026** sur le téléphone (Xiaomi, MIUI 12.5, Android 11), en APK release Hermes : démarrage, animation Reanimated via Tamagui, deux migrations Kysely sur expo-sqlite, lecture après écriture avec TanStack Query. L'écran `app/index.tsx` est un écran de test, à remplacer.
 3. Fait : `packages/core` (91 tests Vitest, `pnpm test` dans `packages/core`) : `money`, `calendar` (fériés, Pâques), `charges` (génération 13 mois), `funding` (dates de transfert, regroupement, date de paie), `balance` (solde, résidu, alerte essai oublié), `payday` (virement de paie, provisions), `lifecycle` (machine à états, questions J+1), `regeneration` (régénération sur place), `reconciliation` (rapprochement, prélèvement inconnu).
@@ -71,9 +81,11 @@ primary `#4C1E4F`, secondary `#F6D5C4` (pêche) (fond uniquement, texte `#4C1E4F
 7. Adresse et secret de `/enrich` intégrés au build via `apps/mobile/.env.local` (ignoré par git, `EXPO_PUBLIC_ENRICH_URL`, `EXPO_PUBLIC_ENRICH_SECRET`) : rien à saisir dans l'app, Réglages affiche seulement l'état. Le secret est donc dans l'APK (app perso, garde-fous : limite de débit et plafond de dépense Anthropic). Changer `.env.local` impose de relancer Metro ou de rebuilder.
 8. Code fait (19/11/2026), déploiement à faire : soldes Revolut via Enable Banking (mode restreint, application « Abonnements », lecture seule). Fonction Scaleway dédiée, handler `HandleBalances` (même archive que `/enrich`, `apps/enrich/balances.go`, même secret `ENRICH_SECRET` ; adresse dans `EXPO_PUBLIC_BALANCES_URL` de `.env.local`, à défaut `/balances` de la fonction `/enrich`), en-têtes PSU transmis pour une lecture « utilisateur présent ») ; variables secrètes `EB_APP_ID`, `EB_PRIVATE_KEY` (PEM en base64), `EB_SESSION_ID`, `EB_ACCOUNT_CURRENT`, `EB_ACCOUNT_VAULT`, valeurs dans `~/.config/sluis/scaleway-balances.env` (clé : `~/.config/sluis/enablebanking.pem`, session : `enablebanking.session.json`). Rien n'est stocké côté serveur. App : `features/balances.ts`, carte `components/BalancesCard.tsx` en tête de l'Accueil (tirer pour actualiser, couverture des transferts à venir) et ligne `VaultCoverage` dans le Plan. Accord valable jusqu'au 17/05/2027 : le renouveler (nouvel accord `/auth` puis `/sessions`, mettre à jour `EB_SESSION_ID`) ; l'Accueil prévient 14 jours avant.
 9. À faire : build APK release (`expo prebuild` nécessaire pour les plugins notifications et biométrie) ; usage réel un mois.
+
 - Développement au quotidien : Expo Go (`npx expo start --go` dans `apps/mobile`, `adb reverse tcp:8081 tcp:8081`). La base est ouverte une seule fois par app (`db/provider.tsx`) : deux connexions simultanées bloquent le thread JS en mode dev.
 
 ## Build Android local
+
 - APK release : `cd apps/mobile/android && ./gradlew assembleRelease` (sortie dans `app/build/outputs/apk/release/`). Premier build environ 16 min.
 - Development build (`expo-dev-client`) : `./gradlew assembleDebug`, puis `npx expo start` dans `apps/mobile` et `adb reverse tcp:8081 tcp:8081`.
 - MIUI refuse souvent `adb install` (`INSTALL_FAILED_USER_RESTRICTED`, fenêtre de confirmation qui expire) : copier l'APK avec `adb push <apk> /sdcard/Download/` et l'installer depuis le gestionnaire de fichiers.
