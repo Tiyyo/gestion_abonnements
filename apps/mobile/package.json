@@ -15,6 +15,7 @@
   "dependencies": {
     "@abonnements/core": "workspace:^",
     "@expo-google-fonts/space-grotesk": "^0.4.1",
+    "@expo/metro-runtime": "~58.0.17",
     "@hookform/resolvers": "^7.0.7",
     "@react-native-community/datetimepicker": "9.2.1",
     "@tamagui/animation-helpers": "3.3.3",

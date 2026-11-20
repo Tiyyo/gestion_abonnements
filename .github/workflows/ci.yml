@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CI: '1'
+  EXPO_NO_TELEMETRY: '1'
+
+jobs:
+  mobile:
+    name: Mobile (types, lint, tests, bundle Hermes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      # Version de pnpm lue dans le champ packageManager du package.json racine.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # pnpm 8 exécute les scripts d'installation par défaut ; better-sqlite3 (Vitest)
+      # embarque ses binaires précompilés (prebuilds/linux-x64.node), rien à compiler.
+      - run: pnpm install --frozen-lockfile
+      - name: Types
+        working-directory: apps/mobile
+        run: npx tsc --noEmit
+      - name: ESLint
+        working-directory: apps/mobile
+        run: npx eslint . --max-warnings 0
+      - name: Tests
+        working-directory: apps/mobile
+        run: npx vitest run
+      # Interroge l'API Expo et React Native Directory : a besoin du réseau (présent sur les runners GitHub).
+      - name: Expo Doctor
+        working-directory: apps/mobile
+        run: npx expo-doctor
+      # Sans .env.local, les variables EXPO_PUBLIC_* sont absentes : src/config/function-config.ts renvoie null.
+      - name: Bundle Hermes (Android)
+        working-directory: apps/mobile
+        run: npx expo export --platform android
+
+  core:
+    name: Core (types, tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Types
+        run: pnpm --filter @abonnements/core typecheck
+      - name: Tests
+        run: pnpm --filter @abonnements/core test
+
+  enrich:
+    name: Enrich (Go)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/enrich
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: apps/enrich/go.mod
+          cache-dependency-path: apps/enrich/go.sum
+      - run: go vet ./...
+      - run: go test ./...
+      # Les fixtures sont relues par les tests de l'app (features/enrich) : elles doivent être à jour.
+      - name: Fixtures de contrat à jour
+        run: |
+          go test ./... -update
+          git diff --exit-code -- ../../contracts
+          test -z "$(git status --porcelain -- ../../contracts)"
