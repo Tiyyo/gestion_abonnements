@@ -1,22 +1,17 @@
-import { dayOfWeek, formatEuros } from '@abonnements/core';
+import { formatEuros } from '@abonnements/core';
 import type { PlanTrial } from '@/db/repositories/plan/types';
-import { formatDayMonth } from '@/lib/format';
+import { capitalize, dateLong, dateShort } from '@/lib/dates';
 import type { CalendarDay } from './calendar-grid';
 import type { DayItem, MarkerKind } from './calendar-items';
 
-const WEEKDAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-
-/** « vendredi 27 novembre », « dimanche 1er novembre » : tables fixes, sans `Date` locale ni `Intl`. */
+/** « vendredi 27 novembre », « dimanche 1er novembre ». */
 export function formatFullDay(date: string): string {
-  const day = Number(date.slice(8, 10));
-  return `${WEEKDAYS[dayOfWeek(date)]} ${day === 1 ? '1er' : day} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
+  return dateLong(date);
 }
 
 /** Titre de la section du jour choisi : « Vendredi 27 novembre ». */
 export function dayTitle(date: string): string {
-  const label = formatFullDay(date);
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  return capitalize(dateLong(date));
 }
 
 export const MARKER_LABELS: Record<MarkerKind, string> = {
@@ -29,7 +24,7 @@ export const MARKER_LABELS: Record<MarkerKind, string> = {
 
 /** Sous-titre d'un prélèvement dans le détail du jour : le transfert qui le finance. */
 export function chargeDayNote(charge: { fundedOn: string; funded: boolean }): string {
-  return `${charge.funded ? 'Financé' : 'À financer'} par le transfert du ${formatDayMonth(charge.fundedOn)}`;
+  return `${charge.funded ? 'Financé' : 'À financer'} par le transfert du ${dateShort(charge.fundedOn)}`;
 }
 
 /** Sous-titre d'une fin d'essai : jamais financée, elle passe seulement si le compte a de quoi ce jour-là. */

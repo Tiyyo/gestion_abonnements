@@ -19,17 +19,17 @@ const charge: DayItem = { kind: 'charge', name: 'Netflix', amountCents: 1399, fu
 
 describe('formatFullDay', () => {
   it('écrit le jour en toutes lettres', () => {
-    expect(formatFullDay('2026-11-27')).toBe('vendredi 27 novembre');
-    expect(formatFullDay('2026-11-01')).toBe('dimanche 1er novembre');
-    expect(formatFullDay('2027-02-08')).toBe('lundi 8 février');
-    expect(dayTitle('2026-11-27')).toBe('Vendredi 27 novembre');
+    expect(formatFullDay('2026-11-27')).toBe('vendredi\u00a027\u00a0novembre');
+    expect(formatFullDay('2026-11-01')).toBe('dimanche\u00a01er\u00a0novembre');
+    expect(formatFullDay('2027-02-08')).toBe('lundi\u00a08\u00a0février');
+    expect(dayTitle('2026-11-27')).toBe('Vendredi\u00a027\u00a0novembre');
   });
 });
 
 describe('notes du détail du jour', () => {
   it('rattache un prélèvement à son transfert', () => {
-    expect(chargeDayNote({ fundedOn: '2026-11-26', funded: false })).toBe('À financer par le transfert du 26 nov');
-    expect(chargeDayNote({ fundedOn: '2026-11-26', funded: true })).toBe('Financé par le transfert du 26 nov');
+    expect(chargeDayNote({ fundedOn: '2026-11-26', funded: false })).toBe('À financer par le transfert du 26\u00a0nov.');
+    expect(chargeDayNote({ fundedOn: '2026-11-26', funded: true })).toBe('Financé par le transfert du 26\u00a0nov.');
   });
 
   it('dit si une fin d’essai risque de passer', () => {
@@ -51,13 +51,13 @@ describe('dayItemsSummary', () => {
 describe('dayAccessibilityLabel', () => {
   it('annonce la date puis les éléments', () => {
     expect(dayAccessibilityLabel({ date: '2026-11-27', holiday: false }, [todo, charge], '2026-11-20')).toBe(
-      'vendredi 27 novembre, 1 transfert à faire, 1 prélèvement',
+      'vendredi\u00a027\u00a0novembre, 1 transfert à faire, 1 prélèvement',
     );
   });
 
   it('signale aujourd’hui et les jours fériés', () => {
     expect(dayAccessibilityLabel({ date: '2026-11-11', holiday: true }, [], '2026-11-11')).toBe(
-      'mercredi 11 novembre, aujourd’hui, jour férié, rien de prévu',
+      'mercredi\u00a011\u00a0novembre, aujourd’hui, jour férié, rien de prévu',
     );
   });
 });
