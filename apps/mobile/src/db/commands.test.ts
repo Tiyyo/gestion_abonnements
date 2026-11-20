@@ -201,7 +201,7 @@ describe('updateSubscription', () => {
     expect(charges[1]).toEqual({ due_date: '2026-12-21', status: 'planned', funded_amount_cents: 1338 });
     expect(await subscriptionsRepository(db).get(id)).toMatchObject({ category_name: 'Musique', icon_key: 'spotify' });
     const events = await db.selectFrom('event').select('payload').where('type', '=', 'price_change').execute();
-    expect(events.map((e) => JSON.parse(e.payload))).toEqual([{ from: 1199, to: 1299 }]);
+    expect(events.map((e) => JSON.parse(e.payload))).toEqual([{ from: 1199, to: 1299, source: 'manual', applied: true }]);
     expect(await correctionsRepository(db).find('  SPOTIFY ')).toMatchObject({ category_id: 'cat-musique', icon_key: 'spotify' });
   });
 

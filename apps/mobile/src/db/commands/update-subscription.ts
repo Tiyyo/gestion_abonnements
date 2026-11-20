@@ -1,3 +1,4 @@
+import { priceChangePayload } from '@abonnements/core';
 import type { Kysely } from 'kysely';
 import type { NewId } from '@/db/executor';
 import { correctionsRepository, type SubscriptionEdit, subscriptionsRepository } from '@/db/repositories/subscriptions';
@@ -24,7 +25,7 @@ export async function updateSubscription(
           subscription_id: subscriptionId,
           type: 'price_change',
           occurred_on: today,
-          payload: JSON.stringify({ from: row.amount_cents, to: edit.amountCents }),
+          payload: JSON.stringify(priceChangePayload(row.amount_cents, edit.amountCents, 'manual', true)),
         })
         .execute();
     }

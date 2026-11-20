@@ -42,6 +42,18 @@ export interface HomeUpcoming {
   funded: boolean;
 }
 
+/** Hausse de prix récente d'un abonnement actif, à garder ou à résilier. */
+export interface HomePriceAlert {
+  eventId: string;
+  subscriptionId: string;
+  name: string;
+  fromCents: number;
+  toCents: number;
+  occurredOn: string;
+  annualImpactCents: number;
+  nextChargeDate: string;
+}
+
 export interface HomeData {
   overdue: PlanTransfer[];
   next: PlanTransfer | null;
@@ -49,6 +61,7 @@ export interface HomeData {
   trials: PlanTrial[];
   toReview: HomeReview[];
   unexpectedDebits: HomeUnexpectedDebit[];
+  priceAlerts: HomePriceAlert[];
   upcoming: HomeUpcoming[];
   isEmpty: boolean;
 }

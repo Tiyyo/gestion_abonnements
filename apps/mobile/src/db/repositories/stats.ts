@@ -1,5 +1,5 @@
-import type { Kysely } from 'kysely';
-import { addDays } from '@abonnements/core';
+import { type Kysely, sql } from 'kysely';
+import { addDays, isPriceIncrease, parsePriceChange } from '@abonnements/core';
 import type { DB } from '@/db/types';
 
 export interface CategoryCost {
@@ -18,6 +18,13 @@ export interface Stats {
   spentLast12MonthsCents: number;
   /** Abonnement actif le plus cher, ramené à l'année. */
   topSubscription: { name: string; annualCents: number } | null;
+  priceIncreases: PriceIncreases;
+}
+
+/** Hausses de prix des 12 derniers mois sur les abonnements actifs, et leur surcoût cumulé par an. */
+export interface PriceIncreases {
+  count: number;
+  annualImpactCents: number;
 }
 
 export function annualCents(amountCents: number, unit: 'week' | 'month' | 'year', count: number): number {
@@ -36,6 +43,30 @@ function byCategory(rows: readonly { category: string; cents: number }[]): Categ
     totals.set(r.category, (totals.get(r.category) ?? 0) + r.cents);
   }
   return [...totals.entries()].map(([category, cents]) => ({ category, cents })).sort((a, b) => b.cents - a.cents);
+}
+
+export async function loadPriceIncreases(db: Kysely<DB>, today: string): Promise<PriceIncreases> {
+  const rows = await db
+    .selectFrom('event')
+    .innerJoin('subscription', 'subscription.id', 'event.subscription_id')
+    .select(['event.payload', 'subscription.period_unit', 'subscription.period_count'])
+    .where('event.type', '=', 'price_change')
+    .where('event.occurred_on', '>', addDays(today, -365))
+    .where('event.occurred_on', '<=', today)
+    .where('subscription.archived_at', 'is', null)
+    .where('subscription.status', '=', 'active')
+    .orderBy(sql`event.rowid`)
+    .execute();
+  const result: PriceIncreases = { count: 0, annualImpactCents: 0 };
+  for (const row of rows) {
+    const change = parsePriceChange(row.payload);
+    if (change && isPriceIncrease(change)) {
+      result.count += 1;
+      result.annualImpactCents +=
+        annualCents(change.to, row.period_unit, row.period_count) - annualCents(change.from, row.period_unit, row.period_count);
+    }
+  }
+  return result;
 }
 
 export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
@@ -78,5 +109,6 @@ export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
     excludedCount: subs.filter((s) => s.status === 'trial' || s.status === 'to_cancel').length,
     spentLast12MonthsCents: Number(spent?.total ?? 0),
     topSubscription: top ? { name: top.name, annualCents: top.annual } : null,
+    priceIncreases: await loadPriceIncreases(db, today),
   };
 }
