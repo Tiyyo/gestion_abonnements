@@ -18,6 +18,7 @@ const stats: Stats = {
   longSubscriptionsPerMonthCents: 1000,
   excludedCount: 1,
   spentLast12MonthsCents: 30000,
+  topSubscription: { name: 'Netflix', annualCents: 24000 },
 };
 
 describe('statistiques', () => {
