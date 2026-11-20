@@ -40,6 +40,10 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 - Ajouter une dépendance native : `npx expo install <paquet>`, jamais `pnpm add` (versions alignées sur le SDK).
 - `android/` est généré (`expo prebuild`) et ignoré par git : configurer via `app.json` et les plugins.
 
+## CI
+
+GitHub Actions, `.github/workflows/ci.yml`, sur chaque pull request et chaque push sur `main` (exécution précédente annulée, permission `contents: read`, aucun secret, pas de build APK ni de déploiement). Trois jobs : **mobile** (`tsc --noEmit`, `eslint . --max-warnings 0`, `vitest run`, `expo-doctor`, `expo export --platform android` pour le bundle Hermes, sans `.env.local`), **core** (types et tests de `packages/core`), **enrich** (`go vet`, `go test`, puis `go test ./... -update` qui doit laisser `contracts/` inchangé). Node figé dans `.nvmrc`, pnpm dans `packageManager`, Go dans `apps/enrich/go.mod`. Mêmes contrôles en local depuis la racine : `pnpm check` (= `pnpm typecheck && pnpm lint && pnpm test`), `pnpm bundle` (bundle Hermes), `pnpm test:enrich` (Go). `pnpm-lock.yaml` est mis en forme par Prettier (`npx prettier --no-config --write pnpm-lock.yaml` après une installation, pour garder un diff lisible). Une dépendance importée par le bundle doit être déclarée dans `apps/mobile/package.json` : une installation propre (`--frozen-lockfile`) ne matérialise pas les pairs installés automatiquement (cas de `@expo/metro-runtime`, requis par `expo-router`).
+
 ## Pièges connus (spike du 19/11/2026)
 
 - **Dialecte Kysely maison** : `src/db/expo-sqlite-database.ts` adapte l'API synchrone d'`expo-sqlite` au `SqliteDialect` intégré à Kysely. Aucun dialecte communautaire n'était à jour pour le SDK 58.

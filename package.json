@@ -3,7 +3,11 @@
   "private": true,
   "packageManager": "pnpm@8.10.2",
   "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm --filter @abonnements/mobile exec eslint . --max-warnings 0",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "test:enrich": "cd apps/enrich && go vet ./... && go test ./...",
+    "bundle": "pnpm --filter @abonnements/mobile exec expo export --platform android",
+    "check": "pnpm typecheck && pnpm lint && pnpm test"
   }
 }
