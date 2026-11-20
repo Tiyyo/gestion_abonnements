@@ -1,0 +1,64 @@
+# Parcours 2 : marquer un transfert fait depuis l'Accueil, puis depuis le Plan, et l'annuler dans le Plan
+# (l'Accueil ne propose pas d'annulation).
+# Un abonnement actif hebdomadaire dont le prochain prélèvement est aujourd'hui donne, quelle que soit la date :
+# - un transfert en retard (veille ouvrée) sur l'Accueil ;
+# - au moins trois transferts à faire le mois suivant dans le Plan.
+appId: ${MAESTRO_APP_ID}
+name: Transferts faits depuis l'Accueil et le Plan
+tags:
+  - core
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/complete-onboarding.yaml
+- runFlow:
+    file: ../subflows/add-subscription.yaml
+    env:
+      NAME: E2E Hebdo
+      AMOUNT: '4,50'
+      STATUS: active
+      PERIODICITY: week
+
+# --- Accueil : transfert en retard marqué fait.
+- tapOn:
+    id: 'tab.accueil'
+- assertVisible:
+    id: 'home.overdue-done'
+- assertVisible:
+    id: 'home.next-done'
+- tapOn:
+    id: 'home.overdue-done'
+- assertNotVisible:
+    id: 'home.overdue-done'
+# Le prélèvement du jour est désormais alimenté.
+- scrollUntilVisible:
+    element: 'Alimenté · .*'
+    direction: DOWN
+
+# --- Plan (mois suivant, entièrement à venir) : cocher le premier transfert.
+- tapOn:
+    id: 'tab.plan'
+- tapOn:
+    id: 'plan.month-next'
+- scrollUntilVisible:
+    element:
+      id: 'plan.transfer-check'
+    direction: DOWN
+- tapOn:
+    id: 'plan.transfer-check'
+    index: 0
+# Un transfert fait ouvre la proposition de le remettre à faire : preuve qu'il est bien coché.
+- tapOn:
+    id: 'plan.transfer-check'
+    index: 0
+- assertVisible: 'Transfert fait'
+- assertVisible: 'Remettre à faire'
+- tapOn:
+    id: 'dialog.confirm'
+# Annulé : la ligne propose de nouveau « Reporter » (dialogue d'un transfert à faire).
+- tapOn:
+    id: 'plan.transfer-row'
+    index: 0
+- assertVisible: 'Reporter'
+- assertNotVisible: 'Remettre à faire'
+- tapOn:
+    id: 'dialog.cancel'
