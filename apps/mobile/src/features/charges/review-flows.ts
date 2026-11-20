@@ -1,6 +1,6 @@
 import { formatEuros } from '@abonnements/core';
 import { router } from 'expo-router';
-import type { FollowUpInput } from './hooks/use-follow-up';
+import type { FollowUpInput } from '@/features/charges/hooks/use-follow-up';
 import { retryShortfallCents } from '@/features/charges/debit-input';
 import type { ReviewContext } from '@/features/charges/types';
 import { showDialog } from '@/ui/feedback/show-dialog';

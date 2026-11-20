@@ -3,8 +3,8 @@ import { Caption } from '@/ui/text/typography';
 import { SheetScreen } from '@/ui/surfaces/sheet-screen';
 import { DetailsGroup } from './details-group';
 import { FieldError } from './field-error';
-import { FormFooter } from './form-footer';
-import { FormHeaderBar } from './form-header-bar';
+import { SheetFooter } from '@/ui/surfaces/sheet-footer';
+import { SheetHeader } from '@/ui/navigation/sheet-header';
 import { FormHero } from './form-hero';
 import { fundingPreview, PER } from './form-labels';
 import { FormSheet } from './form-sheet';
@@ -31,14 +31,13 @@ export function SubscriptionForm({ title, submitLabel, busy, error, onCancel, ..
 
   return (
     <SheetScreen>
-      <FormHeaderBar title={title} onCancel={onCancel} />
+      <SheetHeader title={title} onCancel={onCancel} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
         <FormHero
           control={form.control}
           errors={form.errors}
           name={values.name}
           iconKey={values.iconKey}
-          amount={values.amount}
           caption={`${form.categoryName} · ${PER[values.periodicity]}`}
           trial={form.status === 'trial'}
           onLogo={() => choices.sheet.show('logo')}
@@ -88,7 +87,7 @@ export function SubscriptionForm({ title, submitLabel, busy, error, onCancel, ..
         </YStack>
       </ScrollView>
 
-      <FormFooter busy={busy} label={submitLabel} onPress={() => form.submit()} />
+      <SheetFooter busy={busy} label={submitLabel} onPress={() => form.submit()} />
       <FormSheet
         open={choices.sheet.open}
         shown={choices.sheet.shown}

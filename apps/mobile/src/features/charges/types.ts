@@ -1,6 +1,6 @@
-import type { useChargeToReview } from './hooks/use-charge-to-review';
-import type { useFollowUp } from './hooks/use-follow-up';
-import type { useReviewCharge } from './hooks/use-review-charge';
+import type { useChargeToReview } from '@/features/charges/hooks/use-charge-to-review';
+import type { useFollowUp } from '@/features/charges/hooks/use-follow-up';
+import type { useReviewCharge } from '@/features/charges/hooks/use-review-charge';
 
 /** Prélèvement à rapprocher, avec le nom et le statut de son abonnement. */
 export type ChargeToReview = NonNullable<ReturnType<typeof useChargeToReview>['data']>;

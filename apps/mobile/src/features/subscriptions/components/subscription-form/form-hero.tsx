@@ -15,7 +15,6 @@ interface Props {
   errors: FieldErrors<SubscriptionFormValues>;
   name: string;
   iconKey: string | null;
-  amount: string;
   caption: string;
   trial: boolean;
   onLogo: () => void;
@@ -23,7 +22,7 @@ interface Props {
 }
 
 /** Aperçu vivant sur le dégradé : logo, nom, catégorie et rythme, montant. */
-export function FormHero({ control, errors, name, iconKey, amount, caption, trial, onLogo, onLookup }: Props) {
+export function FormHero({ control, errors, name, iconKey, caption, trial, onLogo, onLookup }: Props) {
   return (
     <Hero px="4" pt="2" pb="5">
       <GlassCard flexDirection="row" items="center" gap="3" p="3.5">
@@ -34,7 +33,7 @@ export function FormHero({ control, errors, name, iconKey, amount, caption, tria
             {caption}
           </Caption>
         </YStack>
-        <AmountInput control={control} trial={trial} hasAmount={Boolean(amount)} />
+        <AmountInput control={control} trial={trial} />
       </GlassCard>
       {errors.name?.message || errors.amount?.message ? (
         <YStack pt="2" px="1">
