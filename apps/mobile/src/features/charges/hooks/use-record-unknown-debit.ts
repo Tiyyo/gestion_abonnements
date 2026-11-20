@@ -11,6 +11,7 @@ import { useReviewCharge } from './use-review-charge';
 import { parseAmountCents } from '@/features/subscriptions/subscription-form-schema';
 import { formatDayMonth } from '@/lib/format';
 import { requestReschedule } from '@/notifications/scheduler';
+import { requestWidgetRefresh } from '@/features/widget/refresher';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
 
 /**
@@ -26,6 +27,7 @@ export function useRecordUnknownDebit() {
   const done = async (message: string) => {
     await queryClient.invalidateQueries();
     requestReschedule();
+    requestWidgetRefresh();
     showDialog('Enregistré', message, undefined, { tone: 'ok' });
     router.back();
   };
