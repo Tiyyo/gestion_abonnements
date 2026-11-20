@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "a11y:contrast": "node scripts/a11y-contrast.mjs"
   },
   "dependencies": {
     "@abonnements/core": "workspace:^",
