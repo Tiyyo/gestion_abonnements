@@ -14,6 +14,8 @@ export const colors = {
   background: String(palette.background?.val ?? '#F5F6F4'),
   surface: String(palette.surface?.val ?? '#FFFFFF'),
   borderControl: String(palette.borderControl?.val ?? '#838C94'),
+  subtle: String(palette.subtle?.val ?? '#E9ECE9'),
+  glassSkeleton: String(palette.glassSkeleton?.val ?? 'rgba(255, 255, 255, 0.16)'),
   scrim: String(palette.scrim?.val ?? 'rgba(20, 24, 27, 0.5)'),
   onGlass: String(palette.onGlass?.val ?? '#FFFFFF'),
   onGlassMuted: String(palette.onGlassMuted?.val ?? 'rgba(255, 255, 255, 0.72)'),
