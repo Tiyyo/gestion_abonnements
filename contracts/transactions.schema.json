@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abonnements.local/contracts/transactions.schema.json",
+  "title": "GET /transactions?from=AAAA-MM-JJ",
+  "description": "Mouvements du compte principal Revolut depuis `from`, lus via Enable Banking. Rien n'est stocké côté serveur.",
+  "$defs": {
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "bookingDate", "amountCents", "currency", "direction", "status", "label", "remittance"],
+      "properties": {
+        "id": {
+          "description": "Référence stable de la banque (entry_reference) ; à défaut, empreinte « h-… » du contenu et de son rang.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "bookingDate": {
+          "description": "Date de comptabilisation ; à défaut, date de valeur puis date de l'opération.",
+          "type": "string",
+          "format": "date"
+        },
+        "amountCents": { "description": "Montant en centimes, toujours positif.", "type": "integer", "minimum": 0 },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "direction": { "enum": ["debit", "credit"] },
+        "status": { "enum": ["booked", "pending"] },
+        "label": {
+          "description": "Nom de la contrepartie ; à défaut, libellé du relevé. Peut être vide.",
+          "type": "string",
+          "maxLength": 140
+        },
+        "remittance": {
+          "description": "Libellé du relevé quand il diffère de `label`.",
+          "type": ["string", "null"],
+          "maxLength": 140
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "complete", "transactions", "fetchedAt"],
+      "properties": {
+        "from": {
+          "description": "Date de début réellement relue (ramenée à 90 jours au plus).",
+          "type": "string",
+          "format": "date"
+        },
+        "complete": {
+          "description": "Faux si la pagination a été interrompue : la période n'est pas entièrement couverte.",
+          "type": "boolean"
+        },
+        "transactions": { "type": "array", "items": { "$ref": "#/$defs/transaction" } },
+        "fetchedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
