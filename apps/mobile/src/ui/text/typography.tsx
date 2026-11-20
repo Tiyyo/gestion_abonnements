@@ -14,7 +14,9 @@ export const Overline = styled(Text, {
 // La graisse est dans le nom de la police : pas de fontWeight, sinon Android ajoute un gras synthétique.
 export const DISPLAY_FONT = 'SpaceGrotesk_700Bold';
 
+// Titres d'écran et de section : annoncés comme titres par TalkBack (navigation par titres).
 export const ScreenTitle = styled(Text, {
+  accessibilityRole: 'header',
   fontSize: 28,
   fontFamily: DISPLAY_FONT as never,
   letterSpacing: -0.5,
@@ -22,6 +24,7 @@ export const ScreenTitle = styled(Text, {
 });
 
 export const Heading = styled(Text, {
+  accessibilityRole: 'header',
   fontSize: 20,
   fontWeight: '700',
   letterSpacing: -0.2,
@@ -57,7 +60,9 @@ export const Amount = styled(Text, {
   fontVariant: TABULAR as unknown as never,
 });
 
+// Grands montants : un montant ne se coupe pas en deux lignes ; au-delà de 150 % (54 px), la carte déborderait.
 export const Display = styled(Text, {
+  maxFontSizeMultiplier: 1.5,
   fontSize: 36,
   fontFamily: DISPLAY_FONT as never,
   letterSpacing: -1,

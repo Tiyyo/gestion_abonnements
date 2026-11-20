@@ -78,11 +78,15 @@ export function ActionButton({
         }
         onPress();
       }}
+      // Désactivé, le bouton Tamagui sort de l'ordre de focus (tabIndex -1) : `accessible` le garde lisible, état compris.
+      accessible
+      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
     >
       {loading ? <Spinner color={fg as 'color'} /> : null}
-      <Button.Text fontSize={dims.font} fontWeight="600" color={fg as 'color'} numberOfLines={1}>
+      {/* Pas de numberOfLines : à 200 % de taille de police, le libellé passe à la ligne au lieu d'être tronqué. */}
+      <Button.Text fontSize={dims.font} fontWeight="600" color={fg as 'color'} text="center">
         {label}
       </Button.Text>
     </Button>

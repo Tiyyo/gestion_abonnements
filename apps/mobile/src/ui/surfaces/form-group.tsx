@@ -6,7 +6,9 @@ import { Overline } from '@/ui/text/typography';
 export function FormGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <YStack gap="2">
-      <Overline px="1">{title}</Overline>
+      <Overline px="1" accessibilityRole="header">
+        {title}
+      </Overline>
       <Card py="0" gap="0">
         {children}
       </Card>

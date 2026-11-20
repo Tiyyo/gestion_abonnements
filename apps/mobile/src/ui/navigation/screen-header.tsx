@@ -17,9 +17,7 @@ export function ScreenHeader({
     <XStack px="4" items="flex-end" justify="space-between" gap="3">
       <YStack shrink={1} gap="0.5">
         {overline ? <Overline color={onHero ? 'onGlassMuted' : 'colorMuted'}>{overline}</Overline> : null}
-        <ScreenTitle numberOfLines={2} color={onHero ? 'onGlass' : 'color'}>
-          {title}
-        </ScreenTitle>
+        <ScreenTitle color={onHero ? 'onGlass' : 'color'}>{title}</ScreenTitle>
       </YStack>
       {trailing ? (
         <XStack gap="2" items="center">

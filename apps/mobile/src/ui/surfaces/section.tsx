@@ -9,7 +9,7 @@ export function Section({ title, children, onHero }: { title: string; children: 
   return (
     <Settle>
       <YStack gap="2">
-        <Overline px="1" color={onHero ? 'onGlassMuted' : undefined}>
+        <Overline px="1" color={onHero ? 'onGlassMuted' : undefined} accessibilityRole="header">
           {title}
         </Overline>
         <Card py="0" gap="0" lift={onHero}>

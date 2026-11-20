@@ -23,12 +23,16 @@ export function PickerRow({ icon: Icon, label, value, onPress, last }: Props) {
       onPress={onPress}
       opacity="1 press:0.6"
       transition="fast"
+      accessible
+      tabIndex={0}
       accessibilityRole="button"
-      accessibilityLabel={`${label} : ${value}. Modifier`}
+      accessibilityLabel={`${label} : ${value}`}
+      accessibilityHint="Ouvre la liste des choix"
     >
       <Icon color={colors.muted} size={20} />
-      <Body>{label}</Body>
-      <Body flex={1} text="right" color="colorMuted" numberOfLines={1}>
+      <Body shrink={1}>{label}</Body>
+      {/* La valeur passe à la ligne plutôt que d'être tronquée (police agrandie). */}
+      <Body flex={1} text="right" color="colorMuted">
         {value}
       </Body>
       <ChevronRight color={colors.muted} size={18} />
