@@ -1,7 +1,8 @@
-import { effectiveMarginBp, formatEuros, fundedAmountCents } from '@abonnements/core';
+import { effectiveMarginBp, formatEuros, fundedAmountCents, todayIn } from '@abonnements/core';
 import type { SubscriptionDetail } from '@/features/subscriptions/load-subscription-detail';
-import { appliedMarginLabel, longDate, rhythmLabel, transferLabel } from '@/features/subscriptions/detail-labels';
+import { appliedMarginLabel, rhythmLabel, transferLabel } from '@/features/subscriptions/detail-labels';
 import { monthlyProvisionCents } from '@/features/subscriptions/funding';
+import { dateWithWeekday } from '@/lib/dates';
 import { formatPercentBp } from '@/lib/format';
 import { DetailRow } from './detail-row';
 
@@ -11,12 +12,13 @@ type Props = Pick<SubscriptionDetail, 'row' | 'settings' | 'nextCharge' | 'provi
 export function StatusRows({ row, settings, nextCharge, provisionedCents }: Props) {
   const margin = effectiveMarginBp(row.margin_override_bp, settings.global_margin_bp);
   const funded = fundedAmountCents(row.amount_cents, margin);
+  const today = todayIn();
   const rhythm = rhythmLabel(row.amount_cents, row.period_unit, row.period_count);
 
   if (row.status === 'trial' && row.trial_end_date) {
     return (
       <>
-        <DetailRow label="Fin d’essai">{longDate(row.trial_end_date)}</DetailRow>
+        <DetailRow label="Fin d’essai">{dateWithWeekday(row.trial_end_date, today)}</DetailRow>
         <DetailRow label="Montant après essai">{rhythm}</DetailRow>
         <DetailRow label="À sortir du coffre si gardé">{`${formatEuros(funded)} (marge ${formatPercentBp(margin)})`}</DetailRow>
       </>
@@ -26,7 +28,7 @@ export function StatusRows({ row, settings, nextCharge, provisionedCents }: Prop
     return (
       <>
         <DetailRow label="Montant">{rhythm}</DetailRow>
-        <DetailRow label="Fin de période">{longDate(row.period_end_date)}</DetailRow>
+        <DetailRow label="Fin de période">{dateWithWeekday(row.period_end_date, today)}</DetailRow>
         <DetailRow label="Résiliation chez le marchand">{row.cancel_done ? 'Faite' : 'À faire'}</DetailRow>
       </>
     );
@@ -38,7 +40,7 @@ export function StatusRows({ row, settings, nextCharge, provisionedCents }: Prop
   return (
     <>
       <DetailRow label="Montant">{rhythm}</DetailRow>
-      <DetailRow label="Prochain prélèvement">{longDate(row.next_charge_date)}</DetailRow>
+      <DetailRow label="Prochain prélèvement">{dateWithWeekday(row.next_charge_date, today)}</DetailRow>
       <DetailRow label="Transfert prévu">{transferLabel(nextCharge)}</DetailRow>
       <DetailRow label="Marge appliquée">{appliedMarginLabel(margin, row.margin_override_bp)}</DetailRow>
       {provision !== null && <DetailRow label="Provision mensuelle">{formatEuros(provision)}</DetailRow>}

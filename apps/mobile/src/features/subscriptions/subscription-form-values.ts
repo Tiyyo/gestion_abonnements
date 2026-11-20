@@ -1,6 +1,6 @@
 import { addDays, formatEuros } from '@abonnements/core';
 import type { NewSubscriptionInput, SubscriptionEdit, SubscriptionRow } from '@/db/repositories/subscriptions';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { centsToInput, parseAmountCents, periodicityKeyOf, periodicityOf, type SubscriptionFormValues } from './subscription-form-schema';
 
 export const DEFAULT_TRIAL_DAYS = 30;
@@ -91,5 +91,5 @@ export function touchesPlan(edit: ReturnType<typeof toSubscriptionEdit>, row: Su
 }
 
 export function fundedChargesWarning(funded: readonly { due_date: string; funded_amount_cents: number }[]): string {
-  return `${funded.map((c) => `Le prélèvement du ${formatDayMonth(c.due_date)} est déjà alimenté (${formatEuros(c.funded_amount_cents)}) : il ne change pas.`).join('\n')}\nLes prélèvements suivants seront recalculés.`;
+  return `${funded.map((c) => `Le prélèvement du ${dateShort(c.due_date)} est déjà alimenté (${formatEuros(c.funded_amount_cents)}) : il ne change pas.`).join('\n')}\nLes prélèvements suivants seront recalculés.`;
 }

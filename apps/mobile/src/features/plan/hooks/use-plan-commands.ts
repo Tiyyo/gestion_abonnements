@@ -2,7 +2,7 @@ import { formatEuros } from '@abonnements/core';
 import type { MonthPlan, PlanTransfer } from '@/db/repositories/plan/types';
 import { type PlanAction, usePlanAction } from '@/features/plan/hooks/use-plan-action';
 import { pickRescheduleDate } from '@/features/plan/pick-reschedule-date';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
 import { haptic } from '@/ui/motion/haptics';
 
@@ -23,7 +23,7 @@ export function usePlanCommands(today: string) {
       ]);
       return;
     }
-    showDialog(`Transfert du ${formatDayMonth(transfer.effectiveDate)}`, undefined, [
+    showDialog(`Transfert du ${dateShort(transfer.effectiveDate)}`, undefined, [
       { text: 'Fermer', style: 'cancel' },
       ...(transfer.rescheduled
         ? [{ text: 'Annuler le report', onPress: () => run({ type: 'reschedule', transferId: transfer.id, date: null }) }]

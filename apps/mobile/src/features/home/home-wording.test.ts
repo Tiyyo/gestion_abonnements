@@ -4,7 +4,6 @@ import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import {
   dayOfMonth,
   heroDateLabel,
-  monthShort,
   pendingTransfersCents,
   reviewCaption,
   transferPurpose,
@@ -39,7 +38,7 @@ const upcoming = (over: Partial<HomeUpcoming>): HomeUpcoming => ({
 
 describe('libellés de l’Accueil', () => {
   it('écrit la date du jour en toutes lettres', () => {
-    expect(heroDateLabel('2026-11-20')).toBe('vendredi 20 novembre');
+    expect(heroDateLabel('2026-11-20')).toBe('vendredi\u00a020\u00a0novembre');
   });
 
   it('décrit l’objet d’un transfert', () => {
@@ -47,17 +46,17 @@ describe('libellés de l’Accueil', () => {
       { name: 'Netflix', dueDate: '2026-11-21' },
       { name: 'Spotify', dueDate: '2026-12-03' },
     ]);
-    expect(transferPurpose(t)).toBe('Coffre → compte principal, pour Netflix, Spotify (prélevé le 21, le 3)');
+    expect(transferPurpose(t)).toBe('Coffre → compte principal, pour Netflix, Spotify (prélevé le 21\u00a0nov., le 3\u00a0déc.)');
   });
 
   it('dit aujourd’hui, demain ou le jour de la semaine', () => {
-    expect(whenLabel('2026-11-20', '2026-11-20')).toMatch(/^aujourd’hui /);
-    expect(whenLabel('2026-11-21', '2026-11-20')).toMatch(/^demain /);
-    expect(whenLabel('2026-11-24', '2026-11-20')).not.toMatch(/^(aujourd’hui|demain)/);
+    expect(whenLabel('2026-11-20', '2026-11-20')).toBe('aujourd’hui 20\u00a0nov.');
+    expect(whenLabel('2026-11-21', '2026-11-20')).toBe('demain 21\u00a0nov.');
+    expect(whenLabel('2026-11-24', '2026-11-20')).toBe('mar.\u00a024\u00a0nov.');
   });
 
   it('compte les jours avant la fin d’un essai', () => {
-    expect(trialEndLabel('2026-11-25', '2026-11-20')).toBe('fin dans 5 jours');
+    expect(trialEndLabel('2026-11-25', '2026-11-20')).toBe('fin dans 5\u00a0jours');
     expect(trialEndLabel('2026-11-21', '2026-11-20')).toBe('fin demain');
     expect(trialEndLabel('2026-11-20', '2026-11-20')).toBe('fin aujourd’hui');
   });
@@ -83,13 +82,12 @@ describe('libellés de l’Accueil', () => {
 
   it('résume le financement d’un prochain prélèvement', () => {
     expect(upcomingCaption(upcoming({ funded: true }))).toBe(`Alimenté · ${formatEuros(1441)}`);
-    expect(upcomingCaption(upcoming({ transferDate: '2026-11-20' }))).toBe(`Transfert ven. 20 nov. · ${formatEuros(1441)}`);
+    expect(upcomingCaption(upcoming({ transferDate: '2026-11-20' }))).toBe(`Transfert ven.\u00a020\u00a0nov. · ${formatEuros(1441)}`);
     expect(upcomingCaption(upcoming({}))).toBe('Pas de transfert prévu');
   });
 
   it('découpe la date d’un prélèvement', () => {
     expect(dayOfMonth('2026-08-03')).toBe(3);
-    expect(monthShort('2026-08-03')).toBe('août');
   });
 
   it('additionne les transferts en retard et le prochain', () => {

@@ -1,11 +1,13 @@
+import { todayIn } from '@abonnements/core';
 import { XStack, YStack } from 'tamagui';
 import type { SubscriptionDetail } from '@/features/subscriptions/load-subscription-detail';
 import { eventLabel, reminderLabel } from '@/features/subscriptions/history';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { Caption, Heading, Label } from '@/ui/text/typography';
 
 /** Frise de l'historique : événements et rappels envoyés, le plus récent marqué. */
 export function DetailHistory({ history }: { history: SubscriptionDetail['history'] }) {
+  const today = todayIn();
   return (
     <YStack gap="3">
       <Heading>Historique</Heading>
@@ -18,7 +20,9 @@ export function DetailHistory({ history }: { history: SubscriptionDetail['histor
                 ? eventLabel(item.event.type, item.event.payload, item.event.amount_cents)
                 : reminderLabel(item.reminder.kind)}
             </Label>
-            <Caption>{item.kind === 'event' ? formatDayMonth(item.date) : `${formatDayMonth(item.date)} · notification envoyée`}</Caption>
+            <Caption>
+              {item.kind === 'event' ? dateShort(item.date, today) : `${dateShort(item.date, today)} · notification envoyée`}
+            </Caption>
           </YStack>
         </XStack>
       ))}

@@ -1,7 +1,7 @@
 import { diffDays } from '@abonnements/core';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
 import { toCancelNoticeText, trialNoticeText, trialWhenLabel } from '@/features/subscriptions/detail-labels';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { DetailNotice } from './detail-notice';
 
 /** Bandeau d'alerte d'un essai en cours ou d'un abonnement à résilier ; rien sinon. */
@@ -15,7 +15,7 @@ export function StatusNotice({ row, trialRisk, today }: { row: SubscriptionRow; 
   }
   if (row.status === 'to_cancel' && row.period_end_date) {
     return (
-      <DetailNotice tone="danger" title={`Fin de période le ${formatDayMonth(row.period_end_date)}`}>
+      <DetailNotice tone="danger" title={`Fin de période le ${dateShort(row.period_end_date)}`}>
         {toCancelNoticeText(Boolean(row.cancel_done))}
       </DetailNotice>
     );

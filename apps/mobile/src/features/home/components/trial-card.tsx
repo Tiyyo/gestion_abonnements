@@ -1,6 +1,6 @@
 import type { PlanTrial } from '@/db/repositories/plan/types';
 import { trialBody, trialEndLabel } from '@/features/home/home-wording';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { ActionButton } from '@/ui/controls/action-button';
 import { HomeCard } from './home-card';
 
@@ -17,7 +17,7 @@ export function TrialCard({ trial, today, busy, onKeep, onCancel }: Props) {
     <HomeCard
       tone="warn"
       caption={`Essai · ${trialEndLabel(trial.dueDate, today)}`}
-      title={`${trial.name} · ${formatDayMonth(trial.dueDate)}`}
+      title={`${trial.name} · ${dateShort(trial.dueDate)}`}
       body={trialBody(trial)}
       actions={
         <>

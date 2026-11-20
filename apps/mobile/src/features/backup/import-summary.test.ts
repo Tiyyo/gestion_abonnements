@@ -13,7 +13,14 @@ describe('importConfirmMessage', () => {
   it('annonce la date du fichier et le nombre d’abonnements', () => {
     const file = { exportedAt: '2026-11-19T08:00:00.000Z', tables: { subscription: [{}, {}] } } as unknown as ExportFile;
     expect(importConfirmMessage(file)).toBe(
-      'Le fichier du 19/11/2026 contient 2 abonnements. Toutes les données actuelles seront remplacées. Une sauvegarde de sécurité est faite avant.',
+      'Le fichier du 19\u00a0nov.\u00a02026 contient 2 abonnements. Toutes les données actuelles seront remplacées. Une sauvegarde de sécurité est faite avant.',
     );
+  });
+
+  it('prend le jour de Paris, et se passe de date si elle est illisible', () => {
+    const late = { exportedAt: '2026-12-31T23:30:00.000Z', tables: { subscription: [{}] } } as unknown as ExportFile;
+    expect(importConfirmMessage(late)).toMatch(/^Le fichier du 1er\u00a0janv\.\u00a02027 contient 1 abonnement\./);
+    const broken = { exportedAt: 'hier', tables: { subscription: [{}] } } as unknown as ExportFile;
+    expect(importConfirmMessage(broken)).toMatch(/^Le fichier contient 1 abonnement\./);
   });
 });

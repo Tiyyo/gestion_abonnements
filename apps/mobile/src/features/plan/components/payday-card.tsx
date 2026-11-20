@@ -3,7 +3,7 @@ import { Check } from 'lucide-react-native';
 import { XStack, YStack } from 'tamagui';
 import type { MonthPlan } from '@/db/repositories/plan/types';
 import { paydayLineLabel } from '@/features/plan/plan-labels';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { colors } from '@/theme/colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Card } from '@/ui/surfaces/card';
@@ -13,7 +13,7 @@ export function PaydayCard({ plan, busy, onDone, onUndo }: { plan: MonthPlan; bu
   const { payday } = plan;
   return (
     <Card>
-      <Overline>{`Virement de paie · ${formatDayMonth(payday.date)}`}</Overline>
+      <Overline>{`Virement de paie · ${dateShort(payday.date)}`}</Overline>
       <Display>{formatEuros(payday.totalCents)}</Display>
       <Caption>Banque → Revolut → coffre</Caption>
       <YStack borderTopWidth={1} borderColor="borderColor" mt="1" pt="3" gap="2">

@@ -9,7 +9,7 @@ import { recordUnknownDebit } from '@/db/reconcile/record-unknown-debit';
 import { unknownDebitLabel } from '@/features/charges/debit-input';
 import { useReviewCharge } from './use-review-charge';
 import { parseAmountCents } from '@/features/subscriptions/subscription-form-schema';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { requestReschedule } from '@/notifications/scheduler';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
 
@@ -36,7 +36,7 @@ export function useRecordUnknownDebit() {
     try {
       const outcome = await classifyDebit(db, debit);
       if (outcome.kind === 'matches_charge') {
-        showDialog(`C’est le prélèvement ${outcome.name} du ${formatDayMonth(outcome.dueDate)} ?`, undefined, [
+        showDialog(`C’est le prélèvement ${outcome.name} du ${dateShort(outcome.dueDate)} ?`, undefined, [
           { text: 'Non', style: 'cancel', onPress: () => setBusy(false) },
           {
             text: 'Oui',
