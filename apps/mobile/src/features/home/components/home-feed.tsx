@@ -28,6 +28,7 @@ export function HomeFeed({ data, today, actions }: { data: HomeData; today: stri
             busy={busy}
             onDone={() => actions.markTransferDone(next.id)}
             onReschedule={() => actions.reschedule(next)}
+            onRevolut={() => actions.openRevolut(next)}
           />
         </Appear>
       )}

@@ -3,6 +3,7 @@ import type { MonthPlan, PlanTransfer } from '@/db/repositories/plan/types';
 import { usePlanRun } from '@/features/plan/hooks/use-plan-run';
 import { pickRescheduleDate } from '@/features/plan/pick-reschedule-date';
 import { paydayDoneFeedback, rescheduleFeedback, transferDoneFeedback } from '@/features/plan/plan-feedback';
+import { copyAmountAndOpenRevolut } from '@/features/plan/revolut-shortcut';
 import { dateShort } from '@/lib/dates';
 import { showDialog } from '@/ui/feedback/show-dialog';
 
@@ -27,8 +28,9 @@ export function usePlanCommands(today: string) {
       ]);
       return;
     }
-    showDialog(`Transfert du ${dateShort(transfer.effectiveDate)}`, undefined, [
+    showDialog(`Transfert du ${dateShort(transfer.effectiveDate)}`, `${formatEuros(transfer.amountCents)}, coffre → compte principal.`, [
       { text: 'Fermer', style: 'cancel' },
+      { text: 'Copier le montant et ouvrir Revolut', onPress: () => copyAmountAndOpenRevolut(transfer.amountCents) },
       ...(transfer.rescheduled ? [{ text: 'Annuler le report', onPress: () => setDate(transfer, null) }] : []),
       { text: 'Reporter', onPress: () => reschedule(transfer) },
     ]);

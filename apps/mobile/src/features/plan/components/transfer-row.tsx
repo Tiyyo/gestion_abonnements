@@ -28,7 +28,14 @@ export function TransferRow({
           label={`Transfert du ${dateLong(transfer.effectiveDate)}, ${names}`}
           onPress={onToggle}
         />
-        <YStack flex={1} py="3" gap="0.5" onPress={onMore} accessibilityRole="button" accessibilityHint="Reporter ou annuler">
+        <YStack
+          flex={1}
+          py="3"
+          gap="0.5"
+          onPress={onMore}
+          accessibilityRole="button"
+          accessibilityHint="Reporter, annuler ou ouvrir Revolut"
+        >
           <Label color={transfer.done ? 'colorMuted' : 'color'} textDecorationLine={transfer.done ? 'line-through' : 'none'}>
             {`${capitalize(dateWithWeekday(transfer.effectiveDate))} · ${names}`}
           </Label>

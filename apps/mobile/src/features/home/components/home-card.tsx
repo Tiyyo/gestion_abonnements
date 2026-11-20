@@ -18,9 +18,11 @@ interface Props {
   title?: string;
   body?: string;
   actions?: ReactNode;
+  /** Action secondaire sur toute la largeur, sous la rangée de boutons. */
+  footer?: ReactNode;
 }
 
-export function HomeCard({ tone, caption, title, body, actions }: Props) {
+export function HomeCard({ tone, caption, title, body, actions, footer }: Props) {
   const t = FG[tone];
   return (
     <Card tone={tone === 'accent' ? 'plain' : tone} lift={tone === 'accent'}>
@@ -32,6 +34,7 @@ export function HomeCard({ tone, caption, title, body, actions }: Props) {
           {actions}
         </XStack>
       )}
+      {footer}
     </Card>
   );
 }
