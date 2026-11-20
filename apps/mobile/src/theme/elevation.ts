@@ -20,4 +20,4 @@ export type ShadowLevel = keyof typeof shadow;
 export const elevated = (level: ShadowLevel) => ({ boxShadow: shadow[level] });
 
 // Rayons : cartes principales, lignes de liste, contrôles (boutons, tuiles de logo).
-export const RADIUS = { card: 22, row: 18, control: 14, glass: 24 } as const;
+export const RADIUS = { card: 22, row: 18, control: 14, glass: 24, pill: 999 } as const;

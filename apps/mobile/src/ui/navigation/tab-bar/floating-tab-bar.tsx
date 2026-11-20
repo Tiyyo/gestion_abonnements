@@ -5,10 +5,10 @@ import { StyleSheet, type View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
 import { colors } from '@/theme/colors';
-import { elevated, RADIUS } from '@/theme/elevation';
+import { elevated } from '@/theme/elevation';
 import { useKeyboardVisible } from '@/ui/hooks/use-keyboard-visible';
 import { IrisPill } from './iris-pill';
-import { BAR_GAP, BAR_HEIGHT, ROW_GAP, ROW_PADDING } from './tab-bar-metrics';
+import { BAR_GAP, BAR_HEIGHT, BAR_RADIUS, ROW_GAP, ROW_PADDING } from './tab-bar-metrics';
 import { TabContent } from './tab-content';
 import { tabItems } from './tab-item';
 import { TabPressTargets } from './tab-press-targets';
@@ -45,11 +45,11 @@ export function FloatingTabBar({
       r={14}
       b={insets.bottom + BAR_GAP}
       h={BAR_HEIGHT}
-      rounded={RADIUS.glass}
+      rounded={BAR_RADIUS}
       style={elevated('bar')}
       pointerEvents="box-none"
     >
-      <YStack flex={1} rounded={RADIUS.glass} overflow="hidden" borderWidth={1} borderColor="barEdge">
+      <YStack flex={1} rounded={BAR_RADIUS} overflow="hidden" borderWidth={1} borderColor="barEdge">
         <BlurView style={StyleSheet.absoluteFill} tint="light" intensity={60} blurMethod={ANDROID_BLUR} blurTarget={blurTarget} />
         <XStack
           flex={1}

@@ -4,7 +4,7 @@ import type { BottomTabBarProps } from 'expo-router/build/layouts/Tabs';
 import { type ComponentRef, useCallback, useRef, useState } from 'react';
 import type { View } from 'react-native';
 import { YStack } from 'tamagui';
-import { TABS } from '@/features/app-shell/tabs';
+import { TABS } from '@/features/app-shell/tab-definitions';
 import { haptic } from '@/ui/motion/haptics';
 import { FloatingTabBar } from '@/ui/navigation/tab-bar/floating-tab-bar';
 import { TabBarBridge } from '@/ui/navigation/tab-bar/tab-bar-bridge';

@@ -14,7 +14,7 @@ export function MonthSwitcher({ year, month, onShift }: { year: number; month: n
       bg="glassInner"
       borderWidth={1}
       borderColor="glassEdge"
-      rounded={RADIUS.control + 4}
+      rounded={RADIUS.pill}
       p="1"
     >
       <IconButton icon={ChevronLeft} label="Mois précédent" variant="glass" onPress={() => onShift(-1)} />
