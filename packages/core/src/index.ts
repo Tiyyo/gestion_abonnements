@@ -8,3 +8,4 @@ export * from './payday';
 export * from './lifecycle';
 export * from './regeneration';
 export * from './reconciliation';
+export * from './bank-matching';
