@@ -11,6 +11,7 @@ import { useReviewCharge } from './use-review-charge';
 import { parseAmountCents } from '@/features/subscriptions/subscription-form-schema';
 import { dateShort } from '@/lib/dates';
 import { requestReschedule } from '@/notifications/scheduler';
+import { requestWidgetRefresh } from '@/features/widget/refresher';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
 import type { DiscardGuard } from '@/ui/navigation/use-discard-guard';
 
@@ -28,6 +29,7 @@ export function useRecordUnknownDebit(guard: DiscardGuard) {
   const done = async (message: string) => {
     await queryClient.invalidateQueries();
     requestReschedule();
+    requestWidgetRefresh();
     showDialog('Enregistré', message, undefined, { tone: 'ok' });
     guard.leave();
   };

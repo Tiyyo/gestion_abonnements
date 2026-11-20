@@ -1,0 +1,6 @@
+{
+  "name": "sluis-widget",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Widget Android « Prochain transfert » de Sluis : module Expo local, autolinké depuis apps/mobile/modules."
+}

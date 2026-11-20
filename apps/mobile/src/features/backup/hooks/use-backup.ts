@@ -8,6 +8,7 @@ import { useDb } from '@/db/provider';
 import { exportFileName, safetyBackupFileName } from '@/features/backup/backup-file-names';
 import { writeJsonFile } from '@/features/backup/write-json-file';
 import { requestReschedule } from '@/notifications/scheduler';
+import { requestWidgetRefresh } from '@/features/widget/refresher';
 
 export function useBackup() {
   const db = useDb();
@@ -29,6 +30,7 @@ export function useBackup() {
       await importData(db, file, safety);
       queryClient.clear();
       requestReschedule(0);
+      requestWidgetRefresh(0);
       return saved.name;
     },
   };

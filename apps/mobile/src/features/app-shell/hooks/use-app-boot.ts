@@ -2,8 +2,9 @@ import { SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold, useFonts } from '@expo-
 import { useEffect } from 'react';
 import { useDbInit } from '@/db/provider';
 import { attachNotificationDb } from '@/notifications/scheduler';
+import { attachWidgetDb } from '@/features/widget/refresher';
 
-/** Démarrage : ouverture de la base (branchée aux notifications dès qu'elle est prête) et chargement des polices. */
+/** Démarrage : ouverture de la base (branchée aux notifications et au widget dès qu'elle est prête) et chargement des polices. */
 export function useAppBoot() {
   const db = useDbInit();
   const [fontsLoaded, fontError] = useFonts({ SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold });
@@ -13,6 +14,7 @@ export function useAppBoot() {
   useEffect(() => {
     if (db.status === 'ready') {
       attachNotificationDb(db.db);
+      attachWidgetDb(db.db);
     }
   }, [db]);
 

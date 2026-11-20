@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="sluis_widget_aubergine">#4C1E4F</color>
+  <color name="sluis_widget_peach">#F6D5C4</color>
+  <color name="sluis_widget_text">#FFFFFF</color>
+  <color name="sluis_widget_text_muted">#D9FFFFFF</color>
+
+  <!-- Repli avant Android 12 ; values-v31 suit le rayon du système. -->
+  <dimen name="sluis_widget_radius">16dp</dimen>
+  <dimen name="sluis_widget_padding_h">16dp</dimen>
+  <dimen name="sluis_widget_padding_v">8dp</dimen>
+
+  <string name="sluis_widget_label">Prochain transfert</string>
+  <string name="sluis_widget_description">Le prochain transfert du coffre vers le compte : date, montant et abonnements financés.</string>
+  <string name="sluis_widget_loading">Sluis</string>
+  <string name="sluis_widget_preview_caption">Demain · 24 nov</string>
+  <string name="sluis_widget_preview_amount">12,35\u202F€</string>
+
+  <style name="SluisWidget" />
+
+  <style name="SluisWidget.Caption">
+    <item name="android:textColor">@color/sluis_widget_peach</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:maxLines">1</item>
+    <item name="android:ellipsize">end</item>
+  </style>
+
+  <style name="SluisWidget.Overdue" parent="SluisWidget.Caption">
+    <item name="android:textColor">@color/sluis_widget_aubergine</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:background">@drawable/sluis_widget_pill</item>
+    <item name="android:paddingStart">8dp</item>
+    <item name="android:paddingEnd">8dp</item>
+    <item name="android:paddingTop">1dp</item>
+    <item name="android:paddingBottom">1dp</item>
+  </style>
+
+  <style name="SluisWidget.Headline">
+    <item name="android:textColor">@color/sluis_widget_text</item>
+    <item name="android:textSize">24sp</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:fontFeatureSettings">tnum</item>
+    <item name="android:maxLines">1</item>
+    <item name="android:ellipsize">end</item>
+  </style>
+
+  <style name="SluisWidget.Detail">
+    <item name="android:textColor">@color/sluis_widget_text_muted</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:ellipsize">end</item>
+  </style>
+</resources>
