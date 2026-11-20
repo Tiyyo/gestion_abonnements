@@ -5,6 +5,7 @@ export const colors = {
   text: String(palette.color?.val ?? '#14181B'),
   muted: String(palette.colorMuted?.val ?? '#5B6670'),
   primary: String(palette.primary?.val ?? '#4C1E4F'),
+  primarySoft: String(palette.primarySoft?.val ?? '#F1ECF1'),
   onPrimary: String(palette.onPrimary?.val ?? '#FFFFFF'),
   ok: String(palette.okText?.val ?? '#214F1E'),
   border: String(palette.borderColor?.val ?? '#E3E6E3'),
