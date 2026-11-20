@@ -8,6 +8,15 @@ describe('revolutStatus', () => {
   it('signale des soldes indisponibles sans accord', () => {
     expect(revolutStatus(undefined)).toEqual({ state: 'off', status: 'soldes indisponibles' });
   });
+
+  it('demande le renouvellement d’un accord expiré ou proche de sa fin', () => {
+    expect(revolutStatus(undefined, true)).toEqual({ state: 'warn', status: 'accord expiré, à renouveler' });
+    expect(revolutStatus('2027-05-17', false, '2027-05-03')).toEqual({
+      state: 'warn',
+      status: 'à renouveler avant le 17\u00a0mai\u00a02027',
+    });
+    expect(revolutStatus('2027-05-17', false, '2027-05-02')).toEqual({ state: 'ok', status: 'accord jusqu’au 17\u00a0mai\u00a02027' });
+  });
 });
 
 describe('remindersStatus', () => {

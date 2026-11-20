@@ -5,6 +5,7 @@ import { applyBankTransactions, type BankSyncResult } from '@/db/reconcile/bank/
 import { coverageOf } from '@/db/repositories/bank-transactions';
 import { settingsRepository } from '@/db/repositories/settings';
 import type { DB } from '@/db/types';
+import type { BalancesTarget } from '@/features/balances/fetch-balances';
 import { BRAND_ICONS } from '@/features/subscriptions/brand-icons';
 import { fetchTransactions } from './fetch-transactions';
 
@@ -18,6 +19,8 @@ interface SyncOptions {
   config: { url: string; secret: string };
   today: string;
   newId: NewId;
+  /** Session et comptes renouvelés depuis l'app (`null` : ceux de la fonction). */
+  target?: BalancesTarget | null;
   fetchImpl?: typeof fetch;
 }
 
@@ -25,11 +28,14 @@ interface SyncOptions {
  * Une lecture du compte : relit depuis la dernière période couverte puis applique les rapprochements sûrs.
  * Rend `null` sans rien appeler si le rapprochement automatique est coupé.
  */
-export async function runBankSync(db: Kysely<DB>, { config, today, newId, fetchImpl }: SyncOptions): Promise<BankSyncResult | null> {
+export async function runBankSync(
+  db: Kysely<DB>,
+  { config, today, newId, target = null, fetchImpl }: SyncOptions,
+): Promise<BankSyncResult | null> {
   const settings = await settingsRepository(db).get();
   if (settings.auto_reconcile_enabled !== 1) {
     return null;
   }
-  const batch = await fetchTransactions(config, nextSyncFrom(coverageOf(settings), today), fetchImpl);
+  const batch = await fetchTransactions(config, nextSyncFrom(coverageOf(settings), today), target, fetchImpl);
   return applyBankTransactions(db, batch, today, newId, brandAliases);
 }

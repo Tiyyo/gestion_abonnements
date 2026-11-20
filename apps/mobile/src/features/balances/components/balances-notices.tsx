@@ -1,5 +1,8 @@
 import { formatEuros } from '@abonnements/core';
+import { router } from 'expo-router';
 import { CircleAlert, CircleCheck, TriangleAlert } from 'lucide-react-native';
+import { XStack } from 'tamagui';
+import { ActionButton } from '@/ui/controls/action-button';
 import type { Balances } from '@/features/balances/balances-schema';
 import { RENEWAL_NOTICE_DAYS } from '@/features/balances/balances-derivations';
 import { dateOfTimestamp, dateShort, endSentence } from '@/lib/dates';
@@ -41,10 +44,16 @@ export function BalancesNotices({ data, expired, unavailable, pendingTransfersCe
         )
       ) : null}
 
-      {data && daysLeft !== null && daysLeft <= RENEWAL_NOTICE_DAYS ? (
+      {data && !expired && daysLeft !== null && daysLeft <= RENEWAL_NOTICE_DAYS ? (
         <Notice icon={TriangleAlert} color={colors.onGlassWarn} tone="onGlassWarn">
           {endSentence(`Accord bancaire à renouveler avant le ${dateShort(dateOfTimestamp(data.consentValidUntil))}`)}
         </Notice>
+      ) : null}
+
+      {expired || (data && daysLeft !== null && daysLeft <= RENEWAL_NOTICE_DAYS) ? (
+        <XStack>
+          <ActionButton size="sm" variant="onAccent" label="Renouveler l’accord" onPress={() => router.push('/consent')} />
+        </XStack>
       ) : null}
     </>
   );

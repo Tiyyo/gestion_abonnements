@@ -1,5 +1,6 @@
-import { CircleAlert, CircleCheck, CircleMinus, type LucideIcon } from 'lucide-react-native';
+import { ChevronRight, CircleAlert, CircleCheck, CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { XStack } from 'tamagui';
+import { haptic } from '@/ui/motion/haptics';
 import { Body, Caption } from '@/ui/text/typography';
 import { colors } from '@/theme/colors';
 import type { ServiceState } from '@/features/settings/service-status';
@@ -15,15 +16,29 @@ export function ServiceLine({
   label,
   state,
   status,
+  onPress,
 }: {
   icon: LucideIcon;
   label: string;
   state: ServiceState;
   status: string;
+  onPress?: () => void;
 }) {
   const s = SERVICE_ICON[state];
+  const press = onPress
+    ? {
+        onPress: () => {
+          haptic.select();
+          onPress();
+        },
+        opacity: '1 press:0.75' as const,
+        transition: 'fast' as const,
+        accessibilityRole: 'button' as const,
+      }
+    : {};
   return (
     <XStack
+      {...press}
       minH={44}
       px="3"
       py="2"
@@ -34,7 +49,7 @@ export function ServiceLine({
       borderColor="glassEdge"
       rounded={16}
       accessible
-      accessibilityLabel={`${label} : ${status}`}
+      accessibilityLabel={onPress ? `${label} : ${status}. Renouveler l’accord` : `${label} : ${status}`}
     >
       <Icon color={colors.onGlassMuted} size={18} />
       <Body flex={1} color="onGlass">
@@ -44,6 +59,7 @@ export function ServiceLine({
       <Caption color={s.tone} shrink={1} text="right">
         {status}
       </Caption>
+      {onPress ? <ChevronRight color={colors.onGlassMuted} size={16} /> : null}
     </XStack>
   );
 }

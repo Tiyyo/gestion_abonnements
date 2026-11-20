@@ -15,19 +15,35 @@ const respond = (status: number, body: unknown) =>
 describe('fetchBalances', () => {
   it('appelle la route avec le secret et renvoie les soldes', async () => {
     const fetchImpl = respond(200, payload);
-    await expect(fetchBalances(config, fetchImpl)).resolves.toEqual(payload);
+    await expect(fetchBalances(config, null, fetchImpl)).resolves.toEqual(payload);
     expect(fetchImpl).toHaveBeenCalledWith(
       'https://fn.example/balances',
       expect.objectContaining({ headers: { Authorization: 'Bearer s3cret' } }),
     );
   });
 
+  it('désigne la session et les comptes renouvelés depuis l’app', async () => {
+    const fetchImpl = respond(200, payload);
+    await fetchBalances(config, { sessionId: 'sess-2', currentUid: 'acc-1', vaultUid: 'acc-2' }, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://fn.example/balances',
+      expect.objectContaining({
+        headers: {
+          Authorization: 'Bearer s3cret',
+          'X-Sluis-Session': 'sess-2',
+          'X-Sluis-Account-Current': 'acc-1',
+          'X-Sluis-Account-Vault': 'acc-2',
+        },
+      }),
+    );
+  });
+
   it('signale un accord expiré', async () => {
-    await expect(fetchBalances(config, respond(409, { error: 'accord' }))).rejects.toBeInstanceOf(ConsentExpiredError);
+    await expect(fetchBalances(config, null, respond(409, { error: 'accord' }))).rejects.toBeInstanceOf(ConsentExpiredError);
   });
 
   it('échoue sur une erreur serveur ou une réponse inattendue', async () => {
-    await expect(fetchBalances(config, respond(502, { error: 'x' }))).rejects.toThrow('soldes indisponibles (502)');
-    await expect(fetchBalances(config, respond(200, { current: 1 }))).rejects.toThrow();
+    await expect(fetchBalances(config, null, respond(502, { error: 'x' }))).rejects.toThrow('soldes indisponibles (502)');
+    await expect(fetchBalances(config, null, respond(200, { current: 1 }))).rejects.toThrow();
   });
 });

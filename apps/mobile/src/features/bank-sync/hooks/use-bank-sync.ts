@@ -7,6 +7,7 @@ import { useDb } from '@/db/provider';
 import type { BankSyncResult } from '@/db/reconcile/bank/apply-bank-transactions';
 import type { DB } from '@/db/types';
 import { runBankSync } from '@/features/bank-sync/run-bank-sync';
+import { loadBankLink } from '@/features/consent/link-store';
 import { useInvalidateAll } from '@/features/home/hooks/use-invalidate-all';
 import { requestReschedule } from '@/notifications/scheduler';
 
@@ -29,9 +30,11 @@ function syncOnce(db: Kysely<DB>, force: boolean): Promise<BankSyncResult | null
     return Promise.resolve(null);
   }
   lastAttemptAt = Date.now();
-  inFlight = runBankSync(db, { config, today: todayIn(), newId }).finally(() => {
-    inFlight = null;
-  });
+  inFlight = loadBankLink()
+    .then((target) => runBankSync(db, { config, today: todayIn(), newId, target }))
+    .finally(() => {
+      inFlight = null;
+    });
   return inFlight;
 }
 
