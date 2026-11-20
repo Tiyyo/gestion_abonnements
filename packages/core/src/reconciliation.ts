@@ -1,4 +1,5 @@
 import { addDays, diffDays, type IsoDate } from './calendar';
+import { priceChangePayload } from './price-change';
 import type { ChargeStatus, PeriodUnit, SubscriptionStatus } from './types';
 
 export type DebitEventType = 'price_change' | 'unexpected_charge' | 'duplicate' | 'post_cancel_charge' | 'charge_failed';
@@ -48,7 +49,7 @@ export function markPaid(charge: ReconcilableCharge, actualAmountCents: number, 
       subscriptionId: charge.subscriptionId,
       occurredOn: actualDate,
       amountCents: null,
-      payload: { chargeId: charge.id, from: charge.expectedAmountCents, to: actualAmountCents },
+      payload: priceChangePayload(charge.expectedAmountCents, actualAmountCents, 'reconciliation', false, charge.id),
     });
   }
   if (charge.status === 'unfunded') {

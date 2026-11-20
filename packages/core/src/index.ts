@@ -9,3 +9,4 @@ export * from './lifecycle';
 export * from './regeneration';
 export * from './reconciliation';
 export * from './bank-matching';
+export * from './price-change';
