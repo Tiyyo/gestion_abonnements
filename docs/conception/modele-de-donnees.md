@@ -556,3 +556,28 @@ Le repository refuse un `ref_id` nul.
 - **Une réponse n'est appliquée qu'une fois** : sa clé (`<identifiant de la notification>|<action>`) est mémorisée dans `scheduled_notification` (`kind = 'funding'`, `ref_id = 'action:<clé>'`, `fire_at` = instant du traitement). Android peut redonner la même réponse à un lancement ultérieur : elle ne doit pas refaire un transfert remis « à faire » entre-temps. Si le transfert n'est plus à faire (déjà fait, ou disparu du plan), l'app le dit et ne change rien.
 - **Pas de « Reporter à demain » dans la notification** : le rappel part le jour du transfert, en général la veille du prélèvement. Reporter au lendemain tombe donc presque toujours le jour même du prélèvement, cas que l'app ne permet qu'après un avertissement (10.1). Le report reste dans l'app.
 - **« Copier le montant et ouvrir Revolut »** (carte du prochain transfert de l'Accueil, actions d'un transfert du Plan) : copie le montant nu avec virgule (« 8,03 ») puis ouvre Revolut par son paquet `com.revolut.revolut`, à défaut par `revolut://`, à défaut sa fiche Play Store. Le transfert n'est pas marqué fait pour autant.
+
+### 10.17 Rapprochement automatique depuis Revolut (20/11/2026)
+
+Complète 10.5 sans le remplacer : les mêmes réponses (« passé », « échoué », prélèvement inconnu) restent les seules façons de changer l'état d'une charge. La lecture du compte ne fait que les **préremplir**, ou applique « passé » quand il n'y a aucun doute. Rien n'est jamais financé, abandonné ni transféré automatiquement.
+
+**Source.** Fonction Go `/transactions` (Enable Banking, compte principal uniquement, lecture « utilisateur présent ») : mouvements depuis une date, normalisés (identifiant stable, date de comptabilisation, montant en centimes positif, sens, statut, libellé). Seuls les **débits comptabilisés en euros** sont traités : un débit en attente peut encore être annulé, un crédit n'est jamais un prélèvement. Sans référence de la banque, l'identifiant est l'empreinte du contenu et de son rang parmi les mouvements identiques.
+
+**Fenêtre lue.** 7 jours avant aujourd'hui la première fois, puis 5 jours avant la dernière lecture complète (débits comptabilisés en retard). La période couverte sans trou est retenue (`settings.bank_sync_from` / `bank_sync_through`) ; une lecture incomplète (pagination interrompue) ne l'étend pas. Lecture à l'ouverture de l'Accueil et au retour au premier plan (au plus une fois par quart d'heure), et en tirant l'Accueil.
+
+**Idempotence.** Chaque débit traité est inscrit dans `bank_transaction` (clé primaire = identifiant de la banque) avec son sort : `applied`, `suggested`, `unmatched`, `recorded`, `dismissed`, `internal`. Un débit déjà inscrit n'est jamais relu. La table est exportée et réimportée avec les sauvegardes (absente des anciens fichiers, elle reste vide).
+
+**Reconnaissance du marchand.** Le libellé du relevé (nom de la contrepartie et libellé de remise) désigne un abonnement si tous les mots de son nom normalisé (10.5) y figurent, ou si son nom sans séparateurs y figure d'un bloc à partir de 5 caractères (« DISNEYPLUS » pour Disney+). Le nom de la marque du logo sert d'autre nom. Un nom de moins de 3 caractères ne reconnaît rien.
+
+**Règles, dans l'ordre, pour chaque débit (du plus ancien au plus récent).**
+1. Un prélèvement ouvert (`planned`, `funded`, `unfunded`, non provisionnel) d'un abonnement reconnu est à ±3 jours : le débit lui est rattaché (le montant exact puis la date la plus proche départagent). Il est **appliqué d'office** (« passé », même commande que la saisie manuelle, donc `price_change` impossible) seulement si un seul abonnement est reconnu, un seul prélèvement convient, il est `funded` (transfert fait), le montant est exactement le montant attendu et ce n'est pas la fin d'un essai. Sinon il est **proposé** : le prélèvement apparaît tout de suite dans « À vérifier » (même avant sa date ou s'il était reporté), avec le montant et la date du débit préremplis ; l'utilisateur confirme ou corrige, et les suites de 10.5 (mise à jour du prix, décision sur l'essai, transfert correctif) s'appliquent. Un prélèvement ne sert qu'à un débit.
+2. Un prélèvement déjà marqué passé à la main, même montant à ±3 jours : le débit lui est rattaché, rien ne change.
+3. Un débit inconnu déjà saisi à la main (événement de même montant à ±3 jours) : rattaché, rien ne change.
+4. Un retour de résidu vers le coffre déjà fait, même montant à ±3 jours, sans abonnement reconnu : mouvement interne, ignoré.
+5. Sinon : **débit non prévu**. L'Accueil affiche une carte « Débit non prévu détecté », classée par les règles du prélèvement inconnu (10.5, sous le nom de l'abonnement reconnu s'il y en a un, sinon le libellé). « Vérifier » ouvre la saisie du prélèvement inconnu préremplie (nom, montant, date) ; ce qui y est enregistré solde le débit. « Ignorer » le retire sans rien enregistrer (il ne compte pas dans le solde estimé).
+
+Un débit proposé dont le prélèvement est ensuite abandonné ou disparaît redevient un débit non prévu.
+
+**Échec suggéré.** Si toute la fenêtre de ±3 jours d'un prélèvement à vérifier a été lue sans aucun débit non rattaché, « À vérifier » indique « aucun débit vu, échoué ? » et l'écran de rapprochement met « Il a échoué » en avant. L'état ne change pas tant que l'utilisateur n'a pas répondu (la question J+1 et le report de trois jours de 10.5 restent valables).
+
+**Réglage.** « Rapprochement automatique » (`settings.auto_reconcile_enabled`, actif par défaut, sans effet si l'adresse de la fonction n'est pas incluse dans le build). Coupé, l'app ne lit plus le compte ; les cartes déjà présentes restent.
