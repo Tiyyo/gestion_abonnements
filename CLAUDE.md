@@ -37,6 +37,7 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 - Dans `apps/enrich` : `go test ./...`, `go vet ./...` ; `go test ./... -update` régénère `contracts/fixtures` (relues par `src/features/enrich/enrich-client.test.ts`).
 - Icône et écran de démarrage : `node scripts/gen-app-icons.mjs` dans `apps/mobile` régénère `assets/*.png` depuis `src/ui/brand/sluis-mark.json` (portes d'écluse, passerelle, vagues). La même géométrie anime `ui/brand/SplashOverlay.tsx` (écran de chargement JS qui prend le relais de l'écran natif). Le paquet Android reste `fr.smatou.abonnements` (le changer = nouvelle app, données perdues).
 - Logos : `node scripts/gen-brand-icons.mjs` dans `apps/mobile` (régénère `src/features/subscriptions/brand-icons.ts` et `apps/enrich/brands.go`, ajouter une marque dans la liste du script).
+- Widget d'écran d'accueil « Prochain transfert » (`docs/conception/widget.md`) : module Expo local `apps/mobile/modules/sluis-widget` (Kotlin, `AppWidgetProvider` + `RemoteViews`, autolinké depuis `modules/`, récepteur déclaré dans le manifeste du module : rien dans `app.json`). L'app écrit un instantané JSON (`src/features/widget/snapshot.ts`, images datées) via `requestWidgetRefresh()` ; le natif ne lit jamais la base. Aperçu du sélecteur : `node scripts/gen-widget-preview.mjs`. Absent d'Expo Go (pont vide) : tester sur un APK.
 - Ajouter une dépendance native : `npx expo install <paquet>`, jamais `pnpm add` (versions alignées sur le SDK).
 - `android/` est généré (`expo prebuild`) et ignoré par git : configurer via `app.json` et les plugins.
 
@@ -52,7 +53,7 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), Expo Router (rout
 ## Architecture du code (`apps/mobile/src`, refonte du 20/11/2026)
 
 - Organisation **par feature** : `app/` (routes Expo Router **minces** : paramètres de route + hooks + assemblage de composants, aucune logique), `features/<feature>/` (`components/`, `hooks/`, logique pure en `.ts` testée à côté, `*.test.ts`), `ui/` (design system sans métier : `text/`, `surfaces/`, `controls/`, `navigation/` dont `tab-bar/`, `feedback/`, `motion/`, `brand/`, `hooks/`), `theme/` (couleurs, `elevation`, `layout`, config Tamagui), `lib/` (utilitaires purs), `config/`, `db/` (client, migrations, `repositories/`, `commands/`, `reconcile/`, `sync/`), `notifications/`.
-- Features : `app-shell`, `home`, `plan`, `charges` (rapprochement, prélèvement inconnu), `subscriptions`, `settings`, `security`, `backup`, `balances`, `enrich`, `stats`.
+- Features : `app-shell`, `home`, `plan`, `charges` (rapprochement, prélèvement inconnu), `subscriptions`, `settings`, `security`, `backup`, `balances`, `enrich`, `stats`, `widget` (instantané du widget Android).
 - Règles (vérifiées par ESLint) : fichiers et dossiers en **kebab-case** (sauf `_layout`, `[id]`, `(tabs)`, migrations `NNN-nom`) ; un fichier = une responsabilité (un composant ou un hook exporté par fichier) ; ≤ 200 lignes par fichier, ≤ 80 lignes par fonction ; imports par l'alias `@/` (→ `src/`), `./` pour un voisin, jamais `../` ; pas de fichier barrel. Les calculs (libellés, dates, montants, regroupements) sont des fonctions pures testées, hors des composants. Seuls `db/repositories`, `db/commands`, `db/reconcile` et `db/sync` utilisent Kysely.
 
 ## Conventions
