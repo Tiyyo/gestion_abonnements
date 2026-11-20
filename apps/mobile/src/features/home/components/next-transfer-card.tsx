@@ -10,9 +10,10 @@ interface Props {
   busy: boolean;
   onDone: () => void;
   onReschedule: () => void;
+  onRevolut: () => void;
 }
 
-export function NextTransferCard({ transfer, today, busy, onDone, onReschedule }: Props) {
+export function NextTransferCard({ transfer, today, busy, onDone, onReschedule, onRevolut }: Props) {
   return (
     <HomeCard
       tone="accent"
@@ -24,6 +25,15 @@ export function NextTransferCard({ transfer, today, busy, onDone, onReschedule }
           <ActionButton flex={1} label="Marquer fait" variant="primary" disabled={busy} onPress={onDone} />
           <ActionButton flex={1} label="Reporter" variant="soft" disabled={busy} onPress={onReschedule} />
         </>
+      }
+      footer={
+        <ActionButton
+          size="sm"
+          label="Copier et ouvrir Revolut"
+          accessibilityLabel="Copier le montant et ouvrir Revolut"
+          variant="outline"
+          onPress={onRevolut}
+        />
       }
     />
   );

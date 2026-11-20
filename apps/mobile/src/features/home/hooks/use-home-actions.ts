@@ -6,6 +6,7 @@ import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import { pickRescheduleDate } from '@/features/plan/pick-reschedule-date';
 import { usePlanRun } from '@/features/plan/hooks/use-plan-run';
 import { rescheduleFeedback, transferDoneFeedback } from '@/features/plan/plan-feedback';
+import { copyAmountAndOpenRevolut } from '@/features/plan/revolut-shortcut';
 import { useSubscriptionTransitionFor } from '@/features/subscriptions/hooks/use-subscription-transition-for';
 import type { QuestionAnswer } from '@/features/home/types';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
@@ -28,6 +29,8 @@ export function useHomeActions() {
     pickRescheduleDate(transfer, todayIn(), (date) =>
       plan.run({ type: 'reschedule', transferId: transfer.id, date }, rescheduleFeedback(transfer, date)),
     );
+
+  const openRevolut = (transfer: PlanTransfer) => copyAmountAndOpenRevolut(transfer.amountCents);
 
   const answer = (question: HomeQuestion, kind: QuestionAnswer) => {
     if (kind === 'open' && question.cancelUrl) {
@@ -54,7 +57,7 @@ export function useHomeActions() {
       },
     ]);
 
-  return { busy, markTransferDone, reschedule, answer, keepTrial, cancelTrial };
+  return { busy, markTransferDone, reschedule, openRevolut, answer, keepTrial, cancelTrial };
 }
 
 export type HomeActions = ReturnType<typeof useHomeActions>;

@@ -47,7 +47,8 @@
           "imageWidth": 288
         }
       ],
-      "expo-font"
+      "expo-font",
+      "./plugins/with-revolut-queries"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { compareDates, formatEuros } from '@abonnements/core';
 import type { PlanTransfer } from '@/db/repositories/plan/types';
 import { dateShort } from '@/lib/dates';
+import { FUNDING_CATEGORY } from './response';
 import type { FireAt, PlannedNotification } from './types';
 
 export function fundingReminder(t: PlanTransfer, at: FireAt): PlannedNotification {
@@ -13,6 +14,8 @@ export function fundingReminder(t: PlanTransfer, at: FireAt): PlannedNotificatio
     title: `Transfert à faire : ${formatEuros(t.amountCents)}`,
     body: `Coffre → compte principal pour ${names}${due ? ` (prélevé le ${dateShort(due)})` : ''}.`,
     url: '/',
+    categoryId: FUNDING_CATEGORY,
+    data: { transferId: t.id },
   };
 }
 
