@@ -2,8 +2,8 @@ import { CalendarDays, Repeat, Tag } from 'lucide-react-native';
 import type { PeriodicityKey } from '@/features/subscriptions/subscription-form-schema';
 import { formatDateFr } from '@/lib/format';
 import { dateLabel, periodicityLabel, type SheetKind } from './form-labels';
-import { FormGroup } from './form-group';
-import { PickerRow } from './picker-row';
+import { FormGroup } from '@/ui/surfaces/form-group';
+import { PickerRow } from '@/ui/controls/picker-row';
 
 interface Props {
   categoryName: string;

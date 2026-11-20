@@ -8,3 +8,5 @@ export function useUnknownDebitForm(today: string) {
   const valid = name.trim().length > 0 && isValidAmountInput(amount);
   return { name, setName, amount, setAmount, date, setDate, valid };
 }
+
+export type UnknownDebitForm = ReturnType<typeof useUnknownDebitForm>;

@@ -23,7 +23,7 @@ export function Segmented<T extends string>({
       bg={onGlass ? 'glassInner' : 'subtle'}
       borderWidth={onGlass ? 1 : 0}
       borderColor="glassEdge"
-      rounded={RADIUS.control + 4}
+      rounded={RADIUS.pill}
       p="1"
       gap="1"
       accessibilityRole="radiogroup"
@@ -38,7 +38,7 @@ export function Segmented<T extends string>({
             minH={44}
             items="center"
             justify="center"
-            rounded={RADIUS.control}
+            rounded={RADIUS.pill}
             bg={selected ? 'surface' : 'transparent'}
             style={selected ? RAISED : undefined}
             transition="fast"

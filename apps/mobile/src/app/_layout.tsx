@@ -17,7 +17,7 @@ export default function RootLayout() {
           <Stack.Screen name="subscriptions/new" options={SHEET} />
           <Stack.Screen name="subscriptions/edit/[id]" options={SHEET} />
           <Stack.Screen name="charges/[id]" options={MODAL} />
-          <Stack.Screen name="charges/unknown" options={MODAL} />
+          <Stack.Screen name="charges/unknown" options={SHEET} />
         </Stack>
         <NotificationRouting />
       </AppGate>

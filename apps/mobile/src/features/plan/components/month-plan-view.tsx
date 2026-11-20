@@ -3,6 +3,7 @@ import { ScrollView } from 'tamagui';
 import type { MonthPlan } from '@/db/repositories/plan/types';
 import type { usePlanCommands } from '@/features/plan/hooks/use-plan-commands';
 import { PaydayCard } from './payday-card';
+import { ReportDebitCard } from './report-debit-card';
 import { ResidualCard } from './residual-card';
 import { TrialsCard } from './trials-card';
 import { VaultTransfers } from './vault-transfers';
@@ -18,6 +19,7 @@ export function MonthPlanView({ plan, today, commands }: { plan: MonthPlan; toda
       <VaultTransfers transfers={plan.transfers} busy={busy} onToggle={commands.toggleTransfer} onMore={commands.moreTransfer} />
       <TrialsCard trials={plan.trials} />
       <ResidualCard residualCents={plan.residualCents} today={today} busy={busy} onReturn={commands.returnResidual} />
+      <ReportDebitCard />
     </ScrollView>
   );
 }

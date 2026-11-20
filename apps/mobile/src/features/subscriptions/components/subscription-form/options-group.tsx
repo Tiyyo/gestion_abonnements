@@ -3,10 +3,10 @@ import type { Control, FieldErrors } from 'react-hook-form';
 import type { SubscriptionFormValues } from '@/features/subscriptions/subscription-form-schema';
 import { CancelUrlRow } from './cancel-url-row';
 import { paymentLabel } from './form-labels';
-import { FormGroup } from './form-group';
+import { FormGroup } from '@/ui/surfaces/form-group';
 import { MarginRow } from './margin-row';
 import { NotesRow } from './notes-row';
-import { PickerRow } from './picker-row';
+import { PickerRow } from '@/ui/controls/picker-row';
 
 interface Props {
   control: Control<SubscriptionFormValues>;

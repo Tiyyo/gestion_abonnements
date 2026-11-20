@@ -21,7 +21,7 @@ export function IconButton({
       w={48}
       h={48}
       p="0"
-      rounded={RADIUS.control}
+      rounded={RADIUS.pill}
       bg={primary ? 'primary' : glass ? 'glassFill' : variant === 'ghost' ? 'transparent' : 'surface'}
       borderWidth={1}
       borderColor={glass ? 'glassEdge' : 'transparent'}

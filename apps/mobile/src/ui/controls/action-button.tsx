@@ -20,6 +20,13 @@ const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }>
 
 const FILLED = new Set<ButtonVariant>(['primary', 'secondary', 'warn', 'dangerSolid']);
 
+// Gabarit mobile : pilule pleine largeur possible, cible tactile ≥ 44 px même en petite taille.
+const SIZES = {
+  sm: { minH: 44, px: '4', font: 15 },
+  md: { minH: 52, px: '5', font: 16 },
+  lg: { minH: 56, px: '6', font: 17 },
+} as const;
+
 const BUTTON_SHADOW: Partial<Record<ButtonVariant, ShadowLevel>> = { primary: 'glow', secondary: 'sm', warn: 'sm', dangerSolid: 'sm' };
 
 export function ActionButton({
@@ -47,12 +54,13 @@ export function ActionButton({
   const bg = inactive && !ghostOrAccent ? 'subtle' : v.bg;
   const border = inactive && !ghostOrAccent ? 'subtle' : v.border;
   const fg = inactive ? (variant === 'onAccent' || variant === 'glassGhost' ? 'onGlassMuted' : 'colorMuted') : v.fg;
+  const dims = SIZES[size];
   return (
     <Button
       flex={flex}
-      minH={size === 'lg' ? 52 : size === 'md' ? 48 : 40}
-      px={size === 'sm' ? '3' : '4'}
-      rounded={RADIUS.control}
+      minH={dims.minH}
+      px={dims.px}
+      rounded={RADIUS.pill}
       bg={bg as 'surface'}
       borderWidth={1}
       borderColor={border as 'borderColor'}
@@ -71,7 +79,7 @@ export function ActionButton({
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
     >
       {loading ? <Spinner color={fg as 'color'} /> : null}
-      <Button.Text fontSize={size === 'sm' ? 14 : 15} fontWeight="600" color={fg as 'color'} numberOfLines={1}>
+      <Button.Text fontSize={dims.font} fontWeight="600" color={fg as 'color'} numberOfLines={1}>
         {label}
       </Button.Text>
     </Button>
