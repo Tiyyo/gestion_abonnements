@@ -4,7 +4,8 @@ import { Linking } from 'react-native';
 import type { HomeQuestion } from '@/db/repositories/home/types';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import { pickRescheduleDate } from '@/features/plan/pick-reschedule-date';
-import { usePlanAction } from '@/features/plan/hooks/use-plan-action';
+import { usePlanRun } from '@/features/plan/hooks/use-plan-run';
+import { rescheduleFeedback, transferDoneFeedback } from '@/features/plan/plan-feedback';
 import { useSubscriptionTransitionFor } from '@/features/subscriptions/hooks/use-subscription-transition-for';
 import type { QuestionAnswer } from '@/features/home/types';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
@@ -13,18 +14,20 @@ import { useReviewCharge } from '@/features/charges/hooks/use-review-charge';
 
 const onError = { onError: (error: Error) => showError('Action impossible', error.message) };
 
-/** Actions des cartes de l'Accueil : transferts, questions J+1 et essais. */
+/** Actions des cartes de l'Accueil : transferts (faits tout de suite, annulables depuis le message), questions J+1 et essais. */
 export function useHomeActions() {
-  const planAction = usePlanAction();
+  const plan = usePlanRun();
   const review = useReviewCharge();
   const followUp = useFollowUp();
   const lifecycle = useSubscriptionTransitionFor();
-  const busy = planAction.isPending || review.isPending || followUp.isPending || lifecycle.isPending;
+  const busy = plan.busy || review.isPending || followUp.isPending || lifecycle.isPending;
 
-  const markTransferDone = (transferId: string) => planAction.mutate({ type: 'transfer_done', transferId }, onError);
+  const markTransferDone = (transferId: string) => plan.run({ type: 'transfer_done', transferId }, transferDoneFeedback(transferId));
 
   const reschedule = (transfer: PlanTransfer) =>
-    pickRescheduleDate(transfer, todayIn(), (date) => planAction.mutate({ type: 'reschedule', transferId: transfer.id, date }, onError));
+    pickRescheduleDate(transfer, todayIn(), (date) =>
+      plan.run({ type: 'reschedule', transferId: transfer.id, date }, rescheduleFeedback(transfer, date)),
+    );
 
   const answer = (question: HomeQuestion, kind: QuestionAnswer) => {
     if (kind === 'open' && question.cancelUrl) {
