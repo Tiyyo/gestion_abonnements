@@ -12,12 +12,14 @@ import { parseAmountCents } from '@/features/subscriptions/subscription-form-sch
 import { dateShort } from '@/lib/dates';
 import { requestReschedule } from '@/notifications/scheduler';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
+import type { DiscardGuard } from '@/ui/navigation/use-discard-guard';
 
 /**
  * Enregistre un débit inconnu : s'il correspond à un prélèvement attendu, propose de le marquer passé ;
  * sinon l'enregistre selon son classement et propose, si besoin, de créer l'abonnement.
+ * Une fois le débit enregistré, l'écran se ferme par la garde (`guard.leave` / `guard.release`), sans question.
  */
-export function useRecordUnknownDebit() {
+export function useRecordUnknownDebit(guard: DiscardGuard) {
   const db = useDb();
   const queryClient = useQueryClient();
   const review = useReviewCharge();
@@ -27,7 +29,7 @@ export function useRecordUnknownDebit() {
     await queryClient.invalidateQueries();
     requestReschedule();
     showDialog('Enregistré', message, undefined, { tone: 'ok' });
-    router.back();
+    guard.leave();
   };
 
   const submit = async ({ name, amount, date }: { name: string; amount: string; date: string }) => {
@@ -53,10 +55,13 @@ export function useRecordUnknownDebit() {
       if (outcome.offerCreateSubscription) {
         await queryClient.invalidateQueries();
         showDialog('Prélèvement inattendu', `${formatEuros(debit.amountCents)} débités par ${debit.name}. Créer l’abonnement ?`, [
-          { text: 'Non', style: 'cancel', onPress: () => router.back() },
+          { text: 'Non', style: 'cancel', onPress: guard.leave },
           {
             text: 'Créer',
-            onPress: () => router.replace({ pathname: '/subscriptions/new', params: { name: debit.name, amount, date } }),
+            onPress: () => {
+              guard.release();
+              router.replace({ pathname: '/subscriptions/new', params: { name: debit.name, amount, date } });
+            },
           },
         ]);
       } else {

@@ -10,6 +10,7 @@ import { useUnknownDebitForm } from '@/features/charges/hooks/use-unknown-debit-
 import { dateShort } from '@/lib/dates';
 import { PickerRow } from '@/ui/controls/picker-row';
 import { SheetHeader } from '@/ui/navigation/sheet-header';
+import { useDiscardGuard } from '@/ui/navigation/use-discard-guard';
 import { FormGroup } from '@/ui/surfaces/form-group';
 import { SheetFooter } from '@/ui/surfaces/sheet-footer';
 import { SheetScreen } from '@/ui/surfaces/sheet-screen';
@@ -17,7 +18,8 @@ import { SheetScreen } from '@/ui/surfaces/sheet-screen';
 export default function UnknownDebitScreen() {
   const today = todayIn();
   const form = useUnknownDebitForm(today);
-  const record = useRecordUnknownDebit();
+  const guard = useDiscardGuard(form.dirty, 'Le prélèvement que tu as saisi ne sera pas enregistré.');
+  const record = useRecordUnknownDebit(guard);
 
   return (
     <SheetScreen>

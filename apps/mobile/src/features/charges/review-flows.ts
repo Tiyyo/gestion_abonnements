@@ -1,18 +1,18 @@
 import { formatEuros } from '@abonnements/core';
-import { router } from 'expo-router';
 import type { FollowUpInput } from '@/features/charges/hooks/use-follow-up';
 import { retryShortfallCents } from '@/features/charges/debit-input';
 import type { ReviewContext } from '@/features/charges/types';
 import { showDialog } from '@/ui/feedback/show-dialog';
 
 // Enchaînements du rapprochement : chaque réponse peut ouvrir une question de suivi avant de fermer l'écran.
+// La fermeture passe toujours par `ctx.close` (qui lève la garde de saisie) : à ce stade la réponse est enregistrée.
 
-function followUpThenBack({ followUp, fail }: ReviewContext, input: FollowUpInput) {
-  followUp.mutate(input, { onSuccess: () => router.back(), onError: fail });
+function followUpThenBack({ followUp, fail, close }: ReviewContext, input: FollowUpInput) {
+  followUp.mutate(input, { onSuccess: close, onError: fail });
 }
 
-function giveUp({ row, review, fail }: ReviewContext) {
-  review.mutate({ chargeId: row.id, answer: { kind: 'failed', choice: 'give_up' } }, { onSuccess: () => router.back(), onError: fail });
+function giveUp({ row, review, fail, close }: ReviewContext) {
+  review.mutate({ chargeId: row.id, answer: { kind: 'failed', choice: 'give_up' } }, { onSuccess: close, onError: fail });
 }
 
 function askTrialDecision(ctx: ReviewContext) {
@@ -33,7 +33,7 @@ function proposeAmountUpdate(ctx: ReviewContext, amountCents: number) {
     'Le prix a changé',
     `Mettre à jour le montant de ${ctx.row.name} à ${formatEuros(amountCents)} pour les prochains prélèvements ?`,
     [
-      { text: 'Non', style: 'cancel', onPress: () => router.back() },
+      { text: 'Non', style: 'cancel', onPress: ctx.close },
       {
         text: 'Mettre à jour',
         onPress: () => followUpThenBack(ctx, { type: 'amount', subscriptionId: ctx.row.subscription_id, amountCents }),
@@ -54,7 +54,7 @@ export function submitPaid(ctx: ReviewContext, amountCents: number, date: string
         } else if (result.trialDecision) {
           askTrialDecision(ctx);
         } else {
-          router.back();
+          ctx.close();
         }
       },
     },
@@ -71,14 +71,14 @@ function merchantWillRetry(ctx: ReviewContext, newAmountCents: number) {
       onSuccess: () => {
         const shortfall = retryShortfallCents(newAmountCents, row.funded_amount_cents);
         if (shortfall === null) {
-          router.back();
+          ctx.close();
           return;
         }
         showDialog(
           'Le prix a augmenté',
           `Le compte a reçu ${formatEuros(row.funded_amount_cents)}, il manque ${formatEuros(shortfall)}. Transfère cette différence du coffre maintenant.`,
           [
-            { text: 'Plus tard', style: 'cancel', onPress: () => router.back() },
+            { text: 'Plus tard', style: 'cancel', onPress: ctx.close },
             {
               text: 'C’est fait',
               onPress: () => followUpThenBack(ctx, { type: 'corrective', chargeId: row.id, amountCents: newAmountCents }),

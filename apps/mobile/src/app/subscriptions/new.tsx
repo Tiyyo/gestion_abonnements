@@ -19,8 +19,8 @@ export default function NewSubscriptionScreen() {
       busy={create.isPending}
       error={create.isError ? `Enregistrement impossible : ${create.error.message}` : null}
       onCancel={() => router.back()}
-      onSubmit={(values, correction, aiSuggestion) =>
-        create.mutate({ input: toNewSubscriptionInput(values, aiSuggestion), options: { correction } }, { onSuccess: () => router.back() })
+      onSubmit={(values, correction, aiSuggestion, close) =>
+        create.mutate({ input: toNewSubscriptionInput(values, aiSuggestion), options: { correction } }, { onSuccess: close })
       }
     />
   );

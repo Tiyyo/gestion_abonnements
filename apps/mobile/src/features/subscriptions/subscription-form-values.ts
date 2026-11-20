@@ -45,6 +45,14 @@ export function editSubscriptionDefaults(row: SubscriptionRow): SubscriptionForm
   };
 }
 
+/**
+ * Une saisie est en cours dès qu'un champ diffère des valeurs de départ (valeurs par défaut à la création,
+ * valeurs chargées à la modification). Revenir à la valeur de départ ne compte pas comme une saisie.
+ */
+export function isSubscriptionFormDirty(initial: SubscriptionFormValues, current: Partial<SubscriptionFormValues>): boolean {
+  return (Object.keys(initial) as (keyof SubscriptionFormValues)[]).some((key) => key in current && current[key] !== initial[key]);
+}
+
 export function toNewSubscriptionInput(values: SubscriptionFormValues, aiSuggestion: string | null): NewSubscriptionInput {
   const periodicity = periodicityOf(values.periodicity);
   return {
