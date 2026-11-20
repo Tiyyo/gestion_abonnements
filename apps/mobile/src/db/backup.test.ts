@@ -86,6 +86,7 @@ describe('export / import', () => {
             bank_sync_from: _f,
             bank_sync_through: _t,
             bank_sync_at: _s,
+            theme_mode: _m,
             ...rest
           }) => rest,
         ),
@@ -120,6 +121,27 @@ describe('export / import', () => {
       { id: 'rev-001', outcome: 'dismissed' },
     ]);
     expect(await target.selectFrom('settings').select('bank_sync_through').executeTakeFirst()).toEqual({ bank_sync_through: '2026-11-17' });
+  });
+
+  it('conserve le réglage « Apparence », et le remet sur « système » pour un export antérieur à la migration 006', async () => {
+    const source = await seeded();
+    await source.updateTable('settings').set({ theme_mode: 'dark' }).execute();
+    const file = await exportData(source);
+
+    const restored = await freshDb();
+    await importData(restored, parseExport(JSON.stringify(file)), await exportData(restored));
+    expect(await restored.selectFrom('settings').select('theme_mode').executeTakeFirst()).toEqual({ theme_mode: 'dark' });
+
+    const before006 = {
+      ...file,
+      migration: '005_bank_sync',
+      tables: { ...file.tables, settings: file.tables.settings.map(({ theme_mode: _t, ...rest }) => rest) },
+    };
+    const target = await freshDb();
+    await target.updateTable('settings').set({ theme_mode: 'light' }).execute();
+    await importData(target, parseExport(JSON.stringify(before006)), await exportData(target));
+    expect(await counts(target)).toEqual(await counts(source));
+    expect(await target.selectFrom('settings').select('theme_mode').executeTakeFirst()).toEqual({ theme_mode: 'system' });
   });
 
   it('refuse un fichier invalide ou plus récent que l’app, sans toucher à la base', () => {
