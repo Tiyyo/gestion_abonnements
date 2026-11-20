@@ -1,0 +1,38 @@
+import { type LucideIcon } from 'lucide-react-native';
+import { Button } from 'tamagui';
+import { colors } from '@/theme/colors';
+import { elevated, RADIUS } from '@/theme/elevation';
+
+export function IconButton({
+  icon: Icon,
+  label,
+  onPress,
+  variant = 'surface',
+}: {
+  icon: LucideIcon;
+  label: string;
+  onPress: () => void;
+  variant?: 'surface' | 'primary' | 'ghost' | 'glass';
+}) {
+  const primary = variant === 'primary';
+  const glass = variant === 'glass';
+  return (
+    <Button
+      w={48}
+      h={48}
+      p="0"
+      rounded={RADIUS.control}
+      bg={primary ? 'primary' : glass ? 'glassFill' : variant === 'ghost' ? 'transparent' : 'surface'}
+      borderWidth={1}
+      borderColor={glass ? 'glassEdge' : 'transparent'}
+      style={primary ? elevated('glow') : variant === 'surface' ? elevated('sm') : undefined}
+      opacity="1 press:0.75"
+      scale="1 press:0.985"
+      transition="fast"
+      onPress={onPress}
+      accessibilityLabel={label}
+    >
+      <Icon color={primary || glass ? colors.onPrimary : colors.text} size={22} strokeWidth={2} />
+    </Button>
+  );
+}

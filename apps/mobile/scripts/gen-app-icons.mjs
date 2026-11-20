@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const mark = JSON.parse(readFileSync(join(root, 'ui/brand/sluis-mark.json'), 'utf8'));
+const mark = JSON.parse(readFileSync(join(root, 'src/ui/brand/sluis-mark.json'), 'utf8'));
 const { colors, wave } = mark;
 
 export function wavePath(y, from = wave.from, to = wave.to) {

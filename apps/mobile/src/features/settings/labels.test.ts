@@ -1,0 +1,23 @@
+import { fundingLeadLabel, marginLabel, paydayLabel } from './labels';
+
+describe('paydayLabel', () => {
+  it('écrit « 1er » pour le premier du mois', () => {
+    expect(paydayLabel(1)).toBe('le 1er du mois');
+  });
+
+  it('écrit le numéro du jour sinon', () => {
+    expect(paydayLabel(25)).toBe('le 25 du mois');
+  });
+});
+
+describe('marginLabel', () => {
+  it('affiche la marge en pourcentage avec une espace insécable', () => {
+    expect(marginLabel(300)).toBe('3 %');
+  });
+});
+
+describe('fundingLeadLabel', () => {
+  it('indique le délai et le report au dernier jour ouvré', () => {
+    expect(fundingLeadLabel(2)).toBe('J-2, avancé au dernier jour ouvré');
+  });
+});

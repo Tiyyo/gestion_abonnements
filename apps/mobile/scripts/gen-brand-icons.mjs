@@ -14,14 +14,37 @@ const BRANDS = {
   Vidéo: ['netflix', 'appletv', 'youtube', 'crunchyroll', 'paramountplus', 'hbomax', 'max', 'mubi', 'twitch'],
   'Stockage cloud': ['icloud', 'googledrive', 'dropbox', 'protondrive', 'mega'],
   Jeux: ['playstation', 'steam', 'ubisoft'],
-  Productivité: ['notion', 'evernote', 'todoist', 'figma', '1password', 'bitwarden', 'dashlane', 'nordvpn', 'protonvpn', 'expressvpn', 'surfshark', 'github', 'githubcopilot', 'google', 'proton', 'protonmail', 'ovh', 'scaleway'],
+  Productivité: [
+    'notion',
+    'evernote',
+    'todoist',
+    'figma',
+    '1password',
+    'bitwarden',
+    'dashlane',
+    'nordvpn',
+    'protonvpn',
+    'expressvpn',
+    'surfshark',
+    'github',
+    'githubcopilot',
+    'google',
+    'proton',
+    'protonmail',
+    'ovh',
+    'scaleway',
+  ],
   Presse: ['lequipe', 'medium', 'substack'],
   'Santé/Sport': ['strava', 'fitbit', 'garmin', 'headspace'],
   IA: ['anthropic', 'claude', 'perplexity'],
   Autre: ['duolingo', 'deliveroo', 'ubereats', 'uber', 'patreon', 'tinder', 'revolut', 'orange'],
 };
 
-const bySlug = new Map(Object.values(icons).filter((i) => i && i.slug).map((i) => [i.slug, i]));
+const bySlug = new Map(
+  Object.values(icons)
+    .filter((i) => i && i.slug)
+    .map((i) => [i.slug, i]),
+);
 const entries = [];
 for (const [category, slugs] of Object.entries(BRANDS)) {
   for (const slug of slugs) {
@@ -49,7 +72,7 @@ export const BRAND_ICONS: Readonly<Record<string, BrandIcon>> = ${JSON.stringify
   2,
 )};
 `;
-writeFileSync(join(here, '..', 'ui', 'brand-icons.ts'), ts);
+writeFileSync(join(here, '..', 'src', 'features', 'subscriptions', 'brand-icons.ts'), ts);
 
 const go = `// Code généré par apps/mobile/scripts/gen-brand-icons.mjs depuis simple-icons ${version}. NE PAS MODIFIER.
 

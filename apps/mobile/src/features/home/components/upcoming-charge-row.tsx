@@ -1,0 +1,28 @@
+import { formatEuros } from '@abonnements/core';
+import { router } from 'expo-router';
+import { YStack } from 'tamagui';
+import type { HomeUpcoming } from '@/db/repositories/home/types';
+import { dayOfMonth, monthShort, upcomingAccessibilityLabel, upcomingCaption } from '@/features/home/home-wording';
+import { ListCard } from '@/ui/surfaces/list-card';
+import { Amount, Caption, Label, Overline } from '@/ui/text/typography';
+
+export function UpcomingChargeRow({ upcoming }: { upcoming: HomeUpcoming }) {
+  return (
+    <ListCard
+      onPress={() => router.push(`/subscriptions/${upcoming.subscriptionId}`)}
+      accessibilityLabel={upcomingAccessibilityLabel(upcoming)}
+    >
+      <YStack w={44} items="center">
+        <Amount fontSize={20} fontWeight="700">
+          {dayOfMonth(upcoming.dueDate)}
+        </Amount>
+        <Overline fontSize={11}>{monthShort(upcoming.dueDate)}</Overline>
+      </YStack>
+      <YStack flex={1} gap="0.5">
+        <Label>{upcoming.name}</Label>
+        <Caption color={upcoming.funded ? 'okText' : 'colorMuted'}>{upcomingCaption(upcoming)}</Caption>
+      </YStack>
+      <Amount>{formatEuros(upcoming.amountCents)}</Amount>
+    </ListCard>
+  );
+}
