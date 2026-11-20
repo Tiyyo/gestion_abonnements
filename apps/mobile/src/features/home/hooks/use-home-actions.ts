@@ -14,17 +14,19 @@ import type { QuestionAnswer } from '@/features/home/types';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
 import { useFollowUp } from '@/features/charges/hooks/use-follow-up';
 import { useReviewCharge } from '@/features/charges/hooks/use-review-charge';
+import { usePriceAlertActions } from './use-price-alert-actions';
 
 const onError = { onError: (error: Error) => showError('Action impossible', error.message) };
 
-/** Actions des cartes de l'Accueil : transferts (faits tout de suite, annulables depuis le message), questions J+1, débits non prévus et essais. */
+/** Actions des cartes de l'Accueil : transferts (faits tout de suite, annulables depuis le message), questions J+1, débits non prévus, essais et hausses de prix. */
 export function useHomeActions() {
   const plan = usePlanRun();
   const review = useReviewCharge();
   const followUp = useFollowUp();
   const lifecycle = useSubscriptionTransitionFor();
   const dismiss = useDismissDebit();
-  const busy = plan.busy || review.isPending || followUp.isPending || lifecycle.isPending || dismiss.isPending;
+  const prices = usePriceAlertActions();
+  const busy = plan.busy || review.isPending || followUp.isPending || lifecycle.isPending || dismiss.isPending || prices.busy;
 
   const markTransferDone = (transferId: string) => plan.run({ type: 'transfer_done', transferId }, transferDoneFeedback(transferId));
 
@@ -68,7 +70,21 @@ export function useHomeActions() {
       { text: 'Ignorer', onPress: () => dismiss.mutate(debit.transactionId, onError) },
     ]);
 
-  return { busy, markTransferDone, reschedule, openRevolut, answer, keepTrial, cancelTrial, reviewDebit, dismissDebit };
+  const { openSubscription, dismissPriceAlert, stopAfterIncrease } = prices;
+  return {
+    busy,
+    markTransferDone,
+    reschedule,
+    openRevolut,
+    answer,
+    keepTrial,
+    cancelTrial,
+    reviewDebit,
+    dismissDebit,
+    openSubscription,
+    dismissPriceAlert,
+    stopAfterIncrease,
+  };
 }
 
 export type HomeActions = ReturnType<typeof useHomeActions>;

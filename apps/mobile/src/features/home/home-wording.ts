@@ -1,6 +1,7 @@
-import { diffDays, formatEuros } from '@abonnements/core';
-import type { HomeData, HomeReview, HomeUpcoming } from '@/db/repositories/home/types';
+import { diffDays, formatEuros, priceChangeBp } from '@abonnements/core';
+import type { HomeData, HomePriceAlert, HomeReview, HomeUpcoming } from '@/db/repositories/home/types';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
+import { formatSignedEuros, formatSignedPercentBp } from '@/features/subscriptions/price-history';
 import { dateLong, dateShort, dateWithWeekday, relativeDay } from '@/lib/dates';
 
 /** Date du jour en surtitre de l'en-tête, par exemple « vendredi 20 novembre ». */
@@ -38,6 +39,17 @@ export function reviewCaption(review: HomeReview): string {
     return `Prévu le ${dateShort(review.dueDate)} · aucun débit vu, échoué ?`;
   }
   return `Prévu le ${dateShort(review.dueDate)} · ${review.wanted ? 'passé ou échoué ?' : 'non financé, a-t-il échoué ?'}`;
+}
+
+/** « Spotify : +1,00 € (+8,3 %) ». */
+export function priceAlertTitle(alert: HomePriceAlert): string {
+  const bp = priceChangeBp(alert.fromCents, alert.toCents);
+  const delta = formatSignedEuros(alert.toCents - alert.fromCents);
+  return `${alert.name} : ${delta}${bp === null ? '' : ` (${formatSignedPercentBp(bp)})`}`;
+}
+
+export function priceAlertBody(alert: HomePriceAlert): string {
+  return `Passé de ${formatEuros(alert.fromCents)} à ${formatEuros(alert.toCents)} le ${dateShort(alert.occurredOn)}, soit ${formatSignedEuros(alert.annualImpactCents)} par an.`;
 }
 
 export function upcomingCaption(upcoming: HomeUpcoming): string {

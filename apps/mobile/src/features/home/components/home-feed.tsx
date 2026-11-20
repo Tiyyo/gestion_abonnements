@@ -3,13 +3,14 @@ import type { HomeActions } from '@/features/home/hooks/use-home-actions';
 import { Appear } from '@/ui/motion/appear';
 import { NextTransferCard } from './next-transfer-card';
 import { OverdueTransferCard } from './overdue-transfer-card';
+import { PriceAlertCard } from './price-alert-card';
 import { QuestionCard } from './question-card';
 import { ReviewList } from './review-list';
 import { TrialCard } from './trial-card';
 import { UnexpectedDebitCard } from './unexpected-debit-card';
 import { UpcomingChargesList } from './upcoming-charges-list';
 
-/** Contenu de l'Accueil quand il y a des abonnements : transferts, questions, débits non prévus, essais, vérifications et prochains prélèvements. */
+/** Contenu de l'Accueil quand il y a des abonnements : transferts, questions, débits non prévus, essais, vérifications, hausses de prix et prochains prélèvements. */
 export function HomeFeed({ data, today, actions }: { data: HomeData; today: string; actions: HomeActions }) {
   const { busy } = actions;
   const next = data.next;
@@ -64,6 +65,19 @@ export function HomeFeed({ data, today, actions }: { data: HomeData; today: stri
       ))}
 
       <ReviewList reviews={data.toReview} />
+
+      {data.priceAlerts.map((alert, index) => (
+        <Appear key={alert.eventId} index={index + 2}>
+          <PriceAlertCard
+            alert={alert}
+            busy={busy}
+            onOpen={() => actions.openSubscription(alert.subscriptionId)}
+            onStop={() => actions.stopAfterIncrease(alert)}
+            onDismiss={() => actions.dismissPriceAlert(alert)}
+          />
+        </Appear>
+      ))}
+
       <UpcomingChargesList upcoming={data.upcoming} />
     </>
   );

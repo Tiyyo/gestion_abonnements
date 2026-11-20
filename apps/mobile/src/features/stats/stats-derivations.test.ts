@@ -6,6 +6,7 @@ import {
   categoryAmountLabel,
   categoryShare,
   periodFigures,
+  priceIncreasesLabel,
   subscriptionCount,
 } from './stats-derivations';
 
@@ -19,7 +20,7 @@ const stats: Stats = {
   excludedCount: 1,
   spentLast12MonthsCents: 30000,
   topSubscription: { name: 'Netflix', annualCents: 24000 },
-  priceIncreases: { count: 0, annualImpactCents: 0 },
+  priceIncreases: { count: 2, annualImpactCents: 9600 },
 };
 
 describe('statistiques', () => {
@@ -44,6 +45,11 @@ describe('statistiques', () => {
     const row = { category: 'Vidéo', cents: 1000 };
     expect(categoryAmountLabel(row, 33)).toBe(`${formatEuros(1000)} · 33 %`);
     expect(categoryAccessibilityLabel(row, 33)).toBe(`Vidéo : ${formatEuros(1000)}, 33 %`);
+  });
+
+  it('résume les hausses de prix sur 12 mois', () => {
+    expect(priceIncreasesLabel(stats.priceIncreases)).toBe(`2 · +96,00\u202f€ par an`);
+    expect(priceIncreasesLabel({ count: 0, annualImpactCents: 0 })).toBe('Aucune');
   });
 
   it('choisit les chiffres de la période', () => {

@@ -5,6 +5,8 @@ import {
   dayOfMonth,
   heroDateLabel,
   pendingTransfersCents,
+  priceAlertBody,
+  priceAlertTitle,
   reviewCaption,
   transferPurpose,
   trialBody,
@@ -34,6 +36,28 @@ const upcoming = (over: Partial<HomeUpcoming>): HomeUpcoming => ({
   transferDate: null,
   funded: false,
   ...over,
+});
+
+describe('alerte de hausse de prix', () => {
+  const alert = {
+    eventId: 'e1',
+    subscriptionId: 's1',
+    name: 'Spotify',
+    fromCents: 1199,
+    toCents: 1299,
+    occurredOn: '2026-11-18',
+    annualImpactCents: 1200,
+    nextChargeDate: '2026-11-21',
+  };
+
+  it('annonce l’écart en euros et en pourcentage, puis l’effet annuel', () => {
+    expect(priceAlertTitle(alert)).toBe(`Spotify : +1,00\u202f€ (+8,3\u202f%)`);
+    expect(priceAlertBody(alert)).toBe(`Passé de 11,99\u202f€ à 12,99\u202f€ le 18\u00a0nov., soit +12,00\u202f€ par an.`);
+  });
+
+  it('omet le pourcentage quand l’ancien prix était nul', () => {
+    expect(priceAlertTitle({ ...alert, fromCents: 0, toCents: 500 })).toBe(`Spotify : +5,00\u202f€`);
+  });
 });
 
 describe('libellés de l’Accueil', () => {

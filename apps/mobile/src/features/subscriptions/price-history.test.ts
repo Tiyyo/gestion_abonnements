@@ -81,7 +81,9 @@ describe('priceSummary', () => {
   it('résume l’écart depuis le premier changement et son effet annuel selon la périodicité', () => {
     const history = buildPriceHistory(events);
     expect(priceSummary(history, monthly)).toBe(`+1,00 € depuis le 12\u00a0mars\u00a02026, soit +12,00 € par an`);
-    expect(priceSummary(history, { period_unit: 'year', period_count: 1 })).toBe(`+1,00 € depuis le 12\u00a0mars\u00a02026, soit +1,00 € par an`);
+    expect(priceSummary(history, { period_unit: 'year', period_count: 1 })).toBe(
+      `+1,00 € depuis le 12\u00a0mars\u00a02026, soit +1,00 € par an`,
+    );
     expect(priceSummary(history, { period_unit: 'week', period_count: 1 })).toContain(`soit +52,00 € par an`);
   });
 
