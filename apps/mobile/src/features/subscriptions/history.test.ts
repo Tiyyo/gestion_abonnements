@@ -18,6 +18,12 @@ describe('eventLabel', () => {
     );
   });
 
+  it('distingue un écart ponctuel et tolère une charge utile illisible', () => {
+    const pending = JSON.stringify({ chargeId: 'c1', from: 999, to: 1299, source: 'reconciliation', applied: false });
+    expect(eventLabel('price_change', pending, null)).toBe(`Prélevé ${formatEuros(1299)} au lieu de ${formatEuros(999)}`);
+    expect(eventLabel('price_change', '{}', null)).toBe('Prix modifié');
+  });
+
   it('ajoute le montant d’un prélèvement inattendu s’il est connu', () => {
     expect(eventLabel('unexpected_charge', '{}', 500)).toBe(`Prélèvement inattendu de ${formatEuros(500)}`);
     expect(eventLabel('unexpected_charge', '{}', null)).toBe('Prélèvement inattendu');
