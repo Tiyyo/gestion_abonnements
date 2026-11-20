@@ -36,6 +36,10 @@ export const BRAND_ALIASES: Readonly<Record<string, readonly string[]>> = {
   sncf: ['sncf connect', 'tgv max', 'max jeune', 'carte avantage'],
   hellofresh: ['hello fresh'],
   discord: ['discord nitro'],
+  amazonprime: ['amazon prime video', 'prime video', 'amazon video', 'amazon', 'prime', 'amzn prime'],
+  disneyplus: ['disney plus', 'disney'],
+  ligue1plus: ['ligue 1 plus', 'ligue1 plus', 'ligue 1', 'ligue1'],
+  hinge: ['hinge dating'],
 };
 
 export interface ExtraBrand {
@@ -48,14 +52,7 @@ export interface ExtraBrand {
 
 /** Marques sans logo dans Simple Icons, ou offres dont la catégorie diffère de celle du logo. */
 export const EXTRA_BRANDS: readonly ExtraBrand[] = [
-  {
-    title: 'Amazon Prime',
-    iconKey: null,
-    category: 'Vidéo',
-    names: ['amazon prime', 'amazon prime video', 'prime video', 'amazon video', 'amazon', 'prime', 'amzn prime'],
-  },
   { title: 'Amazon Music', iconKey: null, category: 'Musique', names: ['amazon music', 'amzn music'] },
-  { title: 'Disney+', iconKey: null, category: 'Vidéo', names: ['disney plus', 'disney'] },
   { title: 'Canal+', iconKey: null, category: 'Vidéo', names: ['canal plus', 'mycanal'] },
   { title: 'OCS', iconKey: null, category: 'Vidéo', names: ['ocs'] },
   { title: 'Molotov', iconKey: null, category: 'Vidéo', names: ['molotov', 'molotov tv'] },

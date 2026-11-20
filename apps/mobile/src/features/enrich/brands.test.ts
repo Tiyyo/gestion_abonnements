@@ -38,11 +38,13 @@ describe('matchBrand', () => {
     ['Google One', 'google', 'cat-cloud'],
     ['Google Drive', 'googledrive', 'cat-cloud'],
     ['Uber Eats', 'ubereats', 'cat-autre'],
-    ['Amazon Prime', null, 'cat-video'],
-    ['Prime Video', null, 'cat-video'],
+    ['Amazon Prime', 'amazonprime', 'cat-video'],
+    ['Prime Video', 'amazonprime', 'cat-video'],
     ['Amazon Music Unlimited', null, 'cat-musique'],
-    ['Disney Plus', null, 'cat-video'],
-    ['Disney+', null, 'cat-video'],
+    ['Disney Plus', 'disneyplus', 'cat-video'],
+    ['Disney+', 'disneyplus', 'cat-video'],
+    ['Ligue 1+', 'ligue1plus', 'cat-video'],
+    ['Hinge', 'hinge', 'cat-autre'],
     ['Canal+', null, 'cat-video'],
     ['canal plus', null, 'cat-video'],
     ['ChatGPT Plus', null, 'cat-ia'],
@@ -54,12 +56,12 @@ describe('matchBrand', () => {
   });
 
   it.each([
-    ['Amazone Prime', null, 'Amazon Prime'],
+    ['Amazone Prime', 'amazonprime', 'Amazon Prime'],
     ['Netflx', 'netflix', 'Netflix'],
     ['Netfilx', 'netflix', 'Netflix'],
     ['Sptoify', 'spotify', 'Spotify'],
     ['Youtub Premium', 'youtube', 'YouTube'],
-    ['Disny Plus', null, 'Disney+'],
+    ['Disny Plus', 'disneyplus', 'Disney+'],
     ['Crunchyrol', 'crunchyroll', 'Crunchyroll'],
     ['Dezzer Premium', 'deezer', 'Deezer'],
   ])('« %s » (faute de frappe) donne %s', (name, iconKey, title) => {
@@ -134,7 +136,7 @@ describe('resolveIconKey', () => {
   it('déduit le logo du nom quand aucun n’est enregistré', () => {
     expect(resolveIconKey('Netflix', 'tag')).toBe('netflix');
     expect(resolveIconKey('Netflix', null)).toBe('netflix');
-    expect(resolveIconKey('Amazone Prime', 'tag')).toBeNull();
+    expect(resolveIconKey('Amazone Prime', 'tag')).toBe('amazonprime');
     expect(resolveIconKey('Loyer', 'tag')).toBeNull();
   });
 

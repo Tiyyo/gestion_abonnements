@@ -98,4 +98,8 @@ var brandIconKeys = map[string]bool{
 	"coursera":      true,
 	"udemy":         true,
 	"skillshare":    true,
+	"hinge":         true,
+	"disneyplus":    true,
+	"amazonprime":   true,
+	"ligue1plus":    true,
 }

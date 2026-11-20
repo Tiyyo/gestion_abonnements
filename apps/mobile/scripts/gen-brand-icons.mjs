@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const version = JSON.parse(readFileSync(join(dirname(require.resolve('simple-icons')), 'package.json'), 'utf8')).version;
 
 // Liste source : chaque marque a un logo Simple Icons et une catégorie par défaut (noms de `CATEGORY_NAMES`).
-// Les autres appellations (« Prime Video », « Disney+ »…) et les marques sans logo sont dans
+// Logos hors Simple Icons : `custom-brand-icons.json`. Les autres appellations et les marques sans logo sont dans
 // `src/features/enrich/brand-catalog.ts`.
 const BRANDS = {
   Musique: ['spotify', 'deezer', 'applemusic', 'tidal', 'youtubemusic', 'soundcloud', 'audible', 'napster'],
@@ -71,6 +71,9 @@ const BRANDS = {
   ],
 };
 
+// Marques absentes de Simple Icons (retirées ou jamais ajoutées) : tracé unique 24×24 préparé à la main, avec sa source.
+const CUSTOM = JSON.parse(readFileSync(join(here, 'custom-brand-icons.json'), 'utf8'));
+
 const bySlug = new Map(
   Object.values(icons)
     .filter((i) => i && i.slug)
@@ -85,6 +88,12 @@ for (const [category, slugs] of Object.entries(BRANDS)) {
     }
     entries.push({ slug, title: icon.title, hex: icon.hex, path: icon.path, category });
   }
+}
+for (const [slug, icon] of Object.entries(CUSTOM)) {
+  if (bySlug.has(slug) || entries.some((e) => e.slug === slug)) {
+    throw new Error(`logo personnalisé en double avec Simple Icons : ${slug}`);
+  }
+  entries.push({ slug, title: icon.title, hex: icon.hex, path: icon.path, category: icon.category });
 }
 
 const ts = `// Généré par scripts/gen-brand-icons.mjs depuis simple-icons ${version}. Ne pas modifier à la main.
