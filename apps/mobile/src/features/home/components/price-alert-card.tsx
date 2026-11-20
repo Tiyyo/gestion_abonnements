@@ -2,7 +2,7 @@ import { TrendingUp, X } from 'lucide-react-native';
 import { XStack } from 'tamagui';
 import type { HomePriceAlert } from '@/db/repositories/home/types';
 import { priceAlertBody, priceAlertTitle } from '@/features/home/home-wording';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { IconButton } from '@/ui/controls/icon-button';
 import { Card } from '@/ui/surfaces/card';
@@ -18,6 +18,7 @@ interface Props {
 
 /** Hausse de prix récente : voir la fiche, résilier, ou masquer l'alerte. */
 export function PriceAlertCard({ alert, busy, onOpen, onStop, onDismiss }: Props) {
+  const colors = useColors();
   return (
     <Card tone="warn">
       <XStack gap="2" items="center" mt={-8} mr={-8}>

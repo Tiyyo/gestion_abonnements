@@ -24,7 +24,7 @@ export function Chip({
       px="4"
       rounded="full"
       borderWidth={1}
-      borderColor={selected ? 'primary' : 'borderControl'}
+      borderColor={selected ? 'onSecondary' : 'borderControl'}
       backgroundColor={selected ? 'secondary' : 'surface'}
       scale="1 press:0.985"
       transition="fast"

@@ -11,7 +11,7 @@ export function TrendLegend({ withPlanned }: { withPlanned: boolean }) {
       </XStack>
       {withPlanned ? (
         <XStack gap="2" items="center">
-          <YStack w={12} h={12} rounded={3} bg="primarySoft" borderWidth={1.5} borderStyle="dashed" borderColor="primary" />
+          <YStack w={12} h={12} rounded={3} bg="primarySoft" borderWidth={1.5} borderStyle="dashed" borderColor="primaryText" />
           <Caption>À venir</Caption>
         </XStack>
       ) : null}

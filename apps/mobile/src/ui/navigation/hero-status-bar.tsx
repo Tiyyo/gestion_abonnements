@@ -1,12 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { YStack } from 'tamagui';
+import { AppStatusBar } from './app-status-bar';
 
+/** Icônes claires sur le dégradé ; une fois le dégradé passé (`past`), bandeau du fond de l'app et icônes accordées au thème. */
 export function HeroStatusBar({ past, active = true }: { past: boolean; active?: boolean }) {
   const insets = useSafeAreaInsets();
   return (
     <>
-      {active ? <StatusBar style={past ? 'dark' : 'light'} /> : null}
+      {active ? <AppStatusBar onDark={!past} /> : null}
       <YStack
         position="absolute"
         t={0}

@@ -4,8 +4,9 @@ import { type ComponentRef, type RefObject, useState } from 'react';
 import { StyleSheet, type View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
-import { colors } from '@/theme/colors';
-import { elevated } from '@/theme/elevation';
+import { useColors } from '@/theme/use-colors';
+import { useScheme } from '@/theme/use-scheme';
+import { useShadows } from '@/theme/use-shadows';
 import { useKeyboardVisible } from '@/ui/hooks/use-keyboard-visible';
 import { IrisPill } from './iris-pill';
 import { BAR_GAP, BAR_HEIGHT, BAR_RADIUS, ROW_GAP, ROW_PADDING } from './tab-bar-metrics';
@@ -26,6 +27,9 @@ export function FloatingTabBar({
   blurTarget,
 }: BottomTabBarProps & { blurTarget: RefObject<ComponentRef<typeof View> | null> }) {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
+  const scheme = useScheme();
+  const shadow = useShadows();
   const keyboardVisible = useKeyboardVisible();
   const [rowWidth, setRowWidth] = useState(0);
   const count = state.routes.length;
@@ -46,11 +50,11 @@ export function FloatingTabBar({
       b={insets.bottom + BAR_GAP}
       h={BAR_HEIGHT}
       rounded={BAR_RADIUS}
-      style={elevated('bar')}
+      style={{ boxShadow: shadow.bar }}
       pointerEvents="box-none"
     >
       <YStack flex={1} rounded={BAR_RADIUS} overflow="hidden" borderWidth={1} borderColor="barEdge">
-        <BlurView style={StyleSheet.absoluteFill} tint="light" intensity={60} blurMethod={ANDROID_BLUR} blurTarget={blurTarget} />
+        <BlurView style={StyleSheet.absoluteFill} tint={scheme} intensity={60} blurMethod={ANDROID_BLUR} blurTarget={blurTarget} />
         <XStack
           flex={1}
           bg="barFill"

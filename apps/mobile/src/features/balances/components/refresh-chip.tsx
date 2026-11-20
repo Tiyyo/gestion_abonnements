@@ -1,6 +1,6 @@
 import { RotateCw } from 'lucide-react-native';
 import { XStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { haptic } from '@/ui/motion/haptics';
 import { Caption } from '@/ui/text/typography';
 
@@ -16,6 +16,7 @@ export function RefreshChip({
   accessibilityLabel: string;
   onRefresh: () => void;
 }) {
+  const colors = useColors();
   return (
     <XStack
       minH={44}

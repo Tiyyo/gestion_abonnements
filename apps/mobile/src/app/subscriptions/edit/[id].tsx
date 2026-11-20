@@ -11,7 +11,7 @@ export default function EditSubscriptionScreen() {
   const { save, update } = useSaveSubscriptionEdit(detail.data?.row, id);
 
   if (!detail.data) {
-    return <Spinner flex={1} color="primary" />;
+    return <Spinner flex={1} color="primaryText" />;
   }
   const { row } = detail.data;
 

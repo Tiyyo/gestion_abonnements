@@ -1,9 +1,10 @@
 import { YStack, type YStackProps } from 'tamagui';
-import { elevated, RADIUS, type ShadowLevel } from '@/theme/elevation';
+import { RADIUS, type ShadowLevel } from '@/theme/elevation';
+import { useShadows } from '@/theme/use-shadows';
 
 export type Tone = 'plain' | 'accent' | 'warn' | 'danger' | 'ok';
 
-// L'élévation passe par l'ombre (teintée selon le ton), plus par la bordure.
+// L'élévation passe par l'ombre (teintée selon le ton), plus par la bordure. En sombre, l'ombre porte un liseré clair (theme/elevation).
 const TONES: Record<Tone, { bg: string; shadow: ShadowLevel }> = {
   plain: { bg: 'surface', shadow: 'md' },
   accent: { bg: 'primary', shadow: 'accent' },
@@ -14,6 +15,7 @@ const TONES: Record<Tone, { bg: string; shadow: ShadowLevel }> = {
 
 export function Card({ tone = 'plain', lift, children, style, ...props }: YStackProps & { tone?: Tone; lift?: boolean }) {
   const t = TONES[tone];
+  const shadow = useShadows();
   return (
     <YStack
       bg={t.bg as 'surface'}
@@ -22,7 +24,7 @@ export function Card({ tone = 'plain', lift, children, style, ...props }: YStack
       rounded={RADIUS.card}
       p="4"
       gap="2"
-      style={[elevated(lift && tone === 'plain' ? 'lg' : t.shadow), style]}
+      style={[{ boxShadow: shadow[lift && tone === 'plain' ? 'lg' : t.shadow] }, style]}
       {...props}
     >
       {children}

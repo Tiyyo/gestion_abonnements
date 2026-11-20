@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { XStack, YStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { haptic } from '@/ui/motion/haptics';
 import { Body } from '@/ui/text/typography';
 
@@ -22,6 +22,7 @@ export function SheetOption({
   onPress: () => void;
   testID?: string;
 }) {
+  const colors = useColors();
   return (
     <XStack
       minH={56}
@@ -52,7 +53,7 @@ export function SheetOption({
           </Body>
         ) : null}
       </YStack>
-      {selected ? <Check color={colors.primary} size={22} strokeWidth={2.5} /> : null}
+      {selected ? <Check color={colors.primaryText} size={22} strokeWidth={2.5} /> : null}
     </XStack>
   );
 }

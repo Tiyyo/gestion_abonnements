@@ -1,7 +1,7 @@
 import { ReceiptEuro } from 'lucide-react-native';
 import { YStack } from 'tamagui';
 import type { UnknownDebitForm } from '@/features/charges/hooks/use-unknown-debit-form';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { GlassAmountInput } from '@/ui/controls/glass-amount-input';
 import { GlassTextInput } from '@/ui/controls/glass-text-input';
 import { GlassCard } from '@/ui/surfaces/glass-card';
@@ -10,6 +10,7 @@ import { Caption } from '@/ui/text/typography';
 
 /** Aperçu du débit sur le dégradé, comme le formulaire d'abonnement : marchand à gauche, montant à droite. */
 export function UnknownDebitHero({ form }: { form: UnknownDebitForm }) {
+  const colors = useColors();
   return (
     <Hero px="4" pt="2" pb="5" gap="3">
       <Caption color="onGlassMuted" px="1">

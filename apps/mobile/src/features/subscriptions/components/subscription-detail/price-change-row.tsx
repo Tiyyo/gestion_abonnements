@@ -8,11 +8,12 @@ import {
   directionLabel,
   type PriceChangeItem,
 } from '@/features/subscriptions/price-history';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Amount, Body, Caption, Label } from '@/ui/text/typography';
 
 /** Un changement de prix : sens (icône et mot), écart en euros et en pourcentage, montants et date. */
 export function PriceChangeRow({ item, first }: { item: PriceChangeItem; first: boolean }) {
+  const colors = useColors();
   const up = item.direction === 'up';
   const Icon = up ? TrendingUp : TrendingDown;
   return (

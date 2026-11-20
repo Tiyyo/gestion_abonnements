@@ -9,11 +9,9 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 
 export type SkeletonTone = 'light' | 'glass';
-
-const TONES: Record<SkeletonTone, string> = { light: colors.subtle, glass: colors.glassSkeleton };
 
 // Un cycle complet (aller-retour) dure 1,2 s, sans ressort.
 const HALF_CYCLE_MS = 600;
@@ -31,6 +29,7 @@ interface Props {
 /** Bloc fantôme d'un contenu en cours de chargement : pulsation d'opacité discrète, fixe si les animations sont réduites. */
 export function Skeleton({ w, h, radius = 6, tone = 'light', style }: Props) {
   const reduceMotion = useReducedMotion();
+  const colors = useColors();
   const opacity = useSharedValue(1);
 
   useEffect(() => {
@@ -47,7 +46,11 @@ export function Skeleton({ w, h, radius = 6, tone = 'light', style }: Props) {
     <Animated.View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={[{ width: w, height: h, borderRadius: radius, backgroundColor: TONES[tone] }, style, pulse]}
+      style={[
+        { width: w, height: h, borderRadius: radius, backgroundColor: tone === 'glass' ? colors.glassSkeleton : colors.subtle },
+        style,
+        pulse,
+      ]}
     />
   );
 }

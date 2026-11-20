@@ -1,7 +1,7 @@
 import { router, useIsFocused } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { YStack } from 'tamagui';
+import { AppStatusBar } from '@/ui/navigation/app-status-bar';
 import { SubscriptionList } from '@/features/subscriptions/components/subscription-list/subscription-list';
 import { SubscriptionListSkeleton } from '@/features/subscriptions/components/subscription-list/subscription-list-skeleton';
 import { SubscriptionsHero } from '@/features/subscriptions/components/subscription-list/subscriptions-hero';
@@ -21,7 +21,7 @@ export default function SubscriptionsScreen() {
 
   return (
     <YStack flex={1} bg="background">
-      {focused ? <StatusBar style="light" /> : null}
+      {focused ? <AppStatusBar onDark /> : null}
       <SubscriptionsHero count={ongoingCount} search={view.toolsVisible ? { value: query, onChange: setQuery } : undefined} />
       {isPending ? (
         showSkeleton ? (

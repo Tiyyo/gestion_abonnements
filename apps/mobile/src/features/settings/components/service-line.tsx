@@ -2,13 +2,13 @@ import { ChevronRight, CircleAlert, CircleCheck, CircleMinus, type LucideIcon } 
 import { XStack } from 'tamagui';
 import { haptic } from '@/ui/motion/haptics';
 import { Body, Caption } from '@/ui/text/typography';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import type { ServiceState } from '@/features/settings/service-status';
 
-const SERVICE_ICON: Record<ServiceState, { icon: LucideIcon; color: string; tone: 'onGlassOk' | 'onGlassMuted' | 'onGlassWarn' }> = {
-  ok: { icon: CircleCheck, color: colors.onGlassOk, tone: 'onGlassOk' },
-  off: { icon: CircleMinus, color: colors.onGlassMuted, tone: 'onGlassMuted' },
-  warn: { icon: CircleAlert, color: colors.onGlassWarn, tone: 'onGlassWarn' },
+const SERVICE_ICON: Record<ServiceState, { icon: LucideIcon; tone: 'onGlassOk' | 'onGlassMuted' | 'onGlassWarn' }> = {
+  ok: { icon: CircleCheck, tone: 'onGlassOk' },
+  off: { icon: CircleMinus, tone: 'onGlassMuted' },
+  warn: { icon: CircleAlert, tone: 'onGlassWarn' },
 };
 
 export function ServiceLine({
@@ -24,6 +24,7 @@ export function ServiceLine({
   status: string;
   onPress?: () => void;
 }) {
+  const colors = useColors();
   const s = SERVICE_ICON[state];
   const press = onPress
     ? {
@@ -55,7 +56,7 @@ export function ServiceLine({
       <Body flex={1} color="onGlass">
         {label}
       </Body>
-      <s.icon color={s.color} size={14} />
+      <s.icon color={colors[s.tone]} size={14} />
       <Caption color={s.tone} shrink={1} text="right">
         {status}
       </Caption>

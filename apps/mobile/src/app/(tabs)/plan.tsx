@@ -1,9 +1,9 @@
 import { todayIn } from '@abonnements/core';
 import { useIsFocused } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { YStack } from 'tamagui';
 import { MonthCalendarView } from '@/features/plan/components/month-calendar-view';
 import { MonthPlanSkeleton } from '@/features/plan/components/month-plan-skeleton';
+import { AppStatusBar } from '@/ui/navigation/app-status-bar';
 import { MonthPlanView } from '@/features/plan/components/month-plan-view';
 import { MonthTransition } from '@/features/plan/components/month-transition';
 import { PlanHero } from '@/features/plan/components/plan-hero';
@@ -24,7 +24,7 @@ export default function PlanScreen() {
 
   return (
     <YStack flex={1} bg="background">
-      {focused ? <StatusBar style="light" /> : null}
+      {focused ? <AppStatusBar onDark /> : null}
       <PlanHero year={year} month={month} onShift={goMonth} mode={mode} onModeChange={setMode} />
       {!plan.data ? (
         showSkeleton ? (

@@ -1,8 +1,8 @@
 import { type ReactNode, useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
-import { colors } from '@/theme/colors';
-import { shadow } from '@/theme/elevation';
+import { useColors } from '@/theme/use-colors';
+import { useShadows } from '@/theme/use-shadows';
 import { CLOSE, geometry, OPEN, OPEN_DELAY } from './iris-motion';
 import { PILL_HEIGHT, PILL_RADIUS } from './tab-bar-metrics';
 
@@ -10,6 +10,8 @@ export function IrisPill({ active, left, width, children }: { active: boolean; l
   const open = useSharedValue(active ? 1 : 0);
   const opening = useSharedValue(active ? 1 : 0);
   const mounted = useRef(false);
+  const { primary } = useColors();
+  const shadow = useShadows();
 
   useEffect(() => {
     if (!mounted.current) {
@@ -47,8 +49,8 @@ export function IrisPill({ active, left, width, children }: { active: boolean; l
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden
     >
-      <Animated.View style={[styles.pillGlow, { width }, glow]} />
-      <Animated.View style={[styles.pill, outline, motion]} />
+      <Animated.View style={[styles.pillGlow, { width, backgroundColor: primary, boxShadow: shadow.glow }, glow]} />
+      <Animated.View style={[styles.pill, { backgroundColor: primary }, outline, motion]} />
       <Animated.View style={[styles.pillClip, outline, motion]}>
         <Animated.View style={[{ width, height: PILL_HEIGHT }, content]}>{children}</Animated.View>
       </Animated.View>
@@ -58,13 +60,11 @@ export function IrisPill({ active, left, width, children }: { active: boolean; l
 
 const styles = StyleSheet.create({
   pillSlot: { position: 'absolute', height: PILL_HEIGHT, alignItems: 'center', justifyContent: 'center' },
-  pill: { height: PILL_HEIGHT, backgroundColor: colors.primary },
+  pill: { height: PILL_HEIGHT },
   pillGlow: {
     position: 'absolute',
     height: PILL_HEIGHT,
     borderRadius: PILL_RADIUS,
-    backgroundColor: colors.primary,
-    boxShadow: shadow.glow,
   },
   // Calque jumeau sans ombre qui découpe le contenu blanc (overflow + rayon) : l'ombre de `pill` n'est pas rognée.
   pillClip: { position: 'absolute', height: PILL_HEIGHT, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },

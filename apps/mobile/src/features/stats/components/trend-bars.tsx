@@ -1,7 +1,7 @@
 import Svg, { Line, Path, Rect } from 'react-native-svg';
 import type { TrendMonth } from '@/db/repositories/stats-trend';
 import { barHeights, barPath, CHART, CHART_HEIGHT, gridTicks, yForCents } from '@/features/stats/trend-scale';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 
 interface Props {
   months: readonly TrendMonth[];
@@ -17,6 +17,7 @@ const PLANNED_STROKE = 1.5;
 
 /** Tracé du graphique : repères, bande du mois choisi, barres. Ne reçoit aucun toucher (les colonnes sont au-dessus). */
 export function TrendBars({ months, axisMaxCents, columnWidth, selectedIndex }: Props) {
+  const colors = useColors();
   const width = columnWidth * months.length;
   const baseline = CHART.topPad + CHART.plotHeight;
   const inset = (columnWidth - CHART.barWidth) / 2;
@@ -53,7 +54,7 @@ export function TrendBars({ months, axisMaxCents, columnWidth, selectedIndex }: 
               d={planned}
               fill={colors.primary}
               fillOpacity={PLANNED_FILL_OPACITY}
-              stroke={colors.primary}
+              stroke={colors.primaryText}
               strokeWidth={PLANNED_STROKE}
               strokeDasharray="3 3"
             />

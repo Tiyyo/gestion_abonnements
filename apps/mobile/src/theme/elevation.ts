@@ -1,6 +1,8 @@
+import type { Scheme } from './palette';
+
 // Échelle d'élévation unique : chaque niveau empile un anneau de 1 px, une ombre de contact courte et une ombre longue diffuse.
 // React Native 0.88 (New Architecture) lit ces chaînes `boxShadow` telles quelles, couches et `inset` compris.
-export const shadow = {
+const light = {
   sm: '0px 0px 0px 1px rgba(20, 24, 27, 0.04), 0px 1px 2px rgba(20, 24, 27, 0.06), 0px 2px 4px rgba(20, 24, 27, 0.04)',
   md: '0px 0px 0px 1px rgba(20, 24, 27, 0.04), 0px 1px 2px rgba(20, 24, 27, 0.05), 0px 6px 14px -6px rgba(20, 24, 27, 0.10)',
   lg: '0px 0px 0px 1px rgba(20, 24, 27, 0.04), 0px 4px 8px -2px rgba(20, 24, 27, 0.08), 0px 18px 36px -10px rgba(76, 30, 79, 0.22)',
@@ -15,9 +17,27 @@ export const shadow = {
   sheet: '0px -1px 0px rgba(20, 24, 27, 0.04), 0px -8px 32px rgba(20, 24, 27, 0.14)',
 } as const;
 
-export type ShadowLevel = keyof typeof shadow;
+export type ShadowLevel = keyof typeof light;
 
-export const elevated = (level: ShadowLevel) => ({ boxShadow: shadow[level] });
+// Sombre : une ombre noire ne se voit presque pas sur un fond sombre. Le relief vient de la surface plus claire (palette)
+// et d'un liseré clair de 1 px (teinté selon le ton) ; l'ombre portée reste courte.
+const dark: Record<ShadowLevel, string> = {
+  sm: '0px 0px 0px 1px rgba(255, 255, 255, 0.06), 0px 1px 2px rgba(0, 0, 0, 0.30)',
+  md: '0px 0px 0px 1px rgba(255, 255, 255, 0.07), 0px 2px 6px -2px rgba(0, 0, 0, 0.40)',
+  lg: '0px 0px 0px 1px rgba(255, 255, 255, 0.10), 0px 8px 20px -8px rgba(0, 0, 0, 0.55)',
+  glow: '0px 6px 16px -6px rgba(160, 85, 165, 0.45), inset 0px 1px 0px rgba(255, 255, 255, 0.16)',
+  accent:
+    '0px 0px 0px 1px rgba(255, 255, 255, 0.10), 0px 10px 24px -10px rgba(160, 85, 165, 0.40), inset 0px 1px 0px rgba(255, 255, 255, 0.14)',
+  warn: '0px 0px 0px 1px rgba(255, 207, 143, 0.18), 0px 2px 6px -2px rgba(0, 0, 0, 0.40)',
+  danger: '0px 0px 0px 1px rgba(255, 179, 179, 0.18), 0px 2px 6px -2px rgba(0, 0, 0, 0.40)',
+  ok: '0px 0px 0px 1px rgba(159, 221, 175, 0.16), 0px 2px 6px -2px rgba(0, 0, 0, 0.40)',
+  glass: light.glass,
+  bar: '0px 0px 0px 1px rgba(255, 255, 255, 0.08), 0px 12px 32px -10px rgba(0, 0, 0, 0.60)',
+  sheet: '0px -1px 0px rgba(255, 255, 255, 0.08), 0px -8px 32px rgba(0, 0, 0, 0.50)',
+};
+
+/** Lues via `useShadows()` (thème actif), jamais directement dans un composant. */
+export const shadows: Record<Scheme, Record<ShadowLevel, string>> = { light, dark };
 
 // Rayons : cartes principales, lignes de liste, contrôles (boutons, tuiles de logo).
 export const RADIUS = { card: 22, row: 18, control: 14, glass: 24, pill: 999 } as const;

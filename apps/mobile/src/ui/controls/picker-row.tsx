@@ -1,6 +1,6 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
 import { XStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Body } from '@/ui/text/typography';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export function PickerRow({ icon: Icon, label, value, onPress, last, testID }: Props) {
+  const colors = useColors();
   return (
     <XStack
       minH={56}

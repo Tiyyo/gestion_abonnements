@@ -1,7 +1,7 @@
 import { Pencil } from 'lucide-react-native';
 import { YStack } from 'tamagui';
 import { SubscriptionAvatar } from '@/features/subscriptions/components/subscription-avatar';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { formStyles } from './form-styles';
 
 /** Logo de l'aperçu, avec une pastille crayon : ouvre le choix du logo. */
@@ -16,6 +16,7 @@ export function LogoButton({
   label: string;
   onPress: () => void;
 }) {
+  const colors = useColors();
   return (
     <YStack
       onPress={onPress}

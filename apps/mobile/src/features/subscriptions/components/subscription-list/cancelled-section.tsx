@@ -2,7 +2,7 @@ import { ChevronDown } from 'lucide-react-native';
 import { useState } from 'react';
 import { XStack, YStack } from 'tamagui';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { haptic } from '@/ui/motion/haptics';
 import { Reveal } from '@/ui/motion/reveal';
 import { Settle } from '@/ui/motion/settle';
@@ -12,6 +12,7 @@ import { SubscriptionRowsCard } from './subscription-rows-card';
 
 /** Résiliés repliés par défaut, en bas de liste. */
 export function CancelledSection({ rows, globalMarginBp }: { rows: readonly SubscriptionRow[]; globalMarginBp: number }) {
+  const colors = useColors();
   const [expanded, setExpanded] = useState(false);
   return (
     <Settle>
@@ -35,11 +36,11 @@ export function CancelledSection({ rows, globalMarginBp }: { rows: readonly Subs
         >
           <GroupHeader title="Résiliés" count={rows.length} />
           <XStack items="center" gap="1">
-            <Caption color="primary" fontWeight="600">
+            <Caption color="primaryText" fontWeight="600">
               {expanded ? 'Masquer' : 'Afficher'}
             </Caption>
             <YStack rotate={expanded ? '180deg' : '0deg'} transition="smooth">
-              <ChevronDown color={colors.primary} size={18} />
+              <ChevronDown color={colors.primaryText} size={18} />
             </YStack>
           </XStack>
         </XStack>
