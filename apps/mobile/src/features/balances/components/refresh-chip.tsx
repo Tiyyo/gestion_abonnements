@@ -5,7 +5,17 @@ import { haptic } from '@/ui/motion/haptics';
 import { Caption } from '@/ui/text/typography';
 
 /** Pastille « mis à jour à … » qui relance la lecture des soldes. */
-export function RefreshChip({ status, onRefresh }: { status: string; onRefresh: () => void }) {
+export function RefreshChip({
+  status,
+  busy,
+  accessibilityLabel,
+  onRefresh,
+}: {
+  status: string;
+  busy: boolean;
+  accessibilityLabel: string;
+  onRefresh: () => void;
+}) {
   return (
     <XStack
       minH={44}
@@ -16,8 +26,13 @@ export function RefreshChip({ status, onRefresh }: { status: string; onRefresh: 
       }}
       opacity="1 press:0.6"
       transition="fast"
+      accessible
+      tabIndex={0}
       accessibilityRole="button"
-      accessibilityLabel={`Mis à jour ${status}. Actualiser les soldes`}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ busy }}
+      // Annonce « actualisation en cours » puis la nouvelle heure, sans déplacer le focus.
+      accessibilityLiveRegion="polite"
     >
       <XStack items="center" gap="1.5" px="2.5" py="1" rounded={99} bg="glassFill" borderWidth={1} borderColor="glassEdge">
         <RotateCw color={colors.onGlassMuted} size={12} />

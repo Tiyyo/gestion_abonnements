@@ -19,3 +19,11 @@ export function freshness(fetchedAt: string, now: Date): string {
   const time = at.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   return at.toDateString() === now.toDateString() ? `à ${time}` : `le ${dateShort(dateOfTimestamp(fetchedAt))} à ${time}`;
 }
+
+/** Nom de la pastille d'actualisation : l'action d'abord, puis la fraîcheur des soldes s'ils sont connus. */
+export function refreshAccessibilityLabel(fetching: boolean, freshnessLabel: string | null): string {
+  if (fetching) {
+    return 'Actualisation des soldes en cours';
+  }
+  return freshnessLabel ? `Actualiser les soldes, mis à jour ${freshnessLabel}` : 'Actualiser les soldes';
+}

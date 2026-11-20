@@ -15,7 +15,9 @@ const OUTCOMES: { icon: LucideIcon; title: string; detail: string }[] = [
 export function UnknownDebitOutcomes() {
   return (
     <YStack gap="2">
-      <Overline px="1">Ce que fait Sluis</Overline>
+      <Overline px="1" accessibilityRole="header">
+        Ce que fait Sluis
+      </Overline>
       <Card gap="3">
         {OUTCOMES.map((outcome) => (
           <OutcomeRow key={outcome.title} {...outcome} />

@@ -14,16 +14,31 @@ interface Props {
 }
 
 export function NextTransferCard({ transfer, today, busy, onDone, onReschedule, onRevolut }: Props) {
+  const amount = formatEuros(transfer.amountCents);
   return (
     <HomeCard
       tone="accent"
       caption={`Prochain transfert · ${whenLabel(transfer.effectiveDate, today)}`}
-      title={formatEuros(transfer.amountCents)}
+      title={amount}
       body={transferPurpose(transfer)}
       actions={
         <>
-          <ActionButton flex={1} label="Marquer fait" variant="primary" disabled={busy} onPress={onDone} />
-          <ActionButton flex={1} label="Reporter" variant="soft" disabled={busy} onPress={onReschedule} />
+          <ActionButton
+            flex={1}
+            label="Marquer fait"
+            accessibilityLabel={`Marquer fait le transfert de ${amount}`}
+            variant="primary"
+            disabled={busy}
+            onPress={onDone}
+          />
+          <ActionButton
+            flex={1}
+            label="Reporter"
+            accessibilityLabel={`Reporter le transfert de ${amount}`}
+            variant="soft"
+            disabled={busy}
+            onPress={onReschedule}
+          />
         </>
       }
       footer={

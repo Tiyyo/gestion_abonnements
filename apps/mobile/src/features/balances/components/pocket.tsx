@@ -6,7 +6,7 @@ import { Amount, Caption } from '@/ui/text/typography';
 /** Solde d'une poche. `loading` : bloc fantôme de la hauteur du montant ; le tiret reste réservé à l'absence de donnée. */
 export function Pocket({ label, cents, loading }: { label: string; cents: number | null; loading?: boolean }) {
   return (
-    <GlassPanel>
+    <GlassPanel accessible accessibilityLabel={`${label} : ${cents === null ? 'indisponible' : formatEuros(cents)}`}>
       <Caption color="onGlassMuted">{label}</Caption>
       {loading ? (
         <SkeletonLine tone="glass" w={76}>
