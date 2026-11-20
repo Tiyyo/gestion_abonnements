@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@android:id/background"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/sluis_widget_background"
+  android:gravity="center_vertical"
+  android:orientation="vertical"
+  android:paddingStart="@dimen/sluis_widget_padding_h"
+  android:paddingEnd="@dimen/sluis_widget_padding_h"
+  android:paddingTop="@dimen/sluis_widget_padding_v"
+  android:paddingBottom="@dimen/sluis_widget_padding_v">
+
+  <TextView
+    android:id="@+id/sluis_widget_caption"
+    style="@style/SluisWidget.Caption"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
+
+  <TextView
+    android:id="@+id/sluis_widget_overdue"
+    style="@style/SluisWidget.Overdue"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/sluis_widget_headline"
+    style="@style/SluisWidget.Headline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/sluis_widget_loading" />
+
+  <TextView
+    android:id="@+id/sluis_widget_detail"
+    style="@style/SluisWidget.Detail"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:visibility="gone" />
+</LinearLayout>
