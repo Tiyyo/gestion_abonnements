@@ -75,7 +75,7 @@ describe('libellés de l’Accueil', () => {
   });
 
   it('pose la bonne question sur un prélèvement à vérifier', () => {
-    const review = { chargeId: 'c1', subscriptionId: 's1', name: 'Netflix', dueDate: '2026-11-18', expectedAmountCents: 1399 };
+    const review = { chargeId: 'c1', subscriptionId: 's1', name: 'Netflix', dueDate: '2026-11-18', expectedAmountCents: 1399, bank: null };
     expect(reviewCaption({ ...review, wanted: true })).toMatch(/passé ou échoué \?$/);
     expect(reviewCaption({ ...review, wanted: false })).toMatch(/non financé, a-t-il échoué \?$/);
   });

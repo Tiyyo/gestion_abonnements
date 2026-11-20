@@ -10,6 +10,7 @@ export type TransferType = 'payday' | 'vault_to_main' | 'residual_return';
 export type TransferStatus = 'planned' | 'done' | 'skipped';
 export type EventType =
   'price_change' | 'unexpected_charge' | 'duplicate' | 'post_cancel_charge' | 'charge_failed' | 'status_change' | 'note';
+export type BankOutcome = 'applied' | 'suggested' | 'unmatched' | 'recorded' | 'dismissed' | 'internal';
 export type NotificationKind = 'funding' | 'trial_end' | 'cancel_end' | 'payday' | 'residual';
 
 export interface SettingsTable {
@@ -25,6 +26,10 @@ export interface SettingsTable {
   onboarding_done: Generated<Flag>;
   reminders_enabled: Generated<Flag>;
   ai_suggestion_enabled: Generated<Flag>;
+  auto_reconcile_enabled: Generated<Flag>;
+  bank_sync_from: string | null;
+  bank_sync_through: string | null;
+  bank_sync_at: string | null;
   updated_at: Generated<string>;
 }
 
@@ -120,6 +125,19 @@ export interface ScheduledNotificationTable {
   os_notification_id: string | null;
 }
 
+/** Mouvement du compte principal déjà traité : son identifiant garantit qu'il n'est appliqué qu'une fois. */
+export interface BankTransactionTable {
+  id: string;
+  booking_date: string;
+  amount_cents: number;
+  label: string;
+  outcome: BankOutcome;
+  charge_id: string | null;
+  subscription_id: string | null;
+  ref_id: string | null;
+  created_at: Generated<string>;
+}
+
 export interface SubscriptionMarginView {
   subscription_id: string;
   margin_bp: number;
@@ -170,6 +188,7 @@ export interface DB {
   event: EventTable;
   ai_correction: AiCorrectionTable;
   scheduled_notification: ScheduledNotificationTable;
+  bank_transaction: BankTransactionTable;
   v_subscription_margin: SubscriptionMarginView;
   v_upcoming_charge: UpcomingChargeView;
   v_monthly_cost: MonthlyCostView;
@@ -196,3 +215,5 @@ export type Settings = Selectable<SettingsTable>;
 export type SettingsUpdate = Updateable<SettingsTable>;
 
 export type Category = Selectable<CategoryTable>;
+
+export type BankTransaction = Selectable<BankTransactionTable>;

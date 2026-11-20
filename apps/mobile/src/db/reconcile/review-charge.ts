@@ -74,27 +74,51 @@ async function recordFailure(
   }
 }
 
+/** Rapprochement dans une transaction déjà ouverte (le rapprochement automatique en applique plusieurs d'un coup). */
+export async function reviewChargeIn(
+  trx: Transaction<DB>,
+  chargeId: string,
+  answer: ReviewAnswer,
+  today: string,
+  newId: NewId,
+): Promise<ReviewResult> {
+  const charge = await trx.selectFrom('charge').selectAll().where('id', '=', chargeId).executeTakeFirstOrThrow();
+  const sub = await trx.selectFrom('subscription').selectAll().where('id', '=', charge.subscription_id).executeTakeFirstOrThrow();
+  const context: ReviewContext = { trx, charge, sub, today, newId };
+  const trialConversion = charge.is_trial_conversion === 1 && sub.status === 'trial';
+  const result: ReviewResult = { proposeAmountUpdate: false, trialDecision: false, subscriptionId: sub.id };
+
+  if (answer.kind === 'paid') {
+    result.proposeAmountUpdate = await recordPaid(context, answer);
+    result.trialDecision = trialConversion;
+  } else if (charge.status === 'unfunded') {
+    await recordUnfundedFailure(context, trialConversion);
+  } else {
+    await recordFailure(context, answer.choice);
+  }
+  return result;
+}
+
+/**
+ * Réponse de l'utilisateur. `bankTransactionId` : le débit de la banque qu'il vient de reconnaître dans ce
+ * prélèvement (carte « Débit non prévu »), rattaché dans la même transaction pour ne plus être signalé.
+ */
 export async function reviewCharge(
   db: Kysely<DB>,
   chargeId: string,
   answer: ReviewAnswer,
   today: string,
   newId: NewId,
+  bankTransactionId?: string,
 ): Promise<ReviewResult> {
   return db.transaction().execute(async (trx) => {
-    const charge = await trx.selectFrom('charge').selectAll().where('id', '=', chargeId).executeTakeFirstOrThrow();
-    const sub = await trx.selectFrom('subscription').selectAll().where('id', '=', charge.subscription_id).executeTakeFirstOrThrow();
-    const context: ReviewContext = { trx, charge, sub, today, newId };
-    const trialConversion = charge.is_trial_conversion === 1 && sub.status === 'trial';
-    const result: ReviewResult = { proposeAmountUpdate: false, trialDecision: false, subscriptionId: sub.id };
-
-    if (answer.kind === 'paid') {
-      result.proposeAmountUpdate = await recordPaid(context, answer);
-      result.trialDecision = trialConversion;
-    } else if (charge.status === 'unfunded') {
-      await recordUnfundedFailure(context, trialConversion);
-    } else {
-      await recordFailure(context, answer.choice);
+    const result = await reviewChargeIn(trx, chargeId, answer, today, newId);
+    if (bankTransactionId && answer.kind === 'paid') {
+      await trx
+        .updateTable('bank_transaction')
+        .set({ outcome: 'applied', charge_id: chargeId })
+        .where('id', '=', bankTransactionId)
+        .execute();
     }
     return result;
   });

@@ -1,3 +1,5 @@
+import type { NewEvent } from '@abonnements/core';
+import type { BankHint, UnexpectedDebitRow } from '@/db/repositories/bank-transactions';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import type { Charge, SubscriptionStatus } from '@/db/types';
 
@@ -18,6 +20,15 @@ export interface HomeReview {
   dueDate: string;
   expectedAmountCents: number;
   wanted: boolean;
+  /** Réponse suggérée par la lecture du compte, s'il y en a une. */
+  bank: BankHint | null;
+}
+
+/** Débit vu sur le compte et rattaché à aucun prélèvement, classé comme un prélèvement inconnu saisi à la main (10.5). */
+export interface HomeUnexpectedDebit extends UnexpectedDebitRow {
+  /** Nom prérempli dans la saisie : celui de l'abonnement reconnu, sinon le libellé du relevé. */
+  name: string;
+  kind: NewEvent['type'] | 'matches_charge';
 }
 
 export interface HomeUpcoming {
@@ -37,6 +48,7 @@ export interface HomeData {
   questions: HomeQuestion[];
   trials: PlanTrial[];
   toReview: HomeReview[];
+  unexpectedDebits: HomeUnexpectedDebit[];
   upcoming: HomeUpcoming[];
   isEmpty: boolean;
 }

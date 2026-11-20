@@ -160,17 +160,20 @@ describe('matchBankDebits', () => {
   it('reconnaît un débit inconnu déjà saisi et un retour de résidu vers le coffre', () => {
     const result = matchBankDebits(
       input({
-        recordedDebits: [{ amountCents: 4500, date: '2026-11-10' }],
-        vaultReturns: [{ amountCents: 51, date: '2026-11-30' }],
+        recordedDebits: [{ id: 'e1', amountCents: 4500, date: '2026-11-10' }],
+        vaultReturns: [{ id: 'tr1', amountCents: 51, date: '2026-11-30' }],
         debits: [debit('t1', 'Salle de sport', '2026-11-11', 4500), debit('t2', 'To EUR Coffre', '2026-11-30', 51)],
       }),
     );
-    expect(result.map((d) => d.kind)).toEqual(['already_recorded', 'internal']);
+    expect(result).toEqual([
+      expect.objectContaining({ kind: 'already_recorded', recordId: 'e1' }),
+      expect.objectContaining({ kind: 'internal', transferId: 'tr1' }),
+    ]);
   });
 
   it('ne prend pas pour un retour de résidu un débit qui porte le nom d’un abonnement', () => {
     const result = matchBankDebits(
-      input({ openCharges: [], vaultReturns: [{ amountCents: 1349, date: '2026-11-12' }], debits: [debit('t1', 'Netflix', '2026-11-12')] }),
+      input({ openCharges: [], vaultReturns: [{ id: 'tr1', amountCents: 1349, date: '2026-11-12' }], debits: [debit('t1', 'Netflix', '2026-11-12')] }),
     );
     expect(result[0]).toMatchObject({ kind: 'unmatched', subscriptionId: 'netflix' });
   });

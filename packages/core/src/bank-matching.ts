@@ -37,7 +37,9 @@ export interface MatchPaidCharge {
   actualDate: IsoDate;
 }
 
+/** Écriture déjà connue de l'app (événement ou transfert), repérée par son identifiant. */
 export interface DatedAmount {
+  id: string;
   amountCents: number;
   date: IsoDate;
 }
@@ -60,8 +62,8 @@ export type DebitDecision =
   | { kind: 'apply'; debit: BankDebit; chargeId: string }
   | { kind: 'suggest'; debit: BankDebit; chargeId: string; reason: SuggestReason }
   | { kind: 'already_paid'; debit: BankDebit; chargeId: string }
-  | { kind: 'already_recorded'; debit: BankDebit }
-  | { kind: 'internal'; debit: BankDebit }
+  | { kind: 'already_recorded'; debit: BankDebit; recordId: string }
+  | { kind: 'internal'; debit: BankDebit; transferId: string }
   | { kind: 'unmatched'; debit: BankDebit; subscriptionId: string | null };
 
 const MIN_KEY_LENGTH = 3;
@@ -94,14 +96,10 @@ function near(a: IsoDate, b: IsoDate): boolean {
   return Math.abs(diffDays(a, b)) <= MATCH_TOLERANCE_DAYS;
 }
 
-/** Retire et rend vrai le premier montant identique à ±3 jours : chaque écriture ne sert qu'une fois. */
-function consume(pool: DatedAmount[], debit: BankDebit): boolean {
+/** Retire et rend la première écriture de même montant à ±3 jours : chacune ne sert qu'une fois. */
+function consume(pool: DatedAmount[], debit: BankDebit): DatedAmount | null {
   const index = pool.findIndex((entry) => entry.amountCents === debit.amountCents && near(entry.date, debit.date));
-  if (index < 0) {
-    return false;
-  }
-  pool.splice(index, 1);
-  return true;
+  return index < 0 ? null : (pool.splice(index, 1)[0] ?? null);
 }
 
 function suggestReason(
@@ -160,11 +158,13 @@ function decide(debit: BankDebit, subscriptions: readonly MatchSubscription[], p
     pools.paid.splice(pools.paid.indexOf(paid), 1);
     return { kind: 'already_paid', debit, chargeId: paid.id };
   }
-  if (consume(pools.recorded, debit)) {
-    return { kind: 'already_recorded', debit };
+  const recorded = consume(pools.recorded, debit);
+  if (recorded) {
+    return { kind: 'already_recorded', debit, recordId: recorded.id };
   }
-  if (matched.length === 0 && consume(pools.returns, debit)) {
-    return { kind: 'internal', debit };
+  const returned = matched.length === 0 ? consume(pools.returns, debit) : null;
+  if (returned) {
+    return { kind: 'internal', debit, transferId: returned.id };
   }
   return { kind: 'unmatched', debit, subscriptionId: matched.length === 1 ? (matched[0] as MatchSubscription).id : null };
 }
