@@ -1,4 +1,4 @@
-import { fundingLeadLabel, marginLabel, paydayLabel } from './labels';
+import { daysBeforeLabel, fundingLeadLabel, marginLabel, paydayLabel } from './labels';
 
 describe('paydayLabel', () => {
   it('écrit « 1er » pour le premier du mois', () => {
@@ -19,5 +19,12 @@ describe('marginLabel', () => {
 describe('fundingLeadLabel', () => {
   it('indique le délai et le report au dernier jour ouvré', () => {
     expect(fundingLeadLabel(2)).toBe('J-2, avancé au dernier jour ouvré');
+  });
+});
+
+describe('daysBeforeLabel', () => {
+  it('lit les J-n en clair', () => {
+    expect(daysBeforeLabel(1)).toBe('1 jour avant');
+    expect(daysBeforeLabel(7)).toBe('7 jours avant');
   });
 });

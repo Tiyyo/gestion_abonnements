@@ -1,6 +1,6 @@
 import { XStack } from 'tamagui';
 import type { Settings } from '@/db/types';
-import { fundingLeadLabel, marginLabel, paydayLabel } from '@/features/settings/labels';
+import { daysBeforeLabel, fundingLeadLabel, marginLabel, paydayLabel } from '@/features/settings/labels';
 import type { ExpandedRows, SaveSetting } from '@/features/settings/types';
 import { Chip } from '@/ui/controls/chip';
 import { Section } from '@/ui/surfaces/section';
@@ -41,9 +41,16 @@ export function TransferSection({ settings: s, rows, save, onHero }: TransferSec
         value={fundingLeadLabel(s.funding_lead_days)}
         last
       >
-        <XStack gap="2">
+        <XStack gap="2" accessibilityRole="radiogroup" accessibilityLabel="Délai d’alimentation">
           {LEAD_DAYS.map((d) => (
-            <Chip key={d} label={`J-${d}`} selected={s.funding_lead_days === d} onPress={() => save({ funding_lead_days: d })} />
+            <Chip
+              key={d}
+              mode="single"
+              label={`J-${d}`}
+              accessibilityLabel={daysBeforeLabel(d)}
+              selected={s.funding_lead_days === d}
+              onPress={() => save({ funding_lead_days: d })}
+            />
           ))}
         </XStack>
       </Expandable>

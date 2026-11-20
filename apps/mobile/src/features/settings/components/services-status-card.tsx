@@ -25,8 +25,10 @@ export function ServicesStatusCard(props: ServicesStatusCardProps) {
   const consentUntil = balances.data ? dateOfTimestamp(balances.data.consentValidUntil) : undefined;
   const expired = balances.error instanceof ConsentExpiredError;
   return (
-    <GlassCard gap="2" accessibilityLabel="État des services">
-      <Caption color="onGlassMuted">État des services</Caption>
+    <GlassCard gap="2">
+      <Caption color="onGlassMuted" accessibilityRole="header">
+        État des services
+      </Caption>
       {readBalancesConfig() ? (
         <ServiceLine
           icon={Landmark}

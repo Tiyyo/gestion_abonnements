@@ -144,7 +144,7 @@ describe('libellés de l’Accueil', () => {
 describe('libellés TalkBack de l’Accueil', () => {
   it('lit un prochain prélèvement avec son financement, sans point médian', () => {
     expect(upcomingAccessibilityLabel(upcoming({ funded: true }))).toBe(
-      `Netflix, prélevé le samedi 21\u00a0novembre, ${formatEuros(1399)}. Alimenté, ${formatEuros(1441)}`,
+      `Netflix, prélevé le samedi\u00a021\u00a0novembre, ${formatEuros(1399)}. Alimenté, ${formatEuros(1441)}`,
     );
   });
 
