@@ -26,7 +26,7 @@ export function FormHero({ control, errors, name, iconKey, caption, trial, onLog
   return (
     <Hero px="4" pt="2" pb="5">
       <GlassCard flexDirection="row" items="center" gap="3" p="3.5">
-        <LogoButton name={name} iconKey={iconKey} label={logoLabel(iconKey)} onPress={onLogo} />
+        <LogoButton name={name} iconKey={iconKey} label={logoLabel(iconKey, name)} onPress={onLogo} />
         <YStack flex={1} minW={0}>
           <NameInput control={control} onLookup={onLookup} />
           <Caption color="onGlassMuted" numberOfLines={1}>

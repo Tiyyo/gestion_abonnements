@@ -45,9 +45,9 @@ export function SubscriptionForm({ title, submitLabel, busy, error, onCancel, ..
         />
 
         <YStack px="4" pt="5" gap="5">
-          {lookup.visible && lookup.suggestion ? (
+          {form.offeredSuggestion ? (
             <SuggestionCard
-              suggestion={lookup.suggestion}
+              suggestion={form.offeredSuggestion}
               name={lookup.lookupName}
               categoryName={form.suggestedCategory}
               onIgnore={lookup.markHandled}

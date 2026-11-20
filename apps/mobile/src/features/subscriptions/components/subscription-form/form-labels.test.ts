@@ -13,6 +13,9 @@ describe('libellés de choix', () => {
   it('replie sur l’initiale sans logo connu', () => {
     expect(logoLabel(null)).toBe('Initiale du nom');
     expect(logoLabel('inconnu')).toBe('Initiale du nom');
+    expect(logoLabel(null, 'Netflix')).toBe('Netflix');
+    expect(logoLabel('initial', 'Netflix')).toBe('Initiale du nom');
+    expect(logoLabel('spotify', 'Netflix')).toBe('Spotify');
   });
 
   it('nomme la périodicité et le moyen de paiement', () => {
