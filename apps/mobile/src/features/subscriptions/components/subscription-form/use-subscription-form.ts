@@ -1,7 +1,8 @@
 import { todayIn } from '@abonnements/core';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { shouldOfferSuggestion } from '@/features/enrich/suggestion';
 import { trialEndFrom } from '@/features/enrich/trial-end';
 import { useSettings } from '@/features/settings/hooks/use-settings';
 import { useCategories } from '@/features/subscriptions/hooks/use-categories';
@@ -9,14 +10,17 @@ import { openDatePicker } from '@/features/subscriptions/open-date-picker';
 import { subscriptionFormSchema, type SubscriptionFormValues } from '@/features/subscriptions/subscription-form-schema';
 import { type Correction, DEFAULT_TRIAL_DAYS } from '@/features/subscriptions/subscription-form-values';
 import { haptic } from '@/ui/motion/haptics';
+import { useAutoClassification } from './use-auto-classification';
 import { useFormChoices } from './use-form-choices';
+import { useFormGuard } from './use-form-guard';
 import { useSuggestionLookup } from './use-suggestion-lookup';
 
 export interface SubscriptionFormOptions {
   mode: 'create' | 'edit';
   defaultValues: SubscriptionFormValues;
   lockedStatus?: 'trial' | 'active' | 'to_cancel' | 'cancelled';
-  onSubmit: (values: SubscriptionFormValues, correction: Correction | null, aiSuggestion: string | null) => void;
+  /** `close` ferme l'écran après un enregistrement réussi, sans redemander confirmation pour la saisie. */
+  onSubmit: (values: SubscriptionFormValues, correction: Correction | null, aiSuggestion: string | null, close: () => void) => void;
 }
 
 const WATCHED = [
@@ -47,10 +51,11 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
   });
   const values = { name, firstChargeDate, categoryId, iconKey, amount, periodicity, paymentMethod, marginOverrideBp };
   const status = lockedStatus ?? watchedStatus;
+  const guard = useFormGuard(control, defaultValues, mode);
   const globalMarginBp = settings.data?.global_margin_bp ?? 300;
   const lookup = useSuggestionLookup(mode, name, defaultValues.name);
-  const [classificationTouched, setClassificationTouched] = useState(false);
-  const choices = useFormChoices(setValue, () => setClassificationTouched(true));
+  const auto = useAutoClassification({ enabled: mode === 'create', name: lookup.lookupName, fallback: defaultValues, setValue });
+  const choices = useFormChoices(setValue, auto.touch);
   const findCategory = (id: string | undefined) => categories.data?.find((c) => c.id === id)?.name;
 
   const acceptSuggestion = () => {
@@ -60,7 +65,7 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
     }
     haptic.success();
     setValue('categoryId', s.categoryId);
-    setValue('iconKey', s.iconKey);
+    setValue('iconKey', s.iconKey ?? getValues('iconKey'));
     if (s.cancelUrl && !getValues('cancelUrl')) {
       setValue('cancelUrl', s.cancelUrl);
     }
@@ -68,7 +73,7 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
       setValue('firstChargeDate', trialEndFrom(s.trialDays, DEFAULT_TRIAL_DAYS), { shouldValidate: true });
     }
     lookup.markHandled();
-    setClassificationTouched(false);
+    auto.accept();
   };
 
   const pickDate = () =>
@@ -84,13 +89,11 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
   };
 
   const submit = handleSubmit(
-    (submitted) => {
+    (raw) => {
+      const submitted = auto.classify(raw);
       const aiSuggestion = lookup.suggestion?.source === 'ai' ? JSON.stringify(lookup.suggestion) : null;
-      onSubmit(
-        submitted,
-        classificationTouched ? { categoryId: submitted.categoryId, iconKey: submitted.iconKey ?? 'tag' } : null,
-        aiSuggestion,
-      );
+      const manual = auto.touched ? { categoryId: submitted.categoryId, iconKey: submitted.iconKey ?? 'tag' } : null;
+      onSubmit(submitted, manual, aiSuggestion, guard.leave);
     },
     () => haptic.error(),
   );
@@ -105,6 +108,10 @@ export function useSubscriptionForm({ mode, defaultValues, lockedStatus, onSubmi
     categoryName: findCategory(categoryId) ?? 'Autre',
     suggestedCategory: findCategory(lookup.suggestion?.categoryId),
     lookup,
+    offeredSuggestion:
+      lookup.visible && lookup.suggestion && shouldOfferSuggestion(lookup.suggestion, { categoryId, iconKey }, auto.locked)
+        ? lookup.suggestion
+        : null,
     choices,
     acceptSuggestion,
     pickDate,

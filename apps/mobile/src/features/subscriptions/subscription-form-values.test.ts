@@ -4,6 +4,7 @@ import {
   DEFAULT_TRIAL_DAYS,
   editSubscriptionDefaults,
   fundedChargesWarning,
+  isSubscriptionFormDirty,
   newSubscriptionDefaults,
   toNewSubscriptionInput,
   toSubscriptionEdit,
@@ -87,7 +88,47 @@ describe('conversions vers le domaine', () => {
 describe('fundedChargesWarning', () => {
   it('liste les prélèvements déjà alimentés', () => {
     expect(fundedChargesWarning([{ due_date: '2026-12-05', funded_amount_cents: 2677 }])).toBe(
-      `Le prélèvement du 5 déc est déjà alimenté (${formatEuros(2677)}) : il ne change pas.\nLes prélèvements suivants seront recalculés.`,
+      `Le prélèvement du 5\u00a0déc. est déjà alimenté (${formatEuros(2677)}) : il ne change pas.\nLes prélèvements suivants seront recalculés.`,
     );
+  });
+});
+
+describe('isSubscriptionFormDirty', () => {
+  const created = newSubscriptionDefaults({}, today);
+  const loaded = editSubscriptionDefaults(row);
+
+  it('ne voit aucune saisie sur un formulaire intact, à la création comme à la modification', () => {
+    expect(isSubscriptionFormDirty(created, { ...created })).toBe(false);
+    expect(isSubscriptionFormDirty(loaded, { ...loaded })).toBe(false);
+  });
+
+  it('ne voit aucune saisie sur un formulaire prérempli depuis un prélèvement inconnu', () => {
+    const prefilled = newSubscriptionDefaults({ name: 'Canal+', amount: '25,99', date: '2026-11-18' }, today);
+    expect(isSubscriptionFormDirty(prefilled, { ...prefilled })).toBe(false);
+  });
+
+  it('voit une saisie dans un champ texte, y compris les notes et l’adresse de résiliation', () => {
+    expect(isSubscriptionFormDirty(created, { ...created, name: 'N' })).toBe(true);
+    expect(isSubscriptionFormDirty(created, { ...created, amount: '9' })).toBe(true);
+    expect(isSubscriptionFormDirty(loaded, { ...loaded, notes: 'offre de rentrée' })).toBe(true);
+    expect(isSubscriptionFormDirty(loaded, { ...loaded, cancelUrl: 'https://exemple.fr' })).toBe(true);
+  });
+
+  it('voit un choix fait dans un panneau (catégorie, rythme, logo, marge, date, statut)', () => {
+    expect(isSubscriptionFormDirty(created, { ...created, categoryId: 'cat-video' })).toBe(true);
+    expect(isSubscriptionFormDirty(created, { ...created, periodicity: 'year' })).toBe(true);
+    expect(isSubscriptionFormDirty(created, { ...created, iconKey: 'netflix' })).toBe(true);
+    expect(isSubscriptionFormDirty(loaded, { ...loaded, marginOverrideBp: 500 })).toBe(true);
+    expect(isSubscriptionFormDirty(loaded, { ...loaded, firstChargeDate: '2026-12-06' })).toBe(true);
+    expect(isSubscriptionFormDirty(created, { ...created, status: 'active' })).toBe(true);
+  });
+
+  it('oublie une modification annulée à la main', () => {
+    expect(isSubscriptionFormDirty(loaded, { ...loaded, name: loaded.name })).toBe(false);
+  });
+
+  it('ignore les champs pas encore connus du formulaire', () => {
+    expect(isSubscriptionFormDirty(created, {})).toBe(false);
+    expect(isSubscriptionFormDirty(created, { name: created.name })).toBe(false);
   });
 });

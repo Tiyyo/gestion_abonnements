@@ -12,6 +12,16 @@ export function defaultDebitDate(dueDate: string, today: string): string {
   return dueDate < today ? dueDate : today;
 }
 
+/** Prélèvement inconnu : une saisie est en cours dès qu'un nom ou un montant est tapé, ou que la date proposée a changé. */
+export function isUnknownDebitDirty(form: { name: string; amount: string; date: string }, initialDate: string): boolean {
+  return form.name.trim() !== '' || form.amount.trim() !== '' || form.date !== initialDate;
+}
+
+/** Rapprochement : une saisie est en cours dès que le montant ou la date diffère de ce que l'écran proposait. */
+export function isReviewDirty(form: { amount: string; date: string }, initial: { amount: string; date: string }): boolean {
+  return form.amount.trim() !== initial.amount.trim() || form.date !== initial.date;
+}
+
 /** Complément à transférer quand le marchand retente avec un prix plus élevé que le montant financé, sinon `null`. */
 export function retryShortfallCents(newAmountCents: number, fundedCents: number): number | null {
   return newAmountCents > fundedCents ? newAmountCents - fundedCents : null;

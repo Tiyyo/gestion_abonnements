@@ -1,6 +1,7 @@
+import { todayIn } from '@abonnements/core';
 import { CalendarDays, Repeat, Tag } from 'lucide-react-native';
 import type { PeriodicityKey } from '@/features/subscriptions/subscription-form-schema';
-import { formatDateFr } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { dateLabel, periodicityLabel, type SheetKind } from './form-labels';
 import { FormGroup } from '@/ui/surfaces/form-group';
 import { PickerRow } from '@/ui/controls/picker-row';
@@ -27,7 +28,7 @@ export function DetailsGroup({ categoryName, periodicity, status, firstChargeDat
         last={status === 'cancelled'}
       />
       {status !== 'cancelled' ? (
-        <PickerRow icon={CalendarDays} label={dateLabel(status)} value={formatDateFr(firstChargeDate)} onPress={onPickDate} last />
+        <PickerRow icon={CalendarDays} label={dateLabel(status)} value={dateShort(firstChargeDate, todayIn())} onPress={onPickDate} last />
       ) : null}
     </FormGroup>
   );

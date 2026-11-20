@@ -40,6 +40,7 @@ it('reproduit les statistiques des maquettes', async () => {
     longSubscriptionsPerMonthCents: 417,
     excludedCount: 2,
     spentLast12MonthsCents: 299,
+    topSubscription: { name: 'Netflix', annualCents: 16188 },
   });
   expect(stats.monthlyByCategory).toEqual([
     { category: 'Vidéo', cents: 1349 },

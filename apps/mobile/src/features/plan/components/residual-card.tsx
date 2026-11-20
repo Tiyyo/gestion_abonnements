@@ -1,6 +1,6 @@
 import { formatEuros } from '@abonnements/core';
 import { XStack } from 'tamagui';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Card } from '@/ui/surfaces/card';
 import { Body, Label, Overline } from '@/ui/text/typography';
@@ -22,7 +22,7 @@ export function ResidualCard({
   }
   return (
     <Card>
-      <Overline>{`Résidu estimé · ${formatDayMonth(today)}`}</Overline>
+      <Overline>{`Résidu estimé · ${dateShort(today)}`}</Overline>
       {residualCents === 0 ? (
         <Body color="colorMuted">Rien à renvoyer au coffre pour l’instant.</Body>
       ) : (

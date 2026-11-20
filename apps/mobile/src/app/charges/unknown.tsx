@@ -7,9 +7,10 @@ import { UnknownDebitHero } from '@/features/charges/components/unknown-debit-he
 import { UnknownDebitOutcomes } from '@/features/charges/components/unknown-debit-outcomes';
 import { useRecordUnknownDebit } from '@/features/charges/hooks/use-record-unknown-debit';
 import { useUnknownDebitForm } from '@/features/charges/hooks/use-unknown-debit-form';
-import { formatDateFr } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { PickerRow } from '@/ui/controls/picker-row';
 import { SheetHeader } from '@/ui/navigation/sheet-header';
+import { useDiscardGuard } from '@/ui/navigation/use-discard-guard';
 import { FormGroup } from '@/ui/surfaces/form-group';
 import { SheetFooter } from '@/ui/surfaces/sheet-footer';
 import { SheetScreen } from '@/ui/surfaces/sheet-screen';
@@ -17,7 +18,8 @@ import { SheetScreen } from '@/ui/surfaces/sheet-screen';
 export default function UnknownDebitScreen() {
   const today = todayIn();
   const form = useUnknownDebitForm(today);
-  const record = useRecordUnknownDebit();
+  const guard = useDiscardGuard(form.dirty, 'Le prélèvement que tu as saisi ne sera pas enregistré.');
+  const record = useRecordUnknownDebit(guard);
 
   return (
     <SheetScreen>
@@ -29,7 +31,7 @@ export default function UnknownDebitScreen() {
             <PickerRow
               icon={CalendarDays}
               label="Date du débit"
-              value={formatDateFr(form.date)}
+              value={dateShort(form.date, today)}
               onPress={() => pickDebitDate(form.date, today, form.setDate)}
               last
             />

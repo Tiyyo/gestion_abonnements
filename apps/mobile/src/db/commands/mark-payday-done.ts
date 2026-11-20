@@ -6,10 +6,11 @@ import { computePayday } from '@/db/repositories/plan/compute-payday';
 import { findPaydayTransfer } from '@/db/repositories/plan/payday-transfer';
 import type { DB } from '@/db/types';
 
-export async function markPaydayDone(db: Kysely<DB>, period: PaydayPeriod, newId: NewId): Promise<void> {
-  await db.transaction().execute(async (trx) => {
+/** Enregistre le virement de paie de la période ; renvoie son identifiant, ou `null` s'il était déjà enregistré (rien n'est fait). */
+export async function markPaydayDone(db: Kysely<DB>, period: PaydayPeriod, newId: NewId): Promise<string | null> {
+  return db.transaction().execute(async (trx) => {
     if (await findPaydayTransfer(trx, period.start)) {
-      return;
+      return null;
     }
     const { totalCents, lines } = await computePayday(trx, period);
     const transferId = newId();
@@ -39,5 +40,6 @@ export async function markPaydayDone(db: Kysely<DB>, period: PaydayPeriod, newId
         .values({ transfer_id: transferId, charge_id: chargeId, amount_cents: line.amountCents })
         .execute();
     }
+    return transferId;
   });
 }

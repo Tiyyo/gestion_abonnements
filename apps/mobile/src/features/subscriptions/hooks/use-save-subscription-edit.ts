@@ -1,5 +1,4 @@
 import { todayIn } from '@abonnements/core';
-import { router } from 'expo-router';
 import { useDb } from '@/db/provider';
 import { fundedFutureCharges } from '@/db/repositories/charges';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
@@ -16,12 +15,12 @@ export function useSaveSubscriptionEdit(row: SubscriptionRow | undefined, id: st
   const db = useDb();
   const update = useUpdateSubscription(id);
 
-  const save = async (values: SubscriptionFormValues, correction: Correction | null) => {
+  const save = async (values: SubscriptionFormValues, correction: Correction | null, close: () => void) => {
     if (!row) {
       return;
     }
     const edit = toSubscriptionEdit(values);
-    const commit = () => update.mutate({ edit, options: { correction } }, { onSuccess: () => router.back() });
+    const commit = () => update.mutate({ edit, options: { correction } }, { onSuccess: close });
     const funded = touchesPlan(edit, row) ? await fundedFutureCharges(db, id, todayIn()) : [];
     if (funded.length === 0) {
       commit();

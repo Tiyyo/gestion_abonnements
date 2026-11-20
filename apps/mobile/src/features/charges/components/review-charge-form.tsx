@@ -7,16 +7,18 @@ import { ReviewChargeSummary } from './review-charge-summary';
 import { useReviewActions } from '@/features/charges/hooks/use-review-actions';
 import { useReviewForm } from '@/features/charges/hooks/use-review-form';
 import type { ChargeToReview } from '@/features/charges/types';
-import { formatDateFr } from '@/lib/format';
+import { dateLong } from '@/lib/dates';
 import { TOP_GAP } from '@/theme/layout';
 import { ActionButton } from '@/ui/controls/action-button';
 import { ModalHeader } from '@/ui/navigation/modal-header';
+import { useDiscardGuard } from '@/ui/navigation/use-discard-guard';
 
 /** Rapprochement d'un prélèvement : montant et date réellement débités, puis « passé » ou « échoué ». */
 export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: string }) {
   const insets = useSafeAreaInsets();
   const form = useReviewForm(row, today);
-  const actions = useReviewActions(row);
+  const guard = useDiscardGuard(form.dirty, 'Le montant et la date que tu as modifiés ne seront pas enregistrés.');
+  const actions = useReviewActions(row, guard.leave);
 
   return (
     <YStack flex={1} bg="background" pt={insets.top + TOP_GAP.stack}>
@@ -28,7 +30,7 @@ export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: s
           date={form.date}
           today={today}
           onChange={form.setDate}
-          accessibilityLabel={`Date du débit : ${formatDateFr(form.date)}. Modifier`}
+          accessibilityLabel={`Date du débit : ${dateLong(form.date, today)}. Modifier`}
         />
       </ScrollView>
       <ModalFooter>

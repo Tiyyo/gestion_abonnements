@@ -1,6 +1,6 @@
 import { addDays, formatEuros } from '@abonnements/core';
 import type { NewSubscriptionInput, SubscriptionEdit, SubscriptionRow } from '@/db/repositories/subscriptions';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { centsToInput, parseAmountCents, periodicityKeyOf, periodicityOf, type SubscriptionFormValues } from './subscription-form-schema';
 
 export const DEFAULT_TRIAL_DAYS = 30;
@@ -43,6 +43,14 @@ export function editSubscriptionDefaults(row: SubscriptionRow): SubscriptionForm
     paymentMethod: row.payment_method,
     notes: row.notes ?? '',
   };
+}
+
+/**
+ * Une saisie est en cours dès qu'un champ diffère des valeurs de départ (valeurs par défaut à la création,
+ * valeurs chargées à la modification). Revenir à la valeur de départ ne compte pas comme une saisie.
+ */
+export function isSubscriptionFormDirty(initial: SubscriptionFormValues, current: Partial<SubscriptionFormValues>): boolean {
+  return (Object.keys(initial) as (keyof SubscriptionFormValues)[]).some((key) => key in current && current[key] !== initial[key]);
 }
 
 export function toNewSubscriptionInput(values: SubscriptionFormValues, aiSuggestion: string | null): NewSubscriptionInput {
@@ -91,5 +99,5 @@ export function touchesPlan(edit: ReturnType<typeof toSubscriptionEdit>, row: Su
 }
 
 export function fundedChargesWarning(funded: readonly { due_date: string; funded_amount_cents: number }[]): string {
-  return `${funded.map((c) => `Le prélèvement du ${formatDayMonth(c.due_date)} est déjà alimenté (${formatEuros(c.funded_amount_cents)}) : il ne change pas.`).join('\n')}\nLes prélèvements suivants seront recalculés.`;
+  return `${funded.map((c) => `Le prélèvement du ${dateShort(c.due_date)} est déjà alimenté (${formatEuros(c.funded_amount_cents)}) : il ne change pas.`).join('\n')}\nLes prélèvements suivants seront recalculés.`;
 }

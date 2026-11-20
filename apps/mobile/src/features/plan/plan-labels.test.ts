@@ -1,6 +1,6 @@
 import { formatEuros } from '@abonnements/core';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
-import { formatPercentBp, formatWeekdayDayMonth } from '@/lib/format';
+import { formatPercentBp } from '@/lib/format';
 import { chargeLine, hasTrialRisk, paydayLineLabel, remainingTransfersCents, trialMessage } from './plan-labels';
 
 const transfer = (overrides: Partial<PlanTransfer> = {}): PlanTransfer => ({
@@ -43,16 +43,12 @@ describe('paydayLineLabel', () => {
 describe('chargeLine', () => {
   const charge = { name: 'Spotify', expectedAmountCents: 1099, marginBp: 250 };
 
-  it('abrège un prélèvement du lendemain', () => {
-    expect(chargeLine(transfer(), { ...charge, dueDate: '2026-11-10' })).toBe(
-      `Prélèvement le 10 · ${formatEuros(1099)} + ${formatPercentBp(250)}`,
+  it('date le prélèvement avec le jour de la semaine, même au lendemain du transfert', () => {
+    expect(chargeLine({ ...charge, dueDate: '2026-11-10' })).toBe(
+      `Prélèvement mar.\u00a010\u00a0nov. · ${formatEuros(1099)} + ${formatPercentBp(250)}`,
     );
-  });
-
-  it('donne le jour complet sinon', () => {
-    const when = formatWeekdayDayMonth('2026-11-12').toLowerCase();
-    expect(chargeLine(transfer(), { ...charge, dueDate: '2026-11-12' })).toBe(
-      `Prélèvement ${when} · ${formatEuros(1099)} + ${formatPercentBp(250)}`,
+    expect(chargeLine({ ...charge, dueDate: '2026-11-12' })).toBe(
+      `Prélèvement jeu.\u00a012\u00a0nov. · ${formatEuros(1099)} + ${formatPercentBp(250)}`,
     );
   });
 });
@@ -72,7 +68,7 @@ describe('essais', () => {
 
   it('explique un essai qui pourrait passer', () => {
     expect(trialMessage(trial())).toBe(
-      `Netflix (${formatEuros(1399)}) pourrait passer le 12 nov : le compte aura environ ${formatEuros(2000)}. Décide avant, ou reporte le transfert de ce jour-là.`,
+      `Netflix (${formatEuros(1399)}) pourrait passer le 12\u00a0nov. : le compte aura environ ${formatEuros(2000)}. Décide avant, ou reporte le transfert de ce jour-là.`,
     );
   });
 

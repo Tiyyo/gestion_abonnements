@@ -1,6 +1,6 @@
 import { addDays, formatEuros } from '@abonnements/core';
 import type { Subscription } from '@/db/types';
-import { inDays, shortDate } from './format';
+import { dateShort, relativeDay, endSentence } from '@/lib/dates';
 import type { FireAt, PlannedNotification } from './types';
 
 /** Rappels avant la fin d'un essai, puis question à J+1. */
@@ -10,8 +10,8 @@ export function trialReminders(sub: Subscription, trialEndDate: string, days: re
       kind: 'trial_end' as const,
       refId: sub.id,
       fireAt: at(addDays(trialEndDate, -n)),
-      title: `Fin d’essai ${sub.name} ${inDays(n)}`,
-      body: `Sans décision, le prélèvement de ${formatEuros(sub.amount_cents)} du ${shortDate(trialEndDate)} échouera. Garde-le ou résilie-le.`,
+      title: `Fin d’essai ${sub.name} ${relativeDay(n)}`,
+      body: `Sans décision, le prélèvement de ${formatEuros(sub.amount_cents)} du ${dateShort(trialEndDate)} échouera. Garde-le ou résilie-le.`,
       url: `/subscriptions/${sub.id}`,
     })),
     {
@@ -32,8 +32,8 @@ export function cancelReminders(sub: Subscription, periodEndDate: string, days: 
       kind: 'cancel_end' as const,
       refId: sub.id,
       fireAt: at(addDays(periodEndDate, -n)),
-      title: `Résilier ${sub.name} ${inDays(n)}`,
-      body: `La période se termine le ${shortDate(periodEndDate)}. Pense à résilier chez le marchand.`,
+      title: `Résilier ${sub.name} ${relativeDay(n)}`,
+      body: `${endSentence(`La période se termine le ${dateShort(periodEndDate)}`)} Pense à résilier chez le marchand.`,
       url: `/subscriptions/${sub.id}`,
     })),
     {

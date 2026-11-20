@@ -25,7 +25,7 @@ export default function EditSubscriptionScreen() {
       busy={update.isPending}
       error={update.isError ? `Enregistrement impossible : ${update.error.message}` : null}
       onCancel={() => router.back()}
-      onSubmit={save}
+      onSubmit={(values, correction, _aiSuggestion, close) => save(values, correction, close)}
     />
   );
 }

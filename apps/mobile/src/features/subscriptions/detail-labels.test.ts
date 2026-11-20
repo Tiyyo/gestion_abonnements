@@ -3,9 +3,9 @@ import { formatPercentBp } from '@/lib/format';
 import {
   appliedMarginLabel,
   defaultStopDate,
-  longDate,
   paymentMethodLabel,
   rhythmLabel,
+  stopToastLabel,
   transferLabel,
   trialWhenLabel,
 } from './detail-labels';
@@ -22,17 +22,9 @@ describe('rhythmLabel', () => {
   });
 });
 
-describe('longDate', () => {
-  it('commence par une majuscule et contient l’année', () => {
-    const label = longDate('2026-11-20');
-    expect(label.charAt(0)).toBe(label.charAt(0).toUpperCase());
-    expect(label).toContain('2026');
-  });
-});
-
 describe('trialWhenLabel', () => {
   it.each([
-    [5, 'dans 5 jours'],
+    [5, 'dans 5\u00a0jours'],
     [1, 'demain'],
     [0, 'aujourd’hui'],
     [-2, 'passée'],
@@ -48,7 +40,7 @@ describe('transferLabel', () => {
   });
 
   it('affiche la date et le montant du transfert', () => {
-    expect(transferLabel({ transfer_date: '2026-12-03', funded_amount_cents: 1030 })).toBe(`3 déc · ${formatEuros(1030)}`);
+    expect(transferLabel({ transfer_date: '2026-12-03', funded_amount_cents: 1030 })).toBe(`3\u00a0déc. · ${formatEuros(1030)}`);
   });
 });
 
@@ -73,5 +65,11 @@ describe('defaultStopDate', () => {
 
   it('ne propose jamais une date passée', () => {
     expect(defaultStopDate('2026-11-20', '2026-11-20')).toBe('2026-11-20');
+  });
+});
+
+describe('stopToastLabel', () => {
+  it('annonce la date de fin choisie', () => {
+    expect(stopToastLabel('2026-12-20')).toBe('Arrêt prévu le 20\u00a0déc.');
   });
 });

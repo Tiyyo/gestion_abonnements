@@ -6,7 +6,11 @@ import { matchBrand } from '@/features/enrich/brands';
 import { callEnrich, readEnrichConfig } from '@/features/enrich/enrich-client';
 import { fromBrand, fromCorrection, fromEnrich, type Suggestion } from '@/features/enrich/suggestion';
 
-/** `aiEnabled` à false (interrupteur des Réglages) : rien n'est envoyé à /enrich, seules les corrections et les marques connues servent. */
+/**
+ * Suggestion de la carte « Appliquer / Ignorer » : correction apprise, puis /enrich, puis marque reconnue.
+ * L'application d'office d'une correction ou d'une marque sûre passe par `useLocalSuggestion`, qui n'attend pas le réseau.
+ * `aiEnabled` à false (interrupteur des Réglages) : rien n'est envoyé à /enrich, seules les corrections et les marques connues servent.
+ */
 export function useSuggestion(name: string, aiEnabled = true) {
   const db = useDb();
   const key = normalizeName(name);

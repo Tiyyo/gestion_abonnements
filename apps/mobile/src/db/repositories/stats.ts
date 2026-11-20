@@ -16,6 +16,8 @@ export interface Stats {
   longSubscriptionsPerMonthCents: number;
   excludedCount: number;
   spentLast12MonthsCents: number;
+  /** Abonnement actif le plus cher, ramené à l'année. */
+  topSubscription: { name: string; annualCents: number } | null;
 }
 
 export function annualCents(amountCents: number, unit: 'week' | 'month' | 'year', count: number): number {
@@ -41,6 +43,7 @@ export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
     .selectFrom('subscription')
     .innerJoin('category', 'category.id', 'subscription.category_id')
     .select([
+      'subscription.name',
       'subscription.status',
       'subscription.amount_cents',
       'subscription.period_unit',
@@ -54,7 +57,7 @@ export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
     .map((s) => {
       const annual = annualCents(s.amount_cents, s.period_unit, s.period_count);
       const long = s.period_unit === 'year' || (s.period_unit === 'month' && s.period_count > 1);
-      return { category: s.category, annual, monthly: Math.round(annual / 12), long };
+      return { name: s.name, category: s.category, annual, monthly: Math.round(annual / 12), long };
     });
   const spent = await db
     .selectFrom('charge')
@@ -63,6 +66,7 @@ export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
     .where('provision_only', '=', 0)
     .where('actual_date', '>', addDays(today, -365))
     .executeTakeFirst();
+  const top = active.reduce<(typeof active)[number] | null>((best, s) => (best && best.annual >= s.annual ? best : s), null);
 
   return {
     monthlyCents: active.reduce((t, s) => t + s.monthly, 0),
@@ -73,5 +77,6 @@ export async function loadStats(db: Kysely<DB>, today: string): Promise<Stats> {
     longSubscriptionsPerMonthCents: active.filter((s) => s.long).reduce((t, s) => t + s.monthly, 0),
     excludedCount: subs.filter((s) => s.status === 'trial' || s.status === 'to_cancel').length,
     spentLast12MonthsCents: Number(spent?.total ?? 0),
+    topSubscription: top ? { name: top.name, annualCents: top.annual } : null,
   };
 }

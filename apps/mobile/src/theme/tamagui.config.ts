@@ -31,6 +31,7 @@ const palette = {
   glassFill: 'rgba(255, 255, 255, 0.12)',
   glassInner: 'rgba(255, 255, 255, 0.08)',
   glassEdge: 'rgba(255, 255, 255, 0.20)',
+  glassSkeleton: 'rgba(255, 255, 255, 0.16)',
   onGlass: '#FFFFFF',
   onGlassMuted: 'rgba(255, 255, 255, 0.72)',
   onGlassOk: '#CDEFD6',

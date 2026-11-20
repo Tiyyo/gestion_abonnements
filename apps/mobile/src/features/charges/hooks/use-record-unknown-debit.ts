@@ -9,16 +9,18 @@ import { recordUnknownDebit } from '@/db/reconcile/record-unknown-debit';
 import { unknownDebitLabel } from '@/features/charges/debit-input';
 import { useReviewCharge } from './use-review-charge';
 import { parseAmountCents } from '@/features/subscriptions/subscription-form-schema';
-import { formatDayMonth } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { requestReschedule } from '@/notifications/scheduler';
 import { requestWidgetRefresh } from '@/features/widget/refresher';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
+import type { DiscardGuard } from '@/ui/navigation/use-discard-guard';
 
 /**
  * Enregistre un débit inconnu : s'il correspond à un prélèvement attendu, propose de le marquer passé ;
  * sinon l'enregistre selon son classement et propose, si besoin, de créer l'abonnement.
+ * Une fois le débit enregistré, l'écran se ferme par la garde (`guard.leave` / `guard.release`), sans question.
  */
-export function useRecordUnknownDebit() {
+export function useRecordUnknownDebit(guard: DiscardGuard) {
   const db = useDb();
   const queryClient = useQueryClient();
   const review = useReviewCharge();
@@ -29,7 +31,7 @@ export function useRecordUnknownDebit() {
     requestReschedule();
     requestWidgetRefresh();
     showDialog('Enregistré', message, undefined, { tone: 'ok' });
-    router.back();
+    guard.leave();
   };
 
   const submit = async ({ name, amount, date }: { name: string; amount: string; date: string }) => {
@@ -38,7 +40,7 @@ export function useRecordUnknownDebit() {
     try {
       const outcome = await classifyDebit(db, debit);
       if (outcome.kind === 'matches_charge') {
-        showDialog(`C’est le prélèvement ${outcome.name} du ${formatDayMonth(outcome.dueDate)} ?`, undefined, [
+        showDialog(`C’est le prélèvement ${outcome.name} du ${dateShort(outcome.dueDate)} ?`, undefined, [
           { text: 'Non', style: 'cancel', onPress: () => setBusy(false) },
           {
             text: 'Oui',
@@ -55,10 +57,13 @@ export function useRecordUnknownDebit() {
       if (outcome.offerCreateSubscription) {
         await queryClient.invalidateQueries();
         showDialog('Prélèvement inattendu', `${formatEuros(debit.amountCents)} débités par ${debit.name}. Créer l’abonnement ?`, [
-          { text: 'Non', style: 'cancel', onPress: () => router.back() },
+          { text: 'Non', style: 'cancel', onPress: guard.leave },
           {
             text: 'Créer',
-            onPress: () => router.replace({ pathname: '/subscriptions/new', params: { name: debit.name, amount, date } }),
+            onPress: () => {
+              guard.release();
+              router.replace({ pathname: '/subscriptions/new', params: { name: debit.name, amount, date } });
+            },
           },
         ]);
       } else {

@@ -1,6 +1,6 @@
 import { YStack } from 'tamagui';
 import { pickDebitDate } from '@/features/charges/pick-debit-date';
-import { formatDateFr } from '@/lib/format';
+import { dateShort } from '@/lib/dates';
 import { DateField } from '@/ui/controls/date-field';
 import { Label } from '@/ui/text/typography';
 
@@ -18,7 +18,11 @@ export function DebitDateField({
   return (
     <YStack gap="2">
       <Label>Date du débit</Label>
-      <DateField label={formatDateFr(date)} accessibilityLabel={accessibilityLabel} onPress={() => pickDebitDate(date, today, onChange)} />
+      <DateField
+        label={dateShort(date, today)}
+        accessibilityLabel={accessibilityLabel}
+        onPress={() => pickDebitDate(date, today, onChange)}
+      />
     </YStack>
   );
 }

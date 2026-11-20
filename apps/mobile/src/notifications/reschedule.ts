@@ -1,23 +1,19 @@
-import { todayIn } from '@abonnements/core';
 import { cancelAllScheduledNotificationsAsync, SchedulableTriggerInputTypes, scheduleNotificationAsync } from 'expo-notifications';
 import type { Kysely } from 'kysely';
 import { newId } from '@/db/id';
 import { scheduledNotificationsRepository } from '@/db/repositories/scheduled-notifications';
 import type { DB } from '@/db/types';
+import { ensureCategories } from './categories';
 import { CHANNEL_ID, ensureChannel } from './channel';
 import { overdueReminder } from './overdue-reminder';
+import { nowParts } from './now-parts';
 import { notificationsAllowed } from './permissions';
 import { planNotifications } from './plan-notifications';
 import type { PlannedNotification } from './types';
 
-function nowParts(): { date: string; time: string } {
-  const now = new Date();
-  return { date: todayIn(), time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` };
-}
-
 async function schedule(n: PlannedNotification): Promise<string> {
   return scheduleNotificationAsync({
-    content: { title: n.title, body: n.body, data: { url: n.url } },
+    content: { title: n.title, body: n.body, data: { ...n.data, url: n.url }, categoryIdentifier: n.categoryId },
     trigger: { type: SchedulableTriggerInputTypes.DATE, date: new Date(`${n.fireAt}:00`), channelId: CHANNEL_ID },
   });
 }
@@ -28,8 +24,10 @@ export async function rescheduleNow(database: Kysely<DB>): Promise<void> {
     return;
   }
   await ensureChannel();
+  // Sans catégorie (échec de déclaration), la notification reste un simple rappel qui ouvre l'app.
+  await ensureCategories().catch(() => undefined);
   const now = nowParts();
-  const nowKey = `${now.date}T${now.time}`;
+  const nowKey = now.key;
   const scheduled = scheduledNotificationsRepository(database, newId);
 
   await cancelAllScheduledNotificationsAsync();

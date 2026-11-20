@@ -1,8 +1,9 @@
 import type { LifecycleAction } from '@abonnements/core';
 import { router } from 'expo-router';
-import { defaultStopDate } from '@/features/subscriptions/detail-labels';
+import { defaultStopDate, stopToastLabel } from '@/features/subscriptions/detail-labels';
 import { openDatePicker } from '@/features/subscriptions/open-date-picker';
 import { showDialog, showError } from '@/ui/feedback/show-dialog';
+import { showToast } from '@/ui/feedback/show-toast';
 import { useArchiveSubscription } from './use-archive-subscription';
 import { useSubscriptionTransition } from './use-subscription-transition';
 
@@ -13,11 +14,26 @@ function confirm(title: string, message: string, label: string, onConfirm: () =>
   ]);
 }
 
-/** Actions de la fiche : transitions du cycle de vie, avec confirmation pour les destructrices et choix de date si besoin. */
+const fail = (error: Error) => showError('Action impossible', error.message);
+
+/**
+ * Actions de la fiche : transitions du cycle de vie, avec confirmation pour les destructrices et choix de date si besoin.
+ * L'arrêt se défait par `undo_stop` : il est annoncé par un message « Annuler » plutôt que confirmé.
+ */
 export function useSubscriptionActions(id: string, today: string) {
   const transition = useSubscriptionTransition(id);
   const archive = useArchiveSubscription(id);
-  const run = (action: LifecycleAction) => transition.mutate(action, { onError: (error) => showError('Action impossible', error.message) });
+  const run = (action: LifecycleAction) => transition.mutate(action, { onError: fail });
+  const stopOn = (date: string) => {
+    transition
+      .mutateAsync({ type: 'stop', periodEndDate: date })
+      .then(() =>
+        showToast(stopToastLabel(date), {
+          action: { label: 'Annuler', onPress: () => void transition.mutateAsync({ type: 'undo_stop' }).catch(fail) },
+        }),
+      )
+      .catch(fail);
+  };
 
   return {
     busy: transition.isPending || archive.isPending,
@@ -36,8 +52,7 @@ export function useSubscriptionActions(id: string, today: string) {
         'Supprimer',
         () => archive.mutate(undefined, { onSuccess: () => router.back() }),
       ),
-    stop: (nextChargeDate: string) =>
-      openDatePicker(defaultStopDate(nextChargeDate, today), today, (date) => run({ type: 'stop', periodEndDate: date })),
+    stop: (nextChargeDate: string) => openDatePicker(defaultStopDate(nextChargeDate, today), today, stopOn),
   };
 }
 
