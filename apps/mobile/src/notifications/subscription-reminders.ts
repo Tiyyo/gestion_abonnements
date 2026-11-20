@@ -1,6 +1,6 @@
 import { addDays, formatEuros } from '@abonnements/core';
 import type { Subscription } from '@/db/types';
-import { dateShort, relativeDay } from '@/lib/dates';
+import { dateShort, relativeDay, endSentence } from '@/lib/dates';
 import type { FireAt, PlannedNotification } from './types';
 
 /** Rappels avant la fin d'un essai, puis question à J+1. */
@@ -33,7 +33,7 @@ export function cancelReminders(sub: Subscription, periodEndDate: string, days: 
       refId: sub.id,
       fireAt: at(addDays(periodEndDate, -n)),
       title: `Résilier ${sub.name} ${relativeDay(n)}`,
-      body: `La période se termine le ${dateShort(periodEndDate)}. Pense à résilier chez le marchand.`,
+      body: `${endSentence(`La période se termine le ${dateShort(periodEndDate)}`)} Pense à résilier chez le marchand.`,
       url: `/subscriptions/${sub.id}`,
     })),
     {
