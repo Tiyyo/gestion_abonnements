@@ -1,6 +1,14 @@
 import { formatEuros, suggestedPeriodEnd } from '@abonnements/core';
 import { formatPercentBp } from '@/lib/format';
-import { appliedMarginLabel, defaultStopDate, paymentMethodLabel, rhythmLabel, transferLabel, trialWhenLabel } from './detail-labels';
+import {
+  appliedMarginLabel,
+  defaultStopDate,
+  paymentMethodLabel,
+  rhythmLabel,
+  stopToastLabel,
+  transferLabel,
+  trialWhenLabel,
+} from './detail-labels';
 
 describe('rhythmLabel', () => {
   it.each([
@@ -57,5 +65,11 @@ describe('defaultStopDate', () => {
 
   it('ne propose jamais une date passée', () => {
     expect(defaultStopDate('2026-11-20', '2026-11-20')).toBe('2026-11-20');
+  });
+});
+
+describe('stopToastLabel', () => {
+  it('annonce la date de fin choisie', () => {
+    expect(stopToastLabel('2026-12-20')).toBe('Arrêt prévu le 20\u00a0déc.');
   });
 });

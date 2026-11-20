@@ -9,6 +9,7 @@ import { DbProvider } from '@/db/provider';
 import { config } from '@/theme/tamagui.config';
 import { SplashOverlay } from '@/ui/brand/splash-overlay';
 import { DialogHost } from '@/ui/feedback/dialog-host';
+import { ToastHost } from '@/ui/feedback/toast-host';
 
 /**
  * Fournisseurs de l'app (Tamagui, base, TanStack Query) : le contenu n'est monté qu'une fois la base et les polices prêtes.
@@ -30,6 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <BootScreen error={db.status === 'error' ? db.error : null} />
       )}
       <StatusBar style="dark" />
+      <ToastHost />
       <DialogHost />
       {splashDone ? null : <SplashOverlay ready={db.status !== 'loading' && fontsSettled} onDone={hideSplash} />}
     </TamaguiProvider>
