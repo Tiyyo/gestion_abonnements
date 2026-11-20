@@ -8,16 +8,25 @@ import { haptic } from '@/ui/motion/haptics';
 const STEP_BP = 50;
 const MAX_BP = 500;
 
-function StepButton({ icon: Icon, label, disabled, onPress }: { icon: LucideIcon; label: string; disabled: boolean; onPress: () => void }) {
+interface StepProps {
+  icon: LucideIcon;
+  label: string;
+  disabled: boolean;
+  onGlass?: boolean;
+  onPress: () => void;
+}
+
+function StepButton({ icon: Icon, label, disabled, onGlass, onPress }: StepProps) {
   return (
     <Button
       w={44}
       h={44}
       p="0"
-      bg="surface"
+      bg={onGlass ? 'glassFill' : 'surface'}
       borderWidth={1}
-      borderColor="borderControl"
+      borderColor={onGlass ? 'glassEdge' : 'borderControl'}
       disabled={disabled}
+      opacity={disabled && onGlass ? 0.5 : 1}
       scale="1 press:0.985"
       transition="fast"
       onPress={() => {
@@ -26,22 +35,30 @@ function StepButton({ icon: Icon, label, disabled, onPress }: { icon: LucideIcon
       }}
       accessibilityLabel={label}
     >
-      <Icon color={colors.text} size={20} />
+      <Icon color={onGlass ? colors.onGlass : colors.text} size={20} />
     </Button>
   );
 }
 
-export function MarginStepper({ value, onChange }: { value: number; onChange: (bp: number) => void }) {
+/** `onGlass` : posé sur une carte en verre (premier lancement), boutons en verre et valeur en blanc. */
+export function MarginStepper({ value, onChange, onGlass }: { value: number; onChange: (bp: number) => void; onGlass?: boolean }) {
   return (
     <XStack gap="2" items="center">
-      <StepButton icon={Minus} label="Diminuer la marge" disabled={value <= 0} onPress={() => onChange(Math.max(0, value - STEP_BP))} />
-      <Amount minW={72} text="center" fontSize={17} fontWeight="700">
+      <StepButton
+        icon={Minus}
+        label="Diminuer la marge"
+        disabled={value <= 0}
+        onGlass={onGlass}
+        onPress={() => onChange(Math.max(0, value - STEP_BP))}
+      />
+      <Amount minW={72} text="center" fontSize={17} fontWeight="700" color={onGlass ? 'onGlass' : 'color'}>
         {marginLabel(value)}
       </Amount>
       <StepButton
         icon={Plus}
         label="Augmenter la marge"
         disabled={value >= MAX_BP}
+        onGlass={onGlass}
         onPress={() => onChange(Math.min(MAX_BP, value + STEP_BP))}
       />
     </XStack>
