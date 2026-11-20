@@ -9,6 +9,7 @@ interface Props {
   disabled?: boolean;
 }
 
+/** Bouton de la barre d'actions de la fiche : taille moyenne, pour que deux libellés tiennent côte à côte sur un écran étroit. */
 export function DetailButton({ label, onPress, tone = 'primary', disabled }: Props) {
-  return <ActionButton flex={1} size="lg" label={label} variant={TONE_VARIANT[tone]} disabled={disabled} onPress={onPress} />;
+  return <ActionButton flex={1} label={label} variant={TONE_VARIANT[tone]} disabled={disabled} onPress={onPress} />;
 }

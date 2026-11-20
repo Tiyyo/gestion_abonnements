@@ -2,7 +2,7 @@ import { YStack } from 'tamagui';
 import type { SubscriptionDetail } from '@/features/subscriptions/load-subscription-detail';
 import { priceSummary } from '@/features/subscriptions/price-history';
 import { Card } from '@/ui/surfaces/card';
-import { Heading, Label } from '@/ui/text/typography';
+import { Label, Overline } from '@/ui/text/typography';
 import { PriceChangeRow } from './price-change-row';
 import { PriceStepChart } from './price-step-chart';
 
@@ -14,8 +14,8 @@ export function PriceHistoryCard({ row, priceHistory }: Props) {
     return null;
   }
   return (
-    <YStack gap="3">
-      <Heading>Évolution du prix</Heading>
+    <YStack gap="2">
+      <Overline px="1">Évolution du prix</Overline>
       <Card gap="3">
         <Label>{priceSummary(priceHistory, row)}</Label>
         <PriceStepChart changes={priceHistory} />

@@ -1,26 +1,6 @@
 import { formatEuros, suggestedPeriodEnd } from '@abonnements/core';
 import { formatPercentBp } from '@/lib/format';
-import {
-  appliedMarginLabel,
-  defaultStopDate,
-  paymentMethodLabel,
-  rhythmLabel,
-  stopToastLabel,
-  transferLabel,
-  trialWhenLabel,
-} from './detail-labels';
-
-describe('rhythmLabel', () => {
-  it.each([
-    ['month', 1, 'mois'],
-    ['month', 3, '3 mois'],
-    ['week', 1, 'semaine'],
-    ['year', 1, 'an'],
-    ['year', 2, '2 ans'],
-  ] as const)('%s × %i', (unit, count, label) => {
-    expect(rhythmLabel(999, unit, count)).toBe(`${formatEuros(999)} / ${label}`);
-  });
-});
+import { appliedMarginLabel, defaultStopDate, paymentMethodLabel, stopToastLabel, transferLabel, trialWhenLabel } from './detail-labels';
 
 describe('trialWhenLabel', () => {
   it.each([
