@@ -25,7 +25,7 @@ export function rescheduleFeedback(
     return null;
   }
   return {
-    message: date ? `Transfert reporté au ${dateShort(date)}.` : 'Report annulé.',
+    message: date ? `Transfert reporté au ${dateShort(date)}` : 'Report annulé.',
     undo: () => ({ type: 'reschedule', transferId: transfer.id, date: previous }),
   };
 }

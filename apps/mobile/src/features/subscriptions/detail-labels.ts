@@ -46,5 +46,5 @@ export function defaultStopDate(nextChargeDate: string, today: string): string {
 
 /** Message affiché après « Arrêter » (l'action « Annuler » du message revient à l'abonnement actif). */
 export function stopToastLabel(periodEndDate: string): string {
-  return `Arrêt prévu le ${dateShort(periodEndDate)}.`;
+  return `Arrêt prévu le ${dateShort(periodEndDate)}`;
 }
