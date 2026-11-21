@@ -1,5 +1,5 @@
 # Parcours 2 : marquer un transfert fait depuis l'Accueil, puis depuis le Plan, et l'annuler dans le Plan
-# (l'Accueil ne propose pas d'annulation).
+# (l'annulation passe ici par le dialogue « Remettre à faire » ; le message « Annuler » de l'Accueil n'est pas couvert).
 # Un abonnement actif hebdomadaire dont le prochain prélèvement est aujourd'hui donne, quelle que soit la date :
 # - un transfert en retard (veille ouvrée) sur l'Accueil ;
 # - au moins trois transferts à faire le mois suivant dans le Plan.
