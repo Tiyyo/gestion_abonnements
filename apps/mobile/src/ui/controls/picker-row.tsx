@@ -9,9 +9,10 @@ interface Props {
   value: string;
   onPress: () => void;
   last?: boolean;
+  testID?: string;
 }
 
-export function PickerRow({ icon: Icon, label, value, onPress, last }: Props) {
+export function PickerRow({ icon: Icon, label, value, onPress, last, testID }: Props) {
   return (
     <XStack
       minH={56}
@@ -21,6 +22,7 @@ export function PickerRow({ icon: Icon, label, value, onPress, last }: Props) {
       borderBottomWidth={last ? 0 : 1}
       borderColor="borderColor"
       onPress={onPress}
+      testID={testID}
       opacity="1 press:0.6"
       transition="fast"
       accessible

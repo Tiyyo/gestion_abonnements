@@ -1,0 +1,70 @@
+# Parcours 1 : premier lancement, ajout d'un essai et d'un abonnement actif hebdomadaire,
+# présence dans la liste, sur l'Accueil et dans le Plan.
+# Indépendant de la date du jour : on vérifie des noms, jamais des dates.
+appId: ${MAESTRO_APP_ID}
+name: Premier lancement et ajout d'abonnements
+tags:
+  - core
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/complete-onboarding.yaml
+
+# Accueil vide : invitation à ajouter un premier abonnement.
+- assertVisible:
+    id: 'home.add-first'
+
+- runFlow:
+    file: ../subflows/add-subscription.yaml
+    env:
+      NAME: E2E Essai
+      AMOUNT: '12,99'
+      STATUS: trial
+      PERIODICITY: month
+- runFlow:
+    file: ../subflows/add-subscription.yaml
+    env:
+      NAME: E2E Hebdo
+      AMOUNT: '4,50'
+      STATUS: active
+      PERIODICITY: week
+
+# Liste : une ligne par abonnement, repérée par le nom.
+- assertVisible:
+    id: 'subscriptions.row-e2e-essai'
+- assertVisible:
+    id: 'subscriptions.row-e2e-hebdo'
+- assertVisible: '.*fin d.essai.*'
+- assertVisible: '.*4,50.*'
+
+# Accueil : carte d'essai (fin à J+30) et transferts de l'abonnement actif.
+- tapOn:
+    id: 'tab.accueil'
+- scrollUntilVisible:
+    element:
+      id: 'home.trial-keep'
+    direction: DOWN
+- assertVisible: 'E2E Essai · .*'
+- scrollUntilVisible:
+    element: '.*E2E Hebdo.*'
+    direction: DOWN
+
+# Plan : le mois suivant est entièrement à venir, il contient forcément des transferts hebdomadaires.
+- tapOn:
+    id: 'tab.plan'
+- tapOn:
+    id: 'plan.month-next'
+- scrollUntilVisible:
+    element: '.* · E2E Hebdo'
+    direction: DOWN
+# L'essai (non financé) apparaît dans l'encart « Risque d'essai oublié » du mois qui contient sa fin :
+# ce mois-ci ou le suivant selon le jour de paie.
+- runFlow:
+    when:
+      notVisible: 'E2E Essai \(.*'
+    commands:
+      - tapOn:
+          id: 'plan.month-prev'
+      - scrollUntilVisible:
+          element: 'E2E Essai \(.*'
+          direction: DOWN
+- assertVisible: 'E2E Essai \(.*'

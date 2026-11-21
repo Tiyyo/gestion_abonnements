@@ -41,6 +41,7 @@ export function ActionButton({
   flex,
   size = 'md',
   accessibilityLabel,
+  testID,
 }: {
   label: string;
   onPress: () => void;
@@ -50,6 +51,8 @@ export function ActionButton({
   flex?: number;
   size?: 'sm' | 'md' | 'lg';
   accessibilityLabel?: string;
+  /** Sélecteur stable pour les tests de bout en bout (`ecran.element`). */
+  testID?: string;
 }) {
   const inactive = disabled || loading;
   const v = BUTTONS[variant];
@@ -82,6 +85,7 @@ export function ActionButton({
       accessible
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      testID={testID}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
     >
       {loading ? <Spinner color={fg as 'color'} /> : null}

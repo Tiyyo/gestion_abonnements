@@ -8,11 +8,13 @@ export function IconButton({
   label,
   onPress,
   variant = 'surface',
+  testID,
 }: {
   icon: LucideIcon;
   label: string;
   onPress: () => void;
   variant?: 'surface' | 'primary' | 'ghost' | 'glass';
+  testID?: string;
 }) {
   const primary = variant === 'primary';
   const glass = variant === 'glass';
@@ -32,6 +34,7 @@ export function IconButton({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
+      testID={testID}
     >
       <Icon color={primary || glass ? colors.onPrimary : colors.text} size={22} strokeWidth={2} />
     </Button>

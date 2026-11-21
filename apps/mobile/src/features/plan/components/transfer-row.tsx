@@ -33,6 +33,7 @@ export function TransferRow({
           py="3"
           gap="0.5"
           onPress={onMore}
+          testID="plan.transfer-row"
           accessible
           tabIndex={0}
           accessibilityRole="button"

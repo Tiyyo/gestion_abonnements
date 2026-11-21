@@ -28,6 +28,7 @@ export function TrialCard({ trial, today, busy, onKeep, onCancel }: Props) {
             variant="outline"
             disabled={busy}
             onPress={onKeep}
+            testID="home.trial-keep"
           />
           <ActionButton
             flex={1}
@@ -36,6 +37,7 @@ export function TrialCard({ trial, today, busy, onKeep, onCancel }: Props) {
             variant="warn"
             disabled={busy}
             onPress={onCancel}
+            testID="home.trial-cancel"
           />
         </>
       }

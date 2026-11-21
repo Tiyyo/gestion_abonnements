@@ -1,0 +1,26 @@
+# Premier lancement : jour de paie et marge par défaut (1er du mois, 3 %), notifications autorisées.
+appId: ${MAESTRO_APP_ID}
+---
+- assertVisible: 'Jour de paie'
+- tapOn:
+    id: 'onboarding.next'
+- assertVisible: 'Marge'
+- tapOn:
+    id: 'onboarding.next'
+- assertVisible: 'Rappels'
+- tapOn:
+    id: 'onboarding.allow-notifications'
+# Permission déjà accordée par launchApp ; repli si Android affiche quand même la fenêtre système.
+- runFlow:
+    when:
+      visible: 'Allow|Autoriser'
+    commands:
+      - tapOn: 'Allow|Autoriser'
+- assertVisible: 'Notifications autorisées'
+# « Autoriser les alarmes exactes » et « batterie » ouvrent les Réglages Android : volontairement ignorés.
+- tapOn:
+    id: 'onboarding.next'
+- extendedWaitUntil:
+    visible:
+      id: 'tab.accueil'
+    timeout: 10000

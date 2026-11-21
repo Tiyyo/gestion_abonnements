@@ -27,12 +27,18 @@ export function UnknownDebitHero({ form }: { form: UnknownDebitForm }) {
             autoCapitalize="words"
             returnKeyType="next"
             accessibilityLabel="Nom du marchand"
+            testID="unknown-debit.name"
           />
           <Caption color="onGlassMuted" numberOfLines={2}>
             Tel qu’il apparaît sur le relevé
           </Caption>
         </YStack>
-        <GlassAmountInput value={form.amount} onChangeText={form.setAmount} accessibilityLabel="Montant débité, en euros" />
+        <GlassAmountInput
+          value={form.amount}
+          onChangeText={form.setAmount}
+          accessibilityLabel="Montant débité, en euros"
+          testID="unknown-debit.amount"
+        />
       </GlassCard>
     </Hero>
   );

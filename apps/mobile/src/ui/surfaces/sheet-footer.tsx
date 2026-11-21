@@ -6,6 +6,7 @@ interface SecondaryAction {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  testID?: string;
 }
 
 interface Props {
@@ -15,9 +16,11 @@ interface Props {
   disabled?: boolean;
   /** Seconde réponse, en contour à gauche du bouton plein ; les libellés restent alors tels quels pendant l'enregistrement. */
   secondary?: SecondaryAction;
+  /** Sélecteur de test du bouton plein (son libellé change pendant l'enregistrement). */
+  testID?: string;
 }
 
-export function SheetFooter({ busy, label, onPress, disabled, secondary }: Props) {
+export function SheetFooter({ busy, label, onPress, disabled, secondary, testID }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <XStack p="4" pb={insets.bottom + 16} gap="3" borderTopWidth={1} borderColor="borderColor" bg="surface">
@@ -29,6 +32,7 @@ export function SheetFooter({ busy, label, onPress, disabled, secondary }: Props
           label={secondary.label}
           disabled={busy || secondary.disabled}
           onPress={secondary.onPress}
+          testID={secondary.testID}
         />
       ) : null}
       <ActionButton
@@ -38,6 +42,7 @@ export function SheetFooter({ busy, label, onPress, disabled, secondary }: Props
         loading={busy}
         disabled={disabled}
         onPress={onPress}
+        testID={testID}
       />
     </XStack>
   );

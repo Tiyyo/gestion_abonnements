@@ -22,7 +22,12 @@ export function RemindersSection({ settings, rows, save, notificationsAllowed, o
         hint={remindersOn ? 'Transferts à faire, fins d’essai et fins de période.' : 'Aucune notification ne sera envoyée.'}
         last={!remindersOn}
       >
-        <Toggle label="Envoyer les rappels" value={remindersOn} onChange={(on) => save({ reminders_enabled: on ? 1 : 0 })} />
+        <Toggle
+          label="Envoyer les rappels"
+          testID="settings.reminders"
+          value={remindersOn}
+          onChange={(on) => save({ reminders_enabled: on ? 1 : 0 })}
+        />
       </SettingRow>
       {remindersOn ? (
         <ReminderRows settings={settings} rows={rows} save={save} notificationsAllowed={notificationsAllowed} onAuthorize={onAuthorize} />

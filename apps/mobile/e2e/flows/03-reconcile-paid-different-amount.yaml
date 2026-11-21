@@ -1,0 +1,68 @@
+# Parcours 3a : rapprocher un prélèvement échu comme « passé » avec un autre montant, puis accepter le nouveau prix.
+# Un prélèvement à vérifier doit être passé : on crée un abonnement mensuel actif, puis on le modifie
+# (la modification accepte une date passée) en choisissant le 1er du mois précédent dans le calendrier natif.
+appId: ${MAESTRO_APP_ID}
+name: Rapprochement passé avec un autre montant
+tags:
+  - core
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/complete-onboarding.yaml
+- runFlow:
+    file: ../subflows/add-subscription.yaml
+    env:
+      NAME: E2E Cinema
+      AMOUNT: '9,99'
+      STATUS: active
+      PERIODICITY: month
+
+# --- Fiche → Modifier → date au 1er du mois précédent.
+- tapOn:
+    id: 'subscriptions.row-e2e-cinema'
+- tapOn:
+    id: 'subscription.edit'
+- tapOn:
+    id: 'subscription-form.date'
+# Calendrier Material d'Android : libellés selon la langue de l'appareil.
+- tapOn: 'Previous month|Mois précédent'
+- tapOn: '1'
+- tapOn: 'OK'
+- tapOn:
+    id: 'subscription-form.save'
+- extendedWaitUntil:
+    notVisible:
+      id: 'subscription-form.save'
+    timeout: 10000
+- back
+
+# --- Accueil : « À vérifier » liste les prélèvements échus (un ou deux selon le jour du mois).
+- tapOn:
+    id: 'tab.accueil'
+- scrollUntilVisible:
+    element:
+      id: 'home.review-row'
+    direction: DOWN
+- tapOn:
+    id: 'home.review-row'
+    index: 0
+- assertVisible: 'E2E Cinema'
+- tapOn:
+    id: 'review.amount'
+- eraseText: 10
+- inputText: '11,49'
+- hideKeyboard
+- tapOn:
+    id: 'review.paid'
+- assertVisible: 'Le prix a changé'
+- tapOn:
+    id: 'dialog.confirm'
+
+# --- Le nouveau prix s'applique à l'abonnement.
+- extendedWaitUntil:
+    visible:
+      id: 'tab.abonnements'
+    timeout: 10000
+- tapOn:
+    id: 'tab.abonnements'
+- assertVisible: '11,49.*'
+- assertNotVisible: '9,99.*'

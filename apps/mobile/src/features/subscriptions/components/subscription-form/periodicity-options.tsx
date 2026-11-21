@@ -9,6 +9,7 @@ export function PeriodicityOptions({ selected, onSelect }: { selected: Periodici
       selected={selected === p.key}
       last={i === PERIODICITIES.length - 1}
       onPress={() => onSelect(p.key)}
+      testID={`subscription-form.periodicity-${p.key}`}
     />
   ));
 }

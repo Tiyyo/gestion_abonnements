@@ -39,10 +39,17 @@ export function PaydayCard({ plan, busy, onDone, onUndo }: { plan: MonthPlan; bu
               <Check color={colors.ok} size={18} strokeWidth={2.5} />
               <Label color="okText">Virement fait</Label>
             </XStack>
-            <ActionButton label="Annuler" variant="ghost" size="sm" disabled={busy} onPress={onUndo} />
+            <ActionButton label="Annuler" variant="ghost" size="sm" disabled={busy} onPress={onUndo} testID="plan.payday-undo" />
           </XStack>
         ) : (
-          <ActionButton flex={1} label="Marquer le virement fait" variant="outline" disabled={busy} onPress={onDone} />
+          <ActionButton
+            flex={1}
+            label="Marquer le virement fait"
+            variant="outline"
+            disabled={busy}
+            onPress={onDone}
+            testID="plan.payday-done"
+          />
         )}
       </XStack>
     </Card>

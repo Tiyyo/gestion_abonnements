@@ -55,7 +55,13 @@ export default function HomeScreen() {
           ) : data.isEmpty ? (
             <EmptyState
               message="Ajoute tes abonnements pour voir ici les transferts à faire et les essais à surveiller."
-              action={<ActionButton label="Ajouter un premier abonnement" onPress={() => router.push('/subscriptions/new')} />}
+              action={
+                <ActionButton
+                  label="Ajouter un premier abonnement"
+                  onPress={() => router.push('/subscriptions/new')}
+                  testID="home.add-first"
+                />
+              }
             />
           ) : (
             <HomeFeed data={data} today={today} actions={actions} />

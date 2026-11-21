@@ -19,7 +19,12 @@ export function ReportDebitCard() {
           <Caption>Signale-le : Sluis le rapproche d’un abonnement ou te propose de le créer.</Caption>
         </YStack>
       </XStack>
-      <ActionButton variant="soft" label="Signaler un prélèvement" onPress={() => router.push('/charges/unknown')} />
+      <ActionButton
+        variant="soft"
+        label="Signaler un prélèvement"
+        onPress={() => router.push('/charges/unknown')}
+        testID="plan.report-debit"
+      />
     </Card>
   );
 }

@@ -1,0 +1,45 @@
+# Ajoute un abonnement depuis l'onglet Abonnements.
+# Paramètres : NAME (ASCII), AMOUNT (« 12,99 »), STATUS (trial | active), PERIODICITY (week | month | quarter | half | year | biennial).
+# Les dates restent celles proposées par le formulaire : fin d'essai à J+30, prochain prélèvement aujourd'hui.
+appId: ${MAESTRO_APP_ID}
+---
+- hideKeyboard
+- tapOn:
+    id: 'tab.abonnements'
+- tapOn:
+    id: 'subscriptions.add'
+- assertVisible: 'Nouvel abonnement'
+- tapOn:
+    id: 'subscription-form.name'
+- inputText: ${NAME}
+- tapOn:
+    id: 'subscription-form.amount'
+- inputText: ${AMOUNT}
+- hideKeyboard
+- runFlow:
+    when:
+      true: ${STATUS == 'active'}
+    commands:
+      - tapOn:
+          id: 'subscription-form.status-active'
+      - assertVisible: 'Prochain prélèvement'
+- runFlow:
+    when:
+      true: ${STATUS == 'trial'}
+    commands:
+      - assertVisible: 'Fin d.essai'
+- runFlow:
+    when:
+      true: ${PERIODICITY != 'month'}
+    commands:
+      - tapOn:
+          id: 'subscription-form.periodicity'
+      - tapOn:
+          id: 'subscription-form.periodicity-${PERIODICITY}'
+- tapOn:
+    id: 'subscription-form.save'
+# La feuille se ferme une fois l'abonnement enregistré et le plan régénéré.
+- extendedWaitUntil:
+    notVisible:
+      id: 'subscription-form.save'
+    timeout: 10000

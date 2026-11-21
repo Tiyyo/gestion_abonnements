@@ -30,7 +30,13 @@ export default function SubscriptionsScreen() {
       ) : isEmpty ? (
         <EmptyState
           message="Aucun abonnement pour le moment."
-          action={<ActionButton label="Ajouter un premier abonnement" onPress={() => router.push('/subscriptions/new')} />}
+          action={
+            <ActionButton
+              label="Ajouter un premier abonnement"
+              onPress={() => router.push('/subscriptions/new')}
+              testID="subscriptions.add-first"
+            />
+          }
         />
       ) : (
         <SubscriptionList view={view} globalMarginBp={globalMarginBp} sort={sort} onSort={setSort} onClearSearch={() => setQuery('')} />

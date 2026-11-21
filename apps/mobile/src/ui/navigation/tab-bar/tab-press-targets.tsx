@@ -34,6 +34,7 @@ export function TabPressTargets({
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
             accessibilityLabel={options.tabBarAccessibilityLabel ?? label}
+            testID={options.tabBarButtonTestID}
           />
         );
       })}

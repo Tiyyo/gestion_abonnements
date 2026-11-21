@@ -20,6 +20,7 @@ export function ReviewList({ reviews }: { reviews: HomeReview[] }) {
         <Appear key={r.chargeId} index={index + 2}>
           <ListCard
             onPress={() => router.push(`/charges/${r.chargeId}`)}
+            testID="home.review-row"
             accessibilityLabel={reviewAccessibilityLabel(r)}
             accessibilityHint="Ouvre le rapprochement"
           >

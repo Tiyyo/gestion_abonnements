@@ -23,7 +23,13 @@ export function SubscriptionsHero({ count, search }: Props) {
         overline={`${count} abonnement${count > 1 ? 's' : ''} en cours`}
         title="Abonnements"
         trailing={
-          <IconButton icon={Plus} label="Ajouter un abonnement" variant="glass" onPress={() => router.push('/subscriptions/new')} />
+          <IconButton
+            icon={Plus}
+            label="Ajouter un abonnement"
+            variant="glass"
+            onPress={() => router.push('/subscriptions/new')}
+            testID="subscriptions.add"
+          />
         }
       />
       {search ? (

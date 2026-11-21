@@ -3,7 +3,7 @@ import { Text, XStack } from 'tamagui';
 import { colors } from '@/theme/colors';
 import { DISPLAY_FONT } from '@/ui/text/typography';
 
-type Props = Pick<TextInputProps, 'value' | 'onChangeText' | 'onBlur' | 'accessibilityLabel'>;
+type Props = Pick<TextInputProps, 'value' | 'onChangeText' | 'onBlur' | 'accessibilityLabel' | 'testID'>;
 
 /** Montant en euros sur une carte en verre, en Space Grotesk ; le « € » s'éclaire dès qu'un montant est saisi. */
 export function GlassAmountInput({ value, ...props }: Props) {

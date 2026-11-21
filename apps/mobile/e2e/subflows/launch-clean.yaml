@@ -1,0 +1,19 @@
+# Lance l'app avec un état vierge (base SQLite effacée) et les permissions accordées d'avance.
+# clearState efface TOUTES les données de MAESTRO_APP_ID : jamais sur le téléphone du quotidien.
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+    permissions:
+      all: allow
+# Development build (expo-dev-client) : après clearState, le lanceur demande le serveur Metro.
+- runFlow:
+    when:
+      visible: '.*[Dd]evelopment [Ss]ervers.*'
+    commands:
+      - tapOn: 'http://.*:8081'
+# Écran natif puis SplashOverlay (animation) avant le premier écran JS.
+- extendedWaitUntil:
+    visible: 'Jour de paie'
+    timeout: 30000

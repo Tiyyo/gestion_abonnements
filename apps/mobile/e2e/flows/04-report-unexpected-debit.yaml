@@ -1,0 +1,76 @@
+# Parcours 3b : signaler un débit inattendu depuis le Plan.
+# 1. Marchand inconnu → « Créer l'abonnement ? » → formulaire prérempli → abonnement créé (prélèvement du jour).
+# 2. Même marchand, autre montant, même jour → reconnu comme le prélèvement prévu → marqué passé.
+# La date du débit reste celle proposée (aujourd'hui) : aucun calendrier à manipuler.
+appId: ${MAESTRO_APP_ID}
+name: Débit inattendu signalé
+tags:
+  - core
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/complete-onboarding.yaml
+
+# --- Débit d'un marchand inconnu.
+- tapOn:
+    id: 'tab.plan'
+- scrollUntilVisible:
+    element:
+      id: 'plan.report-debit'
+    direction: DOWN
+- tapOn:
+    id: 'plan.report-debit'
+- assertVisible: 'Prélèvement non prévu'
+- tapOn:
+    id: 'unknown-debit.name'
+- inputText: 'E2E Inconnu'
+- tapOn:
+    id: 'unknown-debit.amount'
+- inputText: '7,50'
+- hideKeyboard
+- tapOn:
+    id: 'unknown-debit.save'
+- assertVisible: 'Prélèvement inattendu'
+- tapOn:
+    id: 'dialog.confirm'
+# Formulaire prérempli (nom, montant, statut actif, date du débit).
+- assertVisible: 'Nouvel abonnement'
+- assertVisible: 'Prochain prélèvement'
+- tapOn:
+    id: 'subscription-form.save'
+- extendedWaitUntil:
+    notVisible:
+      id: 'subscription-form.save'
+    timeout: 10000
+- tapOn:
+    id: 'tab.abonnements'
+- assertVisible:
+    id: 'subscriptions.row-e2e-inconnu'
+- assertVisible: '.*7,50.*'
+
+# --- Même marchand, montant différent : rapproché du prélèvement prévu aujourd'hui.
+- tapOn:
+    id: 'tab.plan'
+- scrollUntilVisible:
+    element:
+      id: 'plan.report-debit'
+    direction: DOWN
+- tapOn:
+    id: 'plan.report-debit'
+- tapOn:
+    id: 'unknown-debit.name'
+- inputText: 'E2E Inconnu'
+- tapOn:
+    id: 'unknown-debit.amount'
+- inputText: '8,20'
+- hideKeyboard
+- tapOn:
+    id: 'unknown-debit.save'
+- assertVisible: 'C.est le prélèvement E2E Inconnu du .*'
+- tapOn:
+    id: 'dialog.confirm'
+- assertVisible: 'Enregistré'
+- assertVisible: 'Prélèvement marqué comme passé.'
+- tapOn:
+    id: 'dialog.confirm'
+- assertVisible:
+    id: 'tab.plan'

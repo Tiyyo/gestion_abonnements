@@ -22,8 +22,13 @@ export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: s
   const guard = useDiscardGuard(form.dirty, 'Le montant et la date que tu as modifiés ne seront pas enregistrés.');
   const actions = useReviewActions(row, guard.leave);
   const failedSuggested = row.bankHint?.kind === 'no_debit';
-  const paid = { label: 'Il est passé', onPress: () => actions.paid(form.amountCents, form.date), disabled: !form.validAmount };
-  const failed = { label: 'Il a échoué', onPress: () => actions.failed(form.amountCents), disabled: false };
+  const paid = {
+    label: 'Il est passé',
+    onPress: () => actions.paid(form.amountCents, form.date),
+    disabled: !form.validAmount,
+    testID: 'review.paid',
+  };
+  const failed = { label: 'Il a échoué', onPress: () => actions.failed(form.amountCents), disabled: false, testID: 'review.failed' };
   const [primary, secondary] = failedSuggested ? [failed, paid] : [paid, failed];
 
   return (
@@ -38,13 +43,21 @@ export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: s
               label="Date du débit"
               value={dateShort(form.date, today)}
               onPress={() => pickDebitDate(form.date, today, form.setDate)}
+              testID="review.date"
               last
             />
           </FormGroup>
           <ReviewOutcomes row={row} />
         </YStack>
       </ScrollView>
-      <SheetFooter label={primary.label} busy={actions.busy} disabled={primary.disabled} onPress={primary.onPress} secondary={secondary} />
+      <SheetFooter
+        label={primary.label}
+        busy={actions.busy}
+        disabled={primary.disabled}
+        onPress={primary.onPress}
+        secondary={secondary}
+        testID={primary.testID}
+      />
     </>
   );
 }

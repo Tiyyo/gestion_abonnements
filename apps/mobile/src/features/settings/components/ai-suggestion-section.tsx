@@ -17,6 +17,7 @@ export function AiSuggestionSection({ enrichIncluded, aiOn, save }: { enrichIncl
       >
         <Toggle
           label="Suggestion IA"
+          testID="settings.ai-suggestion"
           value={aiOn}
           disabled={!enrichIncluded}
           onChange={(on) => save({ ai_suggestion_enabled: on ? 1 : 0 })}

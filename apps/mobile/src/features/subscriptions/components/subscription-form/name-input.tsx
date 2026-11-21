@@ -20,6 +20,7 @@ export function NameInput({ control, onLookup }: { control: Control<Subscription
           autoCapitalize="words"
           returnKeyType="next"
           accessibilityLabel="Nom de l’abonnement"
+          testID="subscription-form.name"
         />
       )}
     />

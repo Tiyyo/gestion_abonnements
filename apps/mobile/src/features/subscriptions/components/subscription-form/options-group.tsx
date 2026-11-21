@@ -22,7 +22,13 @@ interface Props {
 export function OptionsGroup({ control, errors, paymentMethod, marginOverrideBp, globalMarginBp, onOpenPayment, onMarginChange }: Props) {
   return (
     <FormGroup title="Options">
-      <PickerRow icon={CreditCard} label="Paiement" value={paymentLabel(paymentMethod)} onPress={onOpenPayment} />
+      <PickerRow
+        icon={CreditCard}
+        label="Paiement"
+        value={paymentLabel(paymentMethod)}
+        onPress={onOpenPayment}
+        testID="subscription-form.payment"
+      />
       <MarginRow overrideBp={marginOverrideBp} globalMarginBp={globalMarginBp} onChange={onMarginChange} />
       <CancelUrlRow control={control} error={errors.cancelUrl?.message} />
       <NotesRow control={control} error={errors.notes?.message} />

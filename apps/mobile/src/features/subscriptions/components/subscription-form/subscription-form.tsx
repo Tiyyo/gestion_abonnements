@@ -31,7 +31,7 @@ export function SubscriptionForm({ title, submitLabel, busy, error, onCancel, ..
 
   return (
     <SheetScreen>
-      <SheetHeader title={title} onCancel={onCancel} />
+      <SheetHeader title={title} onCancel={onCancel} cancelTestID="subscription-form.cancel" />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
         <FormHero
           control={form.control}
@@ -87,7 +87,7 @@ export function SubscriptionForm({ title, submitLabel, busy, error, onCancel, ..
         </YStack>
       </ScrollView>
 
-      <SheetFooter busy={busy} label={submitLabel} onPress={() => form.submit()} />
+      <SheetFooter busy={busy} label={submitLabel} onPress={() => form.submit()} testID="subscription-form.save" />
       <FormSheet
         open={choices.sheet.open}
         shown={choices.sheet.shown}
