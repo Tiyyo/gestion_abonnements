@@ -1,21 +1,23 @@
 import { CircleAlert, CircleCheck, CircleHelp, Info, TriangleAlert, type LucideIcon } from 'lucide-react-native';
 import { YStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import type { ThemeColors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Body, Heading } from '@/ui/text/typography';
 import { SheetPanel } from './sheet-panel';
 import type { Dialog, DialogButton, DialogTone } from './show-dialog';
 
-const TONES: Record<DialogTone, { icon: LucideIcon; bg: string; fg: string }> = {
-  question: { icon: CircleHelp, bg: 'secondary', fg: colors.primary },
-  info: { icon: Info, bg: 'subtle', fg: colors.text },
-  ok: { icon: CircleCheck, bg: 'okBg', fg: colors.ok },
-  warn: { icon: TriangleAlert, bg: 'warnBg', fg: colors.warn },
-  danger: { icon: TriangleAlert, bg: 'dangerBg', fg: colors.danger },
-  error: { icon: CircleAlert, bg: 'dangerBg', fg: colors.danger },
+const TONES: Record<DialogTone, { icon: LucideIcon; bg: string; fg: keyof ThemeColors }> = {
+  question: { icon: CircleHelp, bg: 'secondary', fg: 'onSecondary' },
+  info: { icon: Info, bg: 'subtle', fg: 'text' },
+  ok: { icon: CircleCheck, bg: 'okBg', fg: 'ok' },
+  warn: { icon: TriangleAlert, bg: 'warnBg', fg: 'warn' },
+  danger: { icon: TriangleAlert, bg: 'dangerBg', fg: 'danger' },
+  error: { icon: CircleAlert, bg: 'dangerBg', fg: 'danger' },
 };
 
 export function DialogSheet({ dialog, onClose }: { dialog: Dialog; onClose: (button?: DialogButton) => void }) {
+  const colors = useColors();
   const cancel = dialog.buttons.find((b) => b.style === 'cancel');
   const actions = dialog.buttons.filter((b) => b.style !== 'cancel');
   const main = actions[actions.length - 1];
@@ -32,7 +34,7 @@ export function DialogSheet({ dialog, onClose }: { dialog: Dialog; onClose: (but
     <SheetPanel onDismiss={dismiss} dismissLabel={cancel ? cancel.text : 'Fermer'}>
       <YStack gap="3" pt="2">
         <YStack w={48} h={48} rounded={24} items="center" justify="center" bg={tone.bg as 'subtle'}>
-          <Icon color={tone.fg} size={24} strokeWidth={2} />
+          <Icon color={colors[tone.fg]} size={24} strokeWidth={2} />
         </YStack>
         <YStack gap="1.5">
           <Heading accessibilityRole="header">{dialog.title}</Heading>

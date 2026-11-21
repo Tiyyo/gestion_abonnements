@@ -1,7 +1,9 @@
 import { XStack, type YStackProps } from 'tamagui';
-import { elevated, RADIUS } from '@/theme/elevation';
+import { RADIUS } from '@/theme/elevation';
+import { useShadows } from '@/theme/use-shadows';
 
 export function ListCard({ children, onPress, accessibilityLabel, ...props }: YStackProps & { onPress?: () => void }) {
+  const shadow = useShadows();
   return (
     <XStack
       bg="surface"
@@ -13,7 +15,7 @@ export function ListCard({ children, onPress, accessibilityLabel, ...props }: YS
       gap="3"
       items="center"
       minH={64}
-      style={elevated('md')}
+      style={{ boxShadow: shadow.md }}
       onPress={onPress}
       opacity={onPress ? '1 press:0.85' : undefined}
       scale={onPress ? '1 press:0.985' : undefined}

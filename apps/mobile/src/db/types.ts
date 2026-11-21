@@ -1,6 +1,8 @@
 import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
 
 export type Flag = 0 | 1;
+/** Réglage « Apparence » : suivre le système, ou forcer le thème clair ou sombre. */
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 export type PeriodUnit = 'week' | 'month' | 'year';
 export type SubscriptionStatus = 'trial' | 'active' | 'to_cancel' | 'cancelled';
@@ -30,6 +32,7 @@ export interface SettingsTable {
   bank_sync_from: string | null;
   bank_sync_through: string | null;
   bank_sync_at: string | null;
+  theme_mode: Generated<ThemeMode>;
   updated_at: Generated<string>;
 }
 

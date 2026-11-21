@@ -2,7 +2,7 @@ import { Minus, Plus, type LucideIcon } from 'lucide-react-native';
 import { Button, XStack } from 'tamagui';
 import { marginLabel } from '@/features/settings/labels';
 import { Amount } from '@/ui/text/typography';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { haptic } from '@/ui/motion/haptics';
 
 const STEP_BP = 50;
@@ -17,6 +17,7 @@ interface StepProps {
 }
 
 function StepButton({ icon: Icon, label, disabled, onGlass, onPress }: StepProps) {
+  const colors = useColors();
   return (
     <Button
       w={44}

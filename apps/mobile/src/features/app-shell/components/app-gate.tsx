@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Spinner } from 'tamagui';
 import { useRescheduleOnForeground } from '@/features/app-shell/hooks/use-reschedule-on-foreground';
 import { useWidgetSync } from '@/features/app-shell/hooks/use-widget-sync';
+import { useThemeModeSync } from '@/features/app-shell/hooks/use-theme-mode-sync';
 import { LockGate } from '@/features/security/components/lock-gate';
 import { Onboarding } from '@/features/settings/components/onboarding';
 import { useSettings } from '@/features/settings/hooks/use-settings';
@@ -11,9 +12,10 @@ export function AppGate({ children }: { children: ReactNode }) {
   const settings = useSettings();
   useRescheduleOnForeground();
   useWidgetSync();
+  useThemeModeSync(settings.data?.theme_mode);
 
   if (!settings.data) {
-    return <Spinner flex={1} color="primary" />;
+    return <Spinner flex={1} color="primaryText" />;
   }
   if (settings.data.onboarding_done === 0) {
     return <Onboarding />;

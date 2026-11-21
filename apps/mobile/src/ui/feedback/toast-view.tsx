@@ -1,5 +1,6 @@
 import { Button, XStack } from 'tamagui';
-import { elevated, RADIUS } from '@/theme/elevation';
+import { RADIUS } from '@/theme/elevation';
+import { useShadows } from '@/theme/use-shadows';
 import { Body } from '@/ui/text/typography';
 import type { Toast } from './toast-logic';
 
@@ -9,13 +10,14 @@ import type { Toast } from './toast-logic';
  */
 export function ToastView({ toast, onAction }: { toast: Toast; onAction: () => void }) {
   const { action } = toast;
+  const shadow = useShadows();
   return (
     <XStack
       bg="heroFrom"
       borderWidth={1}
       borderColor="glassEdge"
       rounded={RADIUS.glass}
-      style={elevated('glass')}
+      style={{ boxShadow: shadow.glass }}
       minH={56}
       pl="4"
       pr={action ? '1.5' : '4'}

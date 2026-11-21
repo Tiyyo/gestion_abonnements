@@ -6,7 +6,7 @@ import { ActionButton } from '@/ui/controls/action-button';
 import type { Balances } from '@/features/balances/balances-schema';
 import { RENEWAL_NOTICE_DAYS } from '@/features/balances/balances-derivations';
 import { dateOfTimestamp, dateShort, endSentence } from '@/lib/dates';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Notice } from './notice';
 
 interface Props {
@@ -20,6 +20,7 @@ interface Props {
 
 /** Messages sous les soldes : accord expiré ou soldes indisponibles, couverture des transferts, renouvellement proche. */
 export function BalancesNotices({ data, expired, unavailable, pendingTransfersCents, shortfall, daysLeft }: Props) {
+  const colors = useColors();
   return (
     <>
       {expired ? (

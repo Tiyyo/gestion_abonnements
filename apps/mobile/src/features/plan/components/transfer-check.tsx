@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { Button, YStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { easeOut } from '@/ui/motion/easing';
 
 /** Case à cocher ronde d'un transfert (zone tactile de 56 × 64). */
@@ -16,6 +16,7 @@ export function TransferCheck({
   label: string;
   onPress: () => void;
 }) {
+  const colors = useColors();
   return (
     <Button
       w={56}
@@ -42,7 +43,7 @@ export function TransferCheck({
       >
         {done && (
           <Animated.View entering={ZoomIn.duration(160).easing(easeOut)}>
-            <Check color={colors.onPrimary} size={16} strokeWidth={3} />
+            <Check color={colors.surface} size={16} strokeWidth={3} />
           </Animated.View>
         )}
       </YStack>

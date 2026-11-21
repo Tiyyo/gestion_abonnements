@@ -27,7 +27,7 @@ export function LogoOptions({
           p="1"
           rounded={RADIUS.control + 4}
           borderWidth={2}
-          borderColor={shown === key ? 'primary' : 'surface'}
+          borderColor={shown === key ? 'primaryText' : 'surface'}
           scale="1 press:0.985"
           transition="fast"
           onPress={() => {

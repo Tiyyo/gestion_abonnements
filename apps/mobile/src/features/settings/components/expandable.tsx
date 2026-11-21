@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react-native';
 import { XStack, YStack } from 'tamagui';
 import { Body, Label } from '@/ui/text/typography';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { haptic } from '@/ui/motion/haptics';
 import { Reveal } from '@/ui/motion/reveal';
 import { Settle } from '@/ui/motion/settle';
@@ -17,6 +17,7 @@ type ExpandableProps = {
 };
 
 export function Expandable({ open, onToggle, label, value, children, last }: ExpandableProps) {
+  const colors = useColors();
   return (
     <Settle>
       <YStack borderBottomWidth={last ? 0 : 1} borderColor="borderColor">

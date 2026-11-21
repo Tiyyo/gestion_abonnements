@@ -1,7 +1,7 @@
 import { KeyRound, Landmark, type LucideIcon, Undo2 } from 'lucide-react-native';
 import { Spinner, XStack, YStack } from 'tamagui';
 import type { ConsentPhase } from '@/features/consent/hooks/use-consent-flow';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Card } from '@/ui/surfaces/card';
 import { Body, Caption, Overline } from '@/ui/text/typography';
 
@@ -20,6 +20,7 @@ const PROGRESS: Partial<Record<ConsentPhase, string>> = {
 
 /** Ce qui va se passer, et où en est la demande. */
 export function ConsentSteps({ phase, currentUntil }: { phase: ConsentPhase; currentUntil: string | null }) {
+  const colors = useColors();
   const progress = PROGRESS[phase];
   return (
     <YStack gap="2">
@@ -28,7 +29,7 @@ export function ConsentSteps({ phase, currentUntil }: { phase: ConsentPhase; cur
         {STEPS.map(({ icon: Icon, title, detail }) => (
           <XStack key={title} gap="3" items="flex-start">
             <YStack w={32} h={32} rounded="full" items="center" justify="center" bg="primarySoft">
-              <Icon color={colors.primary} size={16} />
+              <Icon color={colors.primaryText} size={16} />
             </YStack>
             <YStack flex={1} gap="0.5">
               <Body>{title}</Body>
@@ -40,7 +41,7 @@ export function ConsentSteps({ phase, currentUntil }: { phase: ConsentPhase; cur
       </Card>
       {progress ? (
         <XStack gap="2" items="center" px="1" accessibilityLiveRegion="polite">
-          <Spinner color="primary" />
+          <Spinner color="primaryText" />
           <Body color="colorMuted">{progress}</Body>
         </XStack>
       ) : null}

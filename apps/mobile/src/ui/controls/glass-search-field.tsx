@@ -1,7 +1,7 @@
 import { Search, X } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 import { XStack } from 'tamagui';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { RADIUS } from '@/theme/elevation';
 import { GlassTextInput } from './glass-text-input';
 
@@ -14,6 +14,7 @@ interface Props {
 
 /** Champ de recherche en verre, à poser sur le dégradé du Hero : loupe, saisie, bouton d'effacement dès qu'il y a du texte. */
 export function GlassSearchField({ value, onChangeText, placeholder, clearLabel = 'Effacer la recherche' }: Props) {
+  const colors = useColors();
   return (
     <XStack h={44} pl={14} gap="2" items="center" rounded={RADIUS.pill} bg="glassFill" borderWidth={1} borderColor="glassEdge">
       <Search color={colors.onGlassMuted} size={18} />

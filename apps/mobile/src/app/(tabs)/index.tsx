@@ -13,7 +13,7 @@ import { useDailyMaintenance } from '@/features/home/hooks/use-daily-maintenance
 import { useHome } from '@/features/home/hooks/use-home';
 import { useHomeActions } from '@/features/home/hooks/use-home-actions';
 import { useHomeRefresh } from '@/features/home/hooks/use-home-refresh';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { EmptyState } from '@/ui/feedback/empty-state';
 import { useDelayedFlag } from '@/ui/hooks/use-delayed-flag';
@@ -22,6 +22,7 @@ import { TAB_BAR_CLEARANCE } from '@/ui/navigation/tab-bar/tab-bar-metrics';
 import { useHeroStatusBar } from '@/ui/navigation/use-hero-status-bar';
 
 export default function HomeScreen() {
+  const colors = useColors();
   useDailyMaintenance();
   useAutoBankSync();
   const insets = useSafeAreaInsets();
@@ -42,7 +43,13 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: insets.bottom + TAB_BAR_CLEARANCE }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} progressViewOffset={insets.top} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refresh}
+            colors={[colors.primaryText]}
+            progressBackgroundColor={colors.surface}
+            progressViewOffset={insets.top}
+          />
         }
       >
         <HomeHero today={today} showBalances={!!data && !data.isEmpty} pendingTransfersCents={pendingTransfersCents(data)} />

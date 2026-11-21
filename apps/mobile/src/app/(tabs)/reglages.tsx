@@ -6,6 +6,7 @@ import { readTransactionsConfig } from '@/config/function-config';
 import { readEnrichConfig } from '@/features/enrich/enrich-client';
 import { AiSuggestionSection } from '@/features/settings/components/ai-suggestion-section';
 import { BankSyncSection } from '@/features/settings/components/bank-sync-section';
+import { AppearanceSection } from '@/features/settings/components/appearance-section';
 import { BatteryOptimizationCard } from '@/features/settings/components/battery-optimization-card';
 import { RemindersSection } from '@/features/settings/components/reminders-section';
 import { SecurityDataSection } from '@/features/settings/components/security-data-section';
@@ -38,7 +39,7 @@ export default function SettingsScreen() {
 
   const s = settings.data;
   if (!s) {
-    return <Spinner flex={1} color="primary" />;
+    return <Spinner flex={1} color="primaryText" />;
   }
 
   const remindersOn = s.reminders_enabled === 1;
@@ -82,6 +83,7 @@ export default function SettingsScreen() {
           />
           <BankSyncSection included={reconcileIncluded} on={reconcileOn} save={save} />
           <AiSuggestionSection enrichIncluded={enrichIncluded} aiOn={aiOn} save={save} />
+          <AppearanceSection mode={s.theme_mode} save={save} />
           <SecurityDataSection settings={s} save={save} />
           <Caption text="center">{`Sluis ${Constants.expoConfig?.version ?? ''}`}</Caption>
         </YStack>

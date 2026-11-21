@@ -2,7 +2,7 @@ import { ArrowUpDown, ChevronDown } from 'lucide-react-native';
 import { useState } from 'react';
 import { XStack } from 'tamagui';
 import { SORT_OPTIONS, sortLabel, type SubscriptionSort } from '@/features/subscriptions/subscription-view';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { RADIUS } from '@/theme/elevation';
 import { BottomSheet } from '@/ui/feedback/bottom-sheet';
 import { SheetOption } from '@/ui/feedback/sheet-option';
@@ -11,6 +11,7 @@ import { Caption, Label } from '@/ui/text/typography';
 
 /** Puce « Trier par → valeur » qui ouvre le panneau de choix ; le tri s'applique à l'intérieur de chaque groupe. */
 export function SortControl({ value, onChange }: { value: SubscriptionSort; onChange: (sort: SubscriptionSort) => void }) {
+  const colors = useColors();
   const [open, setOpen] = useState(false);
   const label = sortLabel(value);
   return (

@@ -4,7 +4,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { XStack, YStack } from 'tamagui';
 import { stepChart } from '@/features/subscriptions/price-chart';
 import { chartAccessibilityLabel, type PriceChangeItem, priceLevels } from '@/features/subscriptions/price-history';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Amount, Caption } from '@/ui/text/typography';
 
 const HEIGHT = 64;
@@ -12,6 +12,7 @@ const PAD = 6;
 
 /** Graphique en escalier des paliers de prix, avec le premier et le dernier montant en légende. */
 export function PriceStepChart({ changes }: { changes: readonly PriceChangeItem[] }) {
+  const colors = useColors();
   const [width, setWidth] = useState(0);
   const levels = priceLevels(changes);
   if (levels.length < 2) {
@@ -23,8 +24,8 @@ export function PriceStepChart({ changes }: { changes: readonly PriceChangeItem[
       <YStack h={HEIGHT} onLayout={(event) => setWidth(Math.round(event.nativeEvent.layout.width))}>
         {chart ? (
           <Svg width={width} height={HEIGHT}>
-            <Path d={chart.path} stroke={colors.primary} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" fill="none" />
-            <Circle cx={chart.end.x} cy={chart.end.y} r={4.5} fill={colors.primary} stroke={colors.surface} strokeWidth={2} />
+            <Path d={chart.path} stroke={colors.primaryText} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" fill="none" />
+            <Circle cx={chart.end.x} cy={chart.end.y} r={4.5} fill={colors.primaryText} stroke={colors.surface} strokeWidth={2} />
           </Svg>
         ) : null}
       </YStack>

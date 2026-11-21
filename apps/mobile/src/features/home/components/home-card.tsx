@@ -27,7 +27,8 @@ export function HomeCard({ tone, caption, title, body, actions, footer }: Props)
   return (
     <Card tone={tone === 'accent' ? 'plain' : tone} lift={tone === 'accent'}>
       <Overline color={t.muted as 'color'}>{caption}</Overline>
-      {title && (tone === 'accent' ? <Display color="primary">{title}</Display> : <CardTitle color={t.fg as 'color'}>{title}</CardTitle>)}
+      {title &&
+        (tone === 'accent' ? <Display color="primaryText">{title}</Display> : <CardTitle color={t.fg as 'color'}>{title}</CardTitle>)}
       {body && <Body color={t.fg as 'color'}>{body}</Body>}
       {actions && (
         <XStack gap="3" mt="2">

@@ -1,8 +1,7 @@
 import { Text, XStack, YStack } from 'tamagui';
-import { elevated, RADIUS } from '@/theme/elevation';
+import { RADIUS } from '@/theme/elevation';
+import { useShadows } from '@/theme/use-shadows';
 import { haptic } from '@/ui/motion/haptics';
-
-const RAISED = elevated('sm');
 
 export function Segmented<T extends string>({
   label,
@@ -16,11 +15,12 @@ export function Segmented<T extends string>({
   options: readonly { key: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
-  /** Posé sur le dégradé du Hero : fond en verre, segment choisi blanc, texte aubergine. */
+  /** Posé sur le dégradé du Hero : fond en verre, segment choisi en relief (`raised`), texte aubergine (`primaryText`). */
   onGlass?: boolean;
   /** Préfixe des sélecteurs de test : chaque segment reçoit `<testID>-<clé>`. */
   testID?: string;
 }) {
+  const shadow = useShadows();
   return (
     <XStack
       bg={onGlass ? 'glassInner' : 'subtle'}
@@ -42,8 +42,8 @@ export function Segmented<T extends string>({
             items="center"
             justify="center"
             rounded={RADIUS.pill}
-            bg={selected ? 'surface' : 'transparent'}
-            style={selected ? RAISED : undefined}
+            bg={selected ? 'raised' : 'transparent'}
+            style={selected ? { boxShadow: shadow.sm } : undefined}
             transition="fast"
             onPress={() => {
               if (!selected) {
@@ -61,7 +61,7 @@ export function Segmented<T extends string>({
             <Text
               fontSize={15}
               fontWeight={selected ? '600' : '500'}
-              color={selected ? (onGlass ? 'primary' : 'color') : onGlass ? 'onGlassMuted' : 'colorMuted'}
+              color={selected ? (onGlass ? 'primaryText' : 'color') : onGlass ? 'onGlassMuted' : 'colorMuted'}
             >
               {o.label}
             </Text>

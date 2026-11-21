@@ -4,12 +4,13 @@ import { XStack, YStack } from 'tamagui';
 import type { MonthPlan } from '@/db/repositories/plan/types';
 import { paydayLineLabel } from '@/features/plan/plan-labels';
 import { dateShort } from '@/lib/dates';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Card } from '@/ui/surfaces/card';
 import { Amount, Body, Caption, Display, Label, Overline } from '@/ui/text/typography';
 
 export function PaydayCard({ plan, busy, onDone, onUndo }: { plan: MonthPlan; busy: boolean; onDone: () => void; onUndo: () => void }) {
+  const colors = useColors();
   const { payday } = plan;
   return (
     <Card>

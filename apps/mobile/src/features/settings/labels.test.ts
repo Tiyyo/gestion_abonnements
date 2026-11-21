@@ -1,4 +1,4 @@
-import { daysBeforeLabel, fundingLeadLabel, marginLabel, paydayLabel } from './labels';
+import { daysBeforeLabel, fundingLeadLabel, marginLabel, paydayLabel, THEME_MODES, themeModeLabel } from './labels';
 
 describe('paydayLabel', () => {
   it('écrit « 1er » pour le premier du mois', () => {
@@ -13,6 +13,12 @@ describe('paydayLabel', () => {
 describe('marginLabel', () => {
   it('affiche la marge en pourcentage avec une espace insécable', () => {
     expect(marginLabel(300)).toBe('3 %');
+  });
+});
+
+describe('themeModeLabel', () => {
+  it('nomme chaque choix d’apparence', () => {
+    expect(THEME_MODES.map((m) => themeModeLabel(m.key))).toEqual(['Système', 'Clair', 'Sombre']);
   });
 });
 

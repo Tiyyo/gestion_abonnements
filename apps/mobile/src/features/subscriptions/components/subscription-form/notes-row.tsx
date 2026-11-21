@@ -3,13 +3,14 @@ import { type Control, Controller } from 'react-hook-form';
 import { TextInput } from 'react-native';
 import { YStack } from 'tamagui';
 import type { SubscriptionFormValues } from '@/features/subscriptions/subscription-form-schema';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Caption } from '@/ui/text/typography';
 import { FieldError } from './field-error';
 import { FormRow } from './form-row';
 import { formStyles } from './form-styles';
 
 export function NotesRow({ control, error }: { control: Control<SubscriptionFormValues>; error?: string }) {
+  const colors = useColors();
   return (
     <FormRow icon={NotebookPen} last>
       <YStack flex={1} gap="0.5">
@@ -24,8 +25,9 @@ export function NotesRow({ control, error }: { control: Control<SubscriptionForm
               onBlur={field.onBlur}
               placeholder="Identifiant, offre, rappel…"
               placeholderTextColor={colors.muted}
+              cursorColor={colors.primaryText}
               multiline
-              style={[formStyles.inline, formStyles.notes]}
+              style={[formStyles.inline, formStyles.notes, { color: colors.text }]}
               accessibilityLabel="Notes"
             />
           )}

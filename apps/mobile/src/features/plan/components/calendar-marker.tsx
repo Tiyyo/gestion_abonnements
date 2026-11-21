@@ -1,11 +1,12 @@
 import { Check, TriangleAlert } from 'lucide-react-native';
 import { YStack } from 'tamagui';
 import type { MarkerKind } from '@/features/plan/calendar-items';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 
 const BOX = 12;
 
 function Shape({ kind }: { kind: MarkerKind }) {
+  const colors = useColors();
   switch (kind) {
     case 'trial':
       return <TriangleAlert color={colors.warn} size={BOX} strokeWidth={2.5} />;
@@ -16,7 +17,7 @@ function Shape({ kind }: { kind: MarkerKind }) {
     case 'transfer_done':
       return (
         <YStack w={BOX} h={BOX} rounded="full" bg="okText" items="center" justify="center">
-          <Check color={colors.onPrimary} size={8} strokeWidth={4} />
+          <Check color={colors.surface} size={8} strokeWidth={4} />
         </YStack>
       );
     case 'charge':

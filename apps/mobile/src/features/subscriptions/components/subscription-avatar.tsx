@@ -3,6 +3,8 @@ import { Text, YStack } from 'tamagui';
 import { resolveIconKey } from '@/features/enrich/brands';
 import { BRAND_ICONS } from '@/features/subscriptions/brand-icons';
 
+// Pastilles d'initiale et couleurs de marque : identiques dans les deux thèmes. Chaque paire porte son propre contraste,
+// et un logo garde sa couleur officielle sur une tuile claire (`logoTile`), comme une icône d'application.
 const PAIRS: readonly (readonly [string, string])[] = [
   ['#E6EEFB', '#1F3B7A'],
   ['#E3F2FB', '#0F4C6E'],
@@ -47,7 +49,7 @@ export function SubscriptionAvatar({ name, iconKey, size = 44 }: { name: string;
         rounded="xl"
         items="center"
         justify="center"
-        bg="surface"
+        bg="logoTile"
         borderWidth={1}
         borderColor="borderColor"
         accessibilityElementsHidden

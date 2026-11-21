@@ -2,8 +2,8 @@ import { Check } from 'lucide-react-native';
 import { XStack } from 'tamagui';
 import { AndroidSetting, EXACT_ALARM_RELEVANT, openAndroidSetting } from '@/features/settings/android-settings';
 import { requestNotifications } from '@/notifications/permissions';
-import { colors } from '@/theme/colors';
 import { RADIUS } from '@/theme/elevation';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Body, Caption, Label } from '@/ui/text/typography';
 
@@ -17,6 +17,7 @@ export function OnboardingRemindersStep({
   notif: NotificationRequest;
   setNotif: (value: NotificationRequest) => void;
 }) {
+  const colors = useColors();
   return (
     <>
       <Body color="onGlass">

@@ -16,7 +16,7 @@ export default function ReviewChargeScreen() {
     <SheetScreen>
       <SheetHeader title="Prélèvement à vérifier" onCancel={() => router.back()} />
       {charge.isPending ? (
-        <Spinner mt="8" color="primary" />
+        <Spinner mt="8" color="primaryText" />
       ) : charge.data ? (
         // La saisie part des valeurs du prélèvement : la clé remonte le formulaire si le prélèvement change.
         <ReviewChargeForm key={charge.data.id} row={charge.data} today={todayIn()} />

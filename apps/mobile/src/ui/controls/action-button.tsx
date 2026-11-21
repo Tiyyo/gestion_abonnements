@@ -1,5 +1,6 @@
 import { Button, Spinner } from 'tamagui';
-import { elevated, RADIUS, type ShadowLevel } from '@/theme/elevation';
+import { RADIUS, type ShadowLevel } from '@/theme/elevation';
+import { useShadows } from '@/theme/use-shadows';
 import { haptic } from '@/ui/motion/haptics';
 
 export type ButtonVariant =
@@ -8,13 +9,13 @@ export type ButtonVariant =
 const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }> = {
   primary: { bg: 'primary', border: 'primary', fg: 'onPrimary' },
   secondary: { bg: 'secondary', border: 'secondary', fg: 'onSecondary' },
-  soft: { bg: 'primarySoft', border: 'primarySoft', fg: 'primary' },
+  soft: { bg: 'primarySoft', border: 'primarySoft', fg: 'primaryText' },
   outline: { bg: 'surface', border: 'borderControl', fg: 'color' },
   onAccent: { bg: 'transparent', border: 'onPrimary', fg: 'onPrimary' },
   danger: { bg: 'surface', border: 'dangerText', fg: 'dangerText' },
-  dangerSolid: { bg: 'dangerText', border: 'dangerText', fg: 'onPrimary' },
-  warn: { bg: 'warnText', border: 'warnText', fg: 'onPrimary' },
-  ghost: { bg: 'transparent', border: 'transparent', fg: 'primary' },
+  dangerSolid: { bg: 'dangerSolid', border: 'dangerSolid', fg: 'onPrimary' },
+  warn: { bg: 'warnSolid', border: 'warnSolid', fg: 'onPrimary' },
+  ghost: { bg: 'transparent', border: 'transparent', fg: 'primaryText' },
   glassGhost: { bg: 'transparent', border: 'transparent', fg: 'onGlass' },
   glass: { bg: 'glassFill', border: 'glassEdge', fg: 'onGlass' },
 };
@@ -54,6 +55,7 @@ export function ActionButton({
   /** Sélecteur stable pour les tests de bout en bout (`ecran.element`). */
   testID?: string;
 }) {
+  const shadow = useShadows();
   const inactive = disabled || loading;
   const v = BUTTONS[variant];
   const ghostOrAccent = variant === 'ghost' || ON_DARK.has(variant);
@@ -61,6 +63,7 @@ export function ActionButton({
   const border = inactive && !ghostOrAccent ? 'subtle' : v.border;
   const fg = inactive ? (ON_DARK.has(variant) ? 'onGlassMuted' : 'colorMuted') : v.fg;
   const dims = SIZES[size];
+  const lift = inactive ? undefined : BUTTON_SHADOW[variant];
   return (
     <Button
       flex={flex}
@@ -70,7 +73,7 @@ export function ActionButton({
       bg={bg as 'surface'}
       borderWidth={1}
       borderColor={border as 'borderColor'}
-      style={!inactive && BUTTON_SHADOW[variant] ? elevated(BUTTON_SHADOW[variant]) : undefined}
+      style={lift ? { boxShadow: shadow[lift] } : undefined}
       disabled={inactive}
       opacity={inactive && variant === 'onAccent' ? 0.7 : '1 press:0.85'}
       scale={inactive ? 1 : '1 press:0.985'}

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { shadow } from '@/theme/elevation';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
+import { useShadows } from '@/theme/use-shadows';
 import { easeOut } from '@/ui/motion/easing';
 import { haptic } from '@/ui/motion/haptics';
 
@@ -29,13 +29,16 @@ export function Toggle({
   label: string;
   testID?: string;
 }) {
+  // Couleurs lues hors du worklet puis capturées : un changement de thème recrée le style animé.
+  const { borderControl, primary, thumb: thumbColor } = useColors();
+  const shadow = useShadows();
   const on = useSharedValue(value ? 1 : 0);
   useEffect(() => {
     on.value = withTiming(value ? 1 : 0, { duration: 180, easing: easeOut });
   }, [value, on]);
 
   const track = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(on.value, [0, 1], [colors.borderControl, colors.primary]),
+    backgroundColor: interpolateColor(on.value, [0, 1], [borderControl, primary]),
   }));
   const thumb = useAnimatedStyle(() => ({ transform: [{ translateX: on.value * TRAVEL }] }));
 
@@ -54,7 +57,7 @@ export function Toggle({
       style={{ opacity: disabled ? 0.45 : 1 }}
     >
       <Animated.View style={[styles.track, track]}>
-        <Animated.View style={[styles.thumb, thumb]} />
+        <Animated.View style={[styles.thumb, { backgroundColor: thumbColor, boxShadow: shadow.sm }, thumb]} />
       </Animated.View>
     </Pressable>
   );
@@ -66,7 +69,5 @@ const styles = StyleSheet.create({
     width: THUMB,
     height: THUMB,
     borderRadius: THUMB / 2,
-    backgroundColor: colors.surface,
-    boxShadow: shadow.sm,
   },
 });

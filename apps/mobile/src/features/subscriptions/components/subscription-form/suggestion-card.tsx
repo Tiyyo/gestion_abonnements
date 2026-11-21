@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react-native';
 import { XStack, YStack } from 'tamagui';
 import type { Suggestion } from '@/features/enrich/suggestion';
 import { SubscriptionAvatar } from '@/features/subscriptions/components/subscription-avatar';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { ActionButton } from '@/ui/controls/action-button';
 import { Reveal } from '@/ui/motion/reveal';
 import { Card } from '@/ui/surfaces/card';
@@ -18,12 +18,13 @@ interface Props {
 }
 
 export function SuggestionCard({ suggestion, name, categoryName, onIgnore, onApply }: Props) {
+  const colors = useColors();
   return (
     <Reveal>
-      <Card gap="3" borderColor="primary">
+      <Card gap="3" borderColor="primaryText">
         <XStack gap="2" items="center">
-          <Sparkles color={colors.primary} size={16} />
-          <Overline color="primary">{SOURCE_LABELS[suggestion.source]}</Overline>
+          <Sparkles color={colors.primaryText} size={16} />
+          <Overline color="primaryText">{SOURCE_LABELS[suggestion.source]}</Overline>
         </XStack>
         <XStack gap="3" items="center">
           <SubscriptionAvatar name={name} iconKey={suggestion.iconKey} />

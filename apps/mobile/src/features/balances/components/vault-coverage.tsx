@@ -2,10 +2,11 @@ import { formatEuros } from '@abonnements/core';
 import { CircleCheck, TriangleAlert } from 'lucide-react-native';
 import { vaultShortfallCents } from '@/features/balances/balances-derivations';
 import { useBalances } from '@/features/balances/hooks/use-balances';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Notice } from './notice';
 
 export function VaultCoverage({ remainingCents }: { remainingCents: number }) {
+  const colors = useColors();
   const balances = useBalances();
   const data = balances.data;
   if (!data || remainingCents <= 0) {

@@ -1,5 +1,5 @@
 import Svg, { Path, Rect } from 'react-native-svg';
-import { colors as theme } from '@/theme/colors';
+import { colorSets } from '@/theme/colors';
 import mark from './sluis-mark.json';
 import { wavePath } from './splash-geometry';
 
@@ -7,9 +7,9 @@ const { box, walkway, wave, colors } = mark;
 
 /**
  * Marque Sluis immobile (portes d'écluse, passerelle, vagues), même géométrie que l'écran de démarrage.
- * `cutout` : couleur des écharpes des portes, à accorder au fond (par défaut le haut du dégradé du Hero).
+ * `cutout` : couleur des écharpes des portes, à accorder au fond (par défaut le haut du dégradé du Hero, identique dans les deux thèmes).
  */
-export function BrandMark({ size = 72, cutout = theme.heroFrom }: { size?: number; cutout?: string }) {
+export function BrandMark({ size = 72, cutout = colorSets.light.heroFrom }: { size?: number; cutout?: string }) {
   return (
     <Svg
       width={size}

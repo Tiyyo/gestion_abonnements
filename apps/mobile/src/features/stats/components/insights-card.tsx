@@ -1,7 +1,7 @@
 import { type LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react-native';
 import { XStack, YStack } from 'tamagui';
 import type { ChangeDirection, Insights } from '@/features/stats/trend-insights';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/use-colors';
 import { Card } from '@/ui/surfaces/card';
 import { KeyValue } from '@/ui/surfaces/key-value';
 import { Body, CardTitle } from '@/ui/text/typography';
@@ -10,6 +10,7 @@ const CHANGE_ICON: Record<ChangeDirection, LucideIcon> = { up: TrendingUp, down:
 
 /** Enseignements : coût annuel, écart avec le mois précédent (flèche et mots, sans code couleur), moyenne, plus cher. */
 export function InsightsCard({ insights }: { insights: Insights }) {
+  const colors = useColors();
   const { change } = insights;
   const ChangeIcon = change ? CHANGE_ICON[change.direction] : null;
   const rows = [

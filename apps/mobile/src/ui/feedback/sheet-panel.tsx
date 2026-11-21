@@ -4,8 +4,8 @@ import { Pressable, StyleSheet } from 'react-native';
 import Animated, { Easing, FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
-import { colors } from '@/theme/colors';
-import { shadow } from '@/theme/elevation';
+import { useColors } from '@/theme/use-colors';
+import { useShadows } from '@/theme/use-shadows';
 import { easeOut } from '@/ui/motion/easing';
 import { SHEET_ENTER_MS, SHEET_EXIT_MS } from './sheet-timing';
 
@@ -21,6 +21,8 @@ function useStableBottomInset() {
 
 export function SheetPanel({ onDismiss, dismissLabel, children }: { onDismiss: () => void; dismissLabel: string; children: ReactNode }) {
   const bottomInset = useStableBottomInset();
+  const colors = useColors();
+  const shadow = useShadows();
 
   return (
     <YStack flex={1} justify="flex-end">
@@ -35,7 +37,11 @@ export function SheetPanel({ onDismiss, dismissLabel, children }: { onDismiss: (
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
       >
-        <Pressable style={[StyleSheet.absoluteFill, styles.backdrop]} onPress={onDismiss} accessibilityLabel={dismissLabel} />
+        <Pressable
+          style={[StyleSheet.absoluteFill, { backgroundColor: colors.scrim }]}
+          onPress={onDismiss}
+          accessibilityLabel={dismissLabel}
+        />
       </Animated.View>
       <Animated.View
         style={styles.limit}
@@ -48,7 +54,7 @@ export function SheetPanel({ onDismiss, dismissLabel, children }: { onDismiss: (
           pt="3"
           gap="4"
           shrink={1}
-          style={[styles.sheet, { paddingBottom: bottomInset + 16 }]}
+          style={[styles.sheet, { paddingBottom: bottomInset + 16, boxShadow: shadow.sheet }]}
           accessibilityViewIsModal
         >
           <XStack justify="center">
@@ -62,11 +68,9 @@ export function SheetPanel({ onDismiss, dismissLabel, children }: { onDismiss: (
 }
 
 const styles = StyleSheet.create({
-  backdrop: { backgroundColor: colors.scrim },
   limit: { maxHeight: '88%' },
   sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    boxShadow: shadow.sheet,
   },
 });
