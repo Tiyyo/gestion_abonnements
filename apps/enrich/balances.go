@@ -1,6 +1,7 @@
 package enrich
 
 import (
+	"bytes"
 	"context"
 	"crypto"
 	"crypto/rand"
@@ -39,8 +40,45 @@ type PSU struct {
 	UserAgent string
 }
 
+// Target désigne la session Enable Banking et les deux comptes à lire. L'app les envoie à chaque requête
+// (elle les garde dans son coffre de clés) ; à défaut, ceux des variables d'environnement servent.
+type Target struct {
+	SessionID string
+	Current   string
+	Vault     string
+}
+
+func (t Target) empty() bool { return t.SessionID == "" && t.Current == "" && t.Vault == "" }
+
+func (t Target) complete() bool { return validID(t.SessionID) && validID(t.Current) && validID(t.Vault) }
+
+// validID : les identifiants finissent dans un chemin d'URL, seule la forme d'un UUID est acceptée.
+func validID(id string) bool {
+	if id == "" || len(id) > 64 {
+		return false
+	}
+	for _, c := range id {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '-') {
+			return false
+		}
+	}
+	return true
+}
+
 type Bank interface {
-	Balances(ctx context.Context, psu PSU) (Balances, error)
+	Balances(ctx context.Context, psu PSU, target Target) (Balances, error)
+}
+
+// BankError : refus d'Enable Banking. Seuls le statut et le code d'erreur sont gardés : ni chemin ni corps,
+// qui peuvent contenir un identifiant de session ou un code d'autorisation.
+type BankError struct {
+	Label  string
+	Status int
+	Code   string
+}
+
+func (e *BankError) Error() string {
+	return fmt.Sprintf("enable banking %s : %d %s", e.Label, e.Status, e.Code)
 }
 
 type EnableBanking struct {
@@ -52,6 +90,8 @@ type EnableBanking struct {
 	VaultAccount   string
 	Client         *http.Client
 	Now            func() time.Time
+	// ConsentDays : durée demandée pour un nouvel accord (180 jours à défaut, le maximum annoncé pour Revolut).
+	ConsentDays int
 }
 
 func ParsePrivateKey(raw string) (*rsa.PrivateKey, error) {
@@ -94,16 +134,28 @@ func (b *EnableBanking) token() (string, error) {
 	return unsigned + "." + base64.RawURLEncoding.EncodeToString(signature), nil
 }
 
-func (b *EnableBanking) get(ctx context.Context, path string, psu PSU, out any) error {
+// call envoie une requête signée. label nomme l'appel dans les erreurs, jamais le chemin (il porte des identifiants).
+func (b *EnableBanking) call(ctx context.Context, method, path, label string, psu PSU, in, out any) error {
 	token, err := b.token()
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, b.BaseURL+path, nil)
+	var payload io.Reader
+	if in != nil {
+		raw, err := json.Marshal(in)
+		if err != nil {
+			return err
+		}
+		payload = bytes.NewReader(raw)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, b.BaseURL+path, payload)
 	if err != nil {
-		return err
+		return fmt.Errorf("enable banking %s : requête invalide", label)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
+	if in != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	if psu.IP != "" {
 		req.Header.Set("Psu-Ip-Address", psu.IP)
 	}
@@ -112,35 +164,67 @@ func (b *EnableBanking) get(ctx context.Context, path string, psu PSU, out any) 
 	}
 	res, err := b.Client.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("enable banking %s : injoignable", label)
 	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
-	if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnprocessableEntity {
-		return fmt.Errorf("%w (%d %s)", ErrConsent, res.StatusCode, truncate(body))
-	}
+	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<18))
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("enable banking %s : %d %s", path, res.StatusCode, truncate(body))
+		return &BankError{Label: label, Status: res.StatusCode, Code: errorCode(body)}
 	}
-	return json.Unmarshal(body, out)
+	if err := json.Unmarshal(body, out); err != nil {
+		return fmt.Errorf("enable banking %s : réponse illisible", label)
+	}
+	return nil
 }
 
-func truncate(body []byte) string {
-	if len(body) > 200 {
-		return string(body[:200])
+// errorCode extrait le code texte d'une erreur Enable Banking (« EXPIRED_SESSION »…), et rien d'autre.
+func errorCode(body []byte) string {
+	var parsed struct {
+		Error string `json:"error"`
 	}
-	return string(body)
+	if json.Unmarshal(body, &parsed) != nil || len(parsed.Error) > 64 {
+		return ""
+	}
+	for _, c := range parsed.Error {
+		if !(c >= 'A' && c <= 'Z' || c == '_') {
+			return ""
+		}
+	}
+	return parsed.Error
+}
+
+func (b *EnableBanking) get(ctx context.Context, path, label string, psu PSU, out any) error {
+	err := b.call(ctx, http.MethodGet, path, label, psu, nil, out)
+	var refused *BankError
+	if errors.As(err, &refused) {
+		switch refused.Status {
+		case http.StatusUnauthorized, http.StatusForbidden, http.StatusUnprocessableEntity:
+			return fmt.Errorf("%w (%s : %d %s)", ErrConsent, label, refused.Status, refused.Code)
+		}
+	}
+	return err
+}
+
+// resolve rend la cible envoyée par l'app, ou celle des variables d'environnement si l'app n'en envoie pas.
+func (b *EnableBanking) resolve(target Target) (Target, error) {
+	if target.empty() {
+		target = Target{SessionID: b.SessionID, Current: b.CurrentAccount, Vault: b.VaultAccount}
+	}
+	if !target.complete() {
+		return Target{}, fmt.Errorf("%w (aucune session connue)", ErrConsent)
+	}
+	return target, nil
 }
 
 // consentValidUntil vérifie que la session est autorisée et rend la fin de l'accord.
-func (b *EnableBanking) consentValidUntil(ctx context.Context) (time.Time, error) {
+func (b *EnableBanking) consentValidUntil(ctx context.Context, sessionID string) (time.Time, error) {
 	var session struct {
 		Status string `json:"status"`
 		Access struct {
 			ValidUntil time.Time `json:"valid_until"`
 		} `json:"access"`
 	}
-	if err := b.get(ctx, "/sessions/"+b.SessionID, PSU{}, &session); err != nil {
+	if err := b.get(ctx, "/sessions/"+sessionID, "session", PSU{}, &session); err != nil {
 		return time.Time{}, err
 	}
 	if session.Status != "AUTHORIZED" || !session.Access.ValidUntil.After(b.Now()) {
@@ -149,16 +233,20 @@ func (b *EnableBanking) consentValidUntil(ctx context.Context) (time.Time, error
 	return session.Access.ValidUntil, nil
 }
 
-func (b *EnableBanking) Balances(ctx context.Context, psu PSU) (Balances, error) {
-	validUntil, err := b.consentValidUntil(ctx)
+func (b *EnableBanking) Balances(ctx context.Context, psu PSU, target Target) (Balances, error) {
+	target, err := b.resolve(target)
 	if err != nil {
 		return Balances{}, err
 	}
-	current, err := b.balance(ctx, b.CurrentAccount, psu)
+	validUntil, err := b.consentValidUntil(ctx, target.SessionID)
 	if err != nil {
 		return Balances{}, err
 	}
-	vault, err := b.balance(ctx, b.VaultAccount, psu)
+	current, err := b.balance(ctx, target.Current, psu)
+	if err != nil {
+		return Balances{}, err
+	}
+	vault, err := b.balance(ctx, target.Vault, psu)
 	if err != nil {
 		return Balances{}, err
 	}
@@ -177,7 +265,7 @@ func (b *EnableBanking) balance(ctx context.Context, uid string, psu PSU) (Money
 			} `json:"balance_amount"`
 		} `json:"balances"`
 	}
-	if err := b.get(ctx, "/accounts/"+uid+"/balances", psu, &res); err != nil {
+	if err := b.get(ctx, "/accounts/"+uid+"/balances", "soldes", psu, &res); err != nil {
 		return Money{}, err
 	}
 	if len(res.Balances) == 0 {
@@ -233,6 +321,23 @@ func psuFrom(r *http.Request) PSU {
 	return PSU{IP: strings.TrimSpace(ip), UserAgent: r.Header.Get("User-Agent")}
 }
 
+// En-têtes par lesquels l'app désigne sa session et ses deux comptes : tous les trois, ou aucun.
+const (
+	HeaderSession        = "X-Sluis-Session"
+	HeaderAccountCurrent = "X-Sluis-Account-Current"
+	HeaderAccountVault   = "X-Sluis-Account-Vault"
+)
+
+// targetFrom lit la cible désignée par l'app ; faux si elle n'envoie qu'une partie des trois en-têtes.
+func targetFrom(r *http.Request) (Target, bool) {
+	target := Target{
+		SessionID: r.Header.Get(HeaderSession),
+		Current:   r.Header.Get(HeaderAccountCurrent),
+		Vault:     r.Header.Get(HeaderAccountVault),
+	}
+	return target, target.empty() || target.complete()
+}
+
 type BalancesServer struct {
 	Secret  string
 	Bank    Bank
@@ -257,7 +362,12 @@ func (s *BalancesServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusTooManyRequests, "trop de requêtes")
 		return
 	}
-	result, err := s.Bank.Balances(r.Context(), psuFrom(r))
+	target, ok := targetFrom(r)
+	if !ok {
+		writeError(w, http.StatusBadRequest, "session ou comptes invalides")
+		return
+	}
+	result, err := s.Bank.Balances(r.Context(), psuFrom(r), target)
 	if errors.Is(err, ErrConsent) {
 		log.Printf("balances: %v", err)
 		writeError(w, http.StatusConflict, ErrConsent.Error())

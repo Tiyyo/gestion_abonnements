@@ -228,3 +228,41 @@ func TestTransactionsContractFixtures(t *testing.T) {
 		}
 	}
 }
+
+func TestTransactionsLitLaSessionEnvoyeeParLApp(t *testing.T) {
+	var paths []string
+	bank := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/sessions/sess-2" {
+			_ = json.NewEncoder(w).Encode(map[string]any{"status": "AUTHORIZED", "access": map[string]any{"valid_until": fixedNow.Add(24 * time.Hour)}})
+			return
+		}
+		_, _ = w.Write([]byte(`{"transactions":[]}`))
+	}))
+	defer bank.Close()
+	server := newTransactionsTestServer(t, bank.URL)
+
+	req := httptest.NewRequest(http.MethodGet, "/transactions?from=2026-11-10", nil)
+	req.Header.Set("Authorization", "Bearer s3cret")
+	req.Header.Set(HeaderSession, "sess-2")
+	req.Header.Set(HeaderAccountCurrent, "acc-new-current")
+	req.Header.Set(HeaderAccountVault, "acc-new-vault")
+	rec := httptest.NewRecorder()
+	server.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("statut %d : %s", rec.Code, rec.Body)
+	}
+	if len(paths) != 2 || paths[0] != "/sessions/sess-2" || paths[1] != "/accounts/acc-new-current/transactions" {
+		t.Errorf("appels inattendus : %v", paths)
+	}
+
+	partial := httptest.NewRequest(http.MethodGet, "/transactions?from=2026-11-10", nil)
+	partial.Header.Set("Authorization", "Bearer s3cret")
+	partial.Header.Set(HeaderSession, "sess-2")
+	rec = httptest.NewRecorder()
+	server.ServeHTTP(rec, partial)
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("session sans comptes : statut %d, 400 attendu", rec.Code)
+	}
+}

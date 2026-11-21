@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abonnements.local/contracts/consent.schema.json",
+  "title": "POST …/consent/start, GET …/consent/callback, POST …/consent/finish",
+  "description": "Renouvellement de l'accord Enable Banking depuis l'app. start et finish exigent « Authorization: Bearer <secret partagé> ». Le serveur ne garde rien : l'app conserve « state » le temps de l'aller-retour, puis la session et les comptes, qu'elle renvoie à GET …/balances dans les en-têtes X-Sluis-Session, X-Sluis-Account-Current et X-Sluis-Account-Vault (tous les trois ou aucun). callback n'est pas authentifié : la banque y renvoie le navigateur avec « code » et « state » (ou « error »), et la page renvoie vers le lien de retour choisi au départ avec les mêmes paramètres.",
+  "$defs": {
+    "startRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["returnUrl"],
+      "properties": {
+        "returnUrl": {
+          "description": "Lien profond vers lequel la page de retour renverra. Doit figurer dans la liste fermée du serveur : « abonnements://consent », plus ceux de CONSENT_RETURN_URLS. L'adresse donnée à la banque (EB_REDIRECT_URL) ne vient jamais de la requête.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "startResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "state"],
+      "properties": {
+        "url": { "description": "Page d'autorisation de la banque, à ouvrir dans le navigateur.", "type": "string", "format": "uri", "pattern": "^https://" },
+        "state": {
+          "description": "Rang du lien de retour, un point, puis 24 octets aléatoires en base64url. L'app refuse tout retour dont le « state » diffère.",
+          "type": "string",
+          "pattern": "^[0-9]{1,2}\\.[A-Za-z0-9_-]{32}$"
+        }
+      }
+    },
+    "finishRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code"],
+      "properties": {
+        "code": { "description": "Code d'autorisation reçu au retour de la banque.", "type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^[!-~]+$" }
+      }
+    },
+    "finishResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sessionId", "validUntil", "accounts"],
+      "properties": {
+        "sessionId": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" },
+        "validUntil": { "type": "string", "format": "date-time" },
+        "accounts": {
+          "description": "Comptes lisibles de la session. Les champs inconnus de la banque sont des chaînes vides.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["uid", "name", "ibanTail", "currency", "product", "cashAccountType", "identificationHash"],
+            "properties": {
+              "uid": { "description": "Identifiant du compte, valable le temps de la session.", "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" },
+              "name": { "type": "string", "maxLength": 80 },
+              "ibanTail": { "description": "Quatre derniers caractères de l'IBAN, ou vide.", "type": "string", "maxLength": 4 },
+              "currency": { "type": "string", "maxLength": 3 },
+              "product": { "type": "string", "maxLength": 80 },
+              "cashAccountType": { "description": "Code ISO 20022 (CACC compte courant, SVGS épargne…), ou vide.", "type": "string", "maxLength": 4 },
+              "identificationHash": { "description": "Empreinte stable du compte d'une session à l'autre : sert à retrouver les comptes déjà choisis.", "type": "string", "maxLength": 128 }
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "description": "Réponse d'erreur de start (400, 502, 503) et de finish (400, 410, 502, 503). 401, 405 et 429 n'ont que « error ».",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": {
+        "error": { "type": "string" },
+        "code": { "enum": ["bad_request", "return_not_allowed", "not_configured", "redirect_not_allowed", "code_expired", "bank_unavailable"] }
+      }
+    }
+  }
+}

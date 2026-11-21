@@ -40,9 +40,25 @@ describe('contrat /transactions', () => {
 });
 
 describe('fetchTransactions', () => {
+  it('désigne la session renouvelée depuis l’app', async () => {
+    const fetchImpl = respond(200, full);
+    await fetchTransactions(config, '2026-11-10', { sessionId: 'sess-2', currentUid: 'acc-c', vaultUid: 'acc-v' }, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: {
+          Authorization: 'Bearer s3cret',
+          'X-Sluis-Session': 'sess-2',
+          'X-Sluis-Account-Current': 'acc-c',
+          'X-Sluis-Account-Vault': 'acc-v',
+        },
+      }),
+    );
+  });
+
   it('appelle la route avec la date de début et le secret', async () => {
     const fetchImpl = respond(200, full);
-    const result = await fetchTransactions(config, '2026-11-10', fetchImpl);
+    const result = await fetchTransactions(config, '2026-11-10', null, fetchImpl);
     expect(result.transactions).toHaveLength(full.transactions.length);
     expect(fetchImpl).toHaveBeenCalledWith(
       'https://fn.example/transactions?from=2026-11-10',
@@ -51,11 +67,15 @@ describe('fetchTransactions', () => {
   });
 
   it('signale un accord expiré', async () => {
-    await expect(fetchTransactions(config, '2026-11-10', respond(409, { error: 'accord' }))).rejects.toBeInstanceOf(ConsentExpiredError);
+    await expect(fetchTransactions(config, '2026-11-10', null, respond(409, { error: 'accord' }))).rejects.toBeInstanceOf(
+      ConsentExpiredError,
+    );
   });
 
   it('échoue sur une erreur serveur ou une réponse hors contrat', async () => {
-    await expect(fetchTransactions(config, '2026-11-10', respond(502, { error: 'x' }))).rejects.toThrow('mouvements indisponibles (502)');
-    await expect(fetchTransactions(config, '2026-11-10', respond(200, { transactions: [] }))).rejects.toThrow();
+    await expect(fetchTransactions(config, '2026-11-10', null, respond(502, { error: 'x' }))).rejects.toThrow(
+      'mouvements indisponibles (502)',
+    );
+    await expect(fetchTransactions(config, '2026-11-10', null, respond(200, { transactions: [] }))).rejects.toThrow();
   });
 });

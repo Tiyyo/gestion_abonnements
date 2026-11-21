@@ -3,6 +3,7 @@ import { readBalancesConfig } from '@/config/function-config';
 import { ConsentExpiredError } from '@/features/balances/consent-expired-error';
 import { fetchBalances } from '@/features/balances/fetch-balances';
 import { balancesKey } from '@/features/balances/query-keys';
+import { loadBankLink } from '@/features/consent/link-store';
 
 export function useBalances() {
   const config = readBalancesConfig();
@@ -12,7 +13,7 @@ export function useBalances() {
       if (!config) {
         throw new Error('connexion non configurée');
       }
-      return fetchBalances(config);
+      return loadBankLink().then((link) => fetchBalances(config, link));
     },
     enabled: !!config,
     staleTime: 10 * 60 * 1000,
