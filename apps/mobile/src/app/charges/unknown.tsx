@@ -1,5 +1,5 @@
 import { todayIn } from '@abonnements/core';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { CalendarDays } from 'lucide-react-native';
 import { ScrollView, YStack } from 'tamagui';
 import { pickDebitDate } from '@/features/charges/pick-debit-date';
@@ -17,9 +17,10 @@ import { SheetScreen } from '@/ui/surfaces/sheet-screen';
 
 export default function UnknownDebitScreen() {
   const today = todayIn();
-  const form = useUnknownDebitForm(today);
+  const params = useLocalSearchParams<{ name?: string; amount?: string; date?: string; tx?: string }>();
+  const form = useUnknownDebitForm(today, params);
   const guard = useDiscardGuard(form.dirty, 'Le prélèvement que tu as saisi ne sera pas enregistré.');
-  const record = useRecordUnknownDebit(guard);
+  const record = useRecordUnknownDebit(guard, params.tx);
 
   return (
     <SheetScreen>

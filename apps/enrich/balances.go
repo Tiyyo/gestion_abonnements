@@ -115,7 +115,7 @@ func (b *EnableBanking) get(ctx context.Context, path string, psu PSU, out any) 
 		return err
 	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<16))
+	body, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
 	if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnprocessableEntity {
 		return fmt.Errorf("%w (%d %s)", ErrConsent, res.StatusCode, truncate(body))
 	}
@@ -132,7 +132,8 @@ func truncate(body []byte) string {
 	return string(body)
 }
 
-func (b *EnableBanking) Balances(ctx context.Context, psu PSU) (Balances, error) {
+// consentValidUntil vérifie que la session est autorisée et rend la fin de l'accord.
+func (b *EnableBanking) consentValidUntil(ctx context.Context) (time.Time, error) {
 	var session struct {
 		Status string `json:"status"`
 		Access struct {
@@ -140,10 +141,18 @@ func (b *EnableBanking) Balances(ctx context.Context, psu PSU) (Balances, error)
 		} `json:"access"`
 	}
 	if err := b.get(ctx, "/sessions/"+b.SessionID, PSU{}, &session); err != nil {
-		return Balances{}, err
+		return time.Time{}, err
 	}
 	if session.Status != "AUTHORIZED" || !session.Access.ValidUntil.After(b.Now()) {
-		return Balances{}, fmt.Errorf("%w (statut %s)", ErrConsent, session.Status)
+		return time.Time{}, fmt.Errorf("%w (statut %s)", ErrConsent, session.Status)
+	}
+	return session.Access.ValidUntil, nil
+}
+
+func (b *EnableBanking) Balances(ctx context.Context, psu PSU) (Balances, error) {
+	validUntil, err := b.consentValidUntil(ctx)
+	if err != nil {
+		return Balances{}, err
 	}
 	current, err := b.balance(ctx, b.CurrentAccount, psu)
 	if err != nil {
@@ -153,7 +162,7 @@ func (b *EnableBanking) Balances(ctx context.Context, psu PSU) (Balances, error)
 	if err != nil {
 		return Balances{}, err
 	}
-	return Balances{Current: current, Vault: vault, ConsentValidUntil: session.Access.ValidUntil, FetchedAt: b.Now().UTC()}, nil
+	return Balances{Current: current, Vault: vault, ConsentValidUntil: validUntil, FetchedAt: b.Now().UTC()}, nil
 }
 
 var balancePreference = []string{"ITAV", "CLAV", "ITBD", "CLBD", "XPCD"}
@@ -218,6 +227,12 @@ func ParseCents(amount string) (int64, error) {
 	return cents, nil
 }
 
+// psuFrom relaie l'adresse et l'agent de l'app : la lecture compte comme « utilisateur présent ».
+func psuFrom(r *http.Request) PSU {
+	ip, _, _ := strings.Cut(r.Header.Get("X-Forwarded-For"), ",")
+	return PSU{IP: strings.TrimSpace(ip), UserAgent: r.Header.Get("User-Agent")}
+}
+
 type BalancesServer struct {
 	Secret  string
 	Bank    Bank
@@ -242,8 +257,7 @@ func (s *BalancesServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusTooManyRequests, "trop de requêtes")
 		return
 	}
-	ip, _, _ := strings.Cut(r.Header.Get("X-Forwarded-For"), ",")
-	result, err := s.Bank.Balances(r.Context(), PSU{IP: strings.TrimSpace(ip), UserAgent: r.Header.Get("User-Agent")})
+	result, err := s.Bank.Balances(r.Context(), psuFrom(r))
 	if errors.Is(err, ErrConsent) {
 		log.Printf("balances: %v", err)
 		writeError(w, http.StatusConflict, ErrConsent.Error())

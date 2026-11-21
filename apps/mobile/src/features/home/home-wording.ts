@@ -31,6 +31,12 @@ export function trialBody(trial: PlanTrial): string {
 }
 
 export function reviewCaption(review: HomeReview): string {
+  if (review.bank?.kind === 'debit') {
+    return `Débit de ${formatEuros(review.bank.amountCents)} vu le ${dateShort(review.bank.date)} · à confirmer`;
+  }
+  if (review.bank?.kind === 'no_debit') {
+    return `Prévu le ${dateShort(review.dueDate)} · aucun débit vu, échoué ?`;
+  }
   return `Prévu le ${dateShort(review.dueDate)} · ${review.wanted ? 'passé ou échoué ?' : 'non financé, a-t-il échoué ?'}`;
 }
 

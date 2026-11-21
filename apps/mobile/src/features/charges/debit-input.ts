@@ -13,8 +13,11 @@ export function defaultDebitDate(dueDate: string, today: string): string {
 }
 
 /** Prélèvement inconnu : une saisie est en cours dès qu'un nom ou un montant est tapé, ou que la date proposée a changé. */
-export function isUnknownDebitDirty(form: { name: string; amount: string; date: string }, initialDate: string): boolean {
-  return form.name.trim() !== '' || form.amount.trim() !== '' || form.date !== initialDate;
+export function isUnknownDebitDirty(
+  form: { name: string; amount: string; date: string },
+  initial: { name: string; amount: string; date: string },
+): boolean {
+  return form.name.trim() !== initial.name.trim() || form.amount.trim() !== initial.amount.trim() || form.date !== initial.date;
 }
 
 /** Rapprochement : une saisie est en cours dès que le montant ou la date diffère de ce que l'écran proposait. */

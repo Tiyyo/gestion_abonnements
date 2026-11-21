@@ -17,7 +17,11 @@ export const EXPORTED_TABLES = [
   'ai_correction',
 ] as const;
 
+/** Tables ajoutées après le premier format d'export : absentes des anciens fichiers. */
+export const OPTIONAL_TABLES = ['bank_transaction'] as const;
+
 type ExportedTable = (typeof EXPORTED_TABLES)[number];
+type OptionalTable = (typeof OPTIONAL_TABLES)[number];
 
 const MIGRATION_NAMES = Object.keys(migrations).sort();
 export const LATEST_MIGRATION = MIGRATION_NAMES[MIGRATION_NAMES.length - 1] ?? '';
@@ -29,7 +33,13 @@ export const exportSchema = z.object({
   migration: z.string(),
   exportedAt: z.string(),
   tables: z
-    .object(Object.fromEntries(EXPORTED_TABLES.map((t) => [t, z.array(record)])) as Record<ExportedTable, z.ZodArray<typeof record>>)
+    .object({
+      ...(Object.fromEntries(EXPORTED_TABLES.map((t) => [t, z.array(record)])) as Record<ExportedTable, z.ZodArray<typeof record>>),
+      ...(Object.fromEntries(OPTIONAL_TABLES.map((t) => [t, z.array(record).optional()])) as Record<
+        OptionalTable,
+        z.ZodOptional<z.ZodArray<typeof record>>
+      >),
+    })
     .strict(),
 });
 
@@ -39,7 +49,7 @@ export class ImportError extends Error {}
 
 export async function exportData(db: Kysely<DB>): Promise<ExportFile> {
   const tables = {} as ExportFile['tables'];
-  for (const table of EXPORTED_TABLES) {
+  for (const table of [...EXPORTED_TABLES, ...OPTIONAL_TABLES]) {
     tables[table] = (await sql<Record<string, string | number | null>>`SELECT * FROM ${sql.table(table)}`.execute(db)).rows;
   }
   return { format: EXPORT_FORMAT, migration: LATEST_MIGRATION, exportedAt: new Date().toISOString(), tables };
@@ -82,8 +92,8 @@ async function replaceWith(db: Kysely<DB>, file: ExportFile): Promise<void> {
   await db.transaction().execute(async (trx) => {
     await sql`DELETE FROM category`.execute(trx);
     await sql`DELETE FROM settings`.execute(trx);
-    for (const table of EXPORTED_TABLES) {
-      for (const row of file.tables[table]) {
+    for (const table of [...EXPORTED_TABLES, ...OPTIONAL_TABLES]) {
+      for (const row of file.tables[table] ?? []) {
         const columns = Object.keys(row);
         if (columns.length === 0) {
           continue;

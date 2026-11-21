@@ -9,7 +9,8 @@ export function useReviewCharge() {
   const db = useDb();
   const invalidate = useInvalidateAll();
   return useMutation({
-    mutationFn: ({ chargeId, answer }: { chargeId: string; answer: ReviewAnswer }) => reviewCharge(db, chargeId, answer, todayIn(), newId),
+    mutationFn: ({ chargeId, answer, bankTransactionId }: { chargeId: string; answer: ReviewAnswer; bankTransactionId?: string }) =>
+      reviewCharge(db, chargeId, answer, todayIn(), newId, bankTransactionId),
     onSuccess: invalidate,
   });
 }

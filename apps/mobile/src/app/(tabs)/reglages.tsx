@@ -2,8 +2,10 @@ import Constants from 'expo-constants';
 import { useIsFocused } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, Spinner, YStack } from 'tamagui';
+import { readTransactionsConfig } from '@/config/function-config';
 import { readEnrichConfig } from '@/features/enrich/enrich-client';
 import { AiSuggestionSection } from '@/features/settings/components/ai-suggestion-section';
+import { BankSyncSection } from '@/features/settings/components/bank-sync-section';
 import { BatteryOptimizationCard } from '@/features/settings/components/battery-optimization-card';
 import { RemindersSection } from '@/features/settings/components/reminders-section';
 import { SecurityDataSection } from '@/features/settings/components/security-data-section';
@@ -42,6 +44,8 @@ export default function SettingsScreen() {
   const remindersOn = s.reminders_enabled === 1;
   const enrichIncluded = readEnrichConfig() !== null;
   const aiOn = enrichIncluded && s.ai_suggestion_enabled === 1;
+  const reconcileIncluded = readTransactionsConfig() !== null;
+  const reconcileOn = reconcileIncluded && s.auto_reconcile_enabled === 1;
 
   return (
     <YStack flex={1} bg="background">
@@ -60,6 +64,8 @@ export default function SettingsScreen() {
               notificationsAllowed={notifications.allowed}
               enrichIncluded={enrichIncluded}
               aiOn={aiOn}
+              reconcileOn={reconcileOn}
+              syncedThrough={s.bank_sync_through}
             />
           </YStack>
         </Hero>
@@ -74,6 +80,7 @@ export default function SettingsScreen() {
             notificationsAllowed={notifications.allowed}
             onAuthorize={notifications.authorize}
           />
+          <BankSyncSection included={reconcileIncluded} on={reconcileOn} save={save} />
           <AiSuggestionSection enrichIncluded={enrichIncluded} aiOn={aiOn} save={save} />
           <SecurityDataSection settings={s} save={save} />
           <Caption text="center">{`Sluis ${Constants.expoConfig?.version ?? ''}`}</Caption>

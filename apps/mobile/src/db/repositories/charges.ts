@@ -1,5 +1,6 @@
 import type { Kysely } from 'kysely';
 import type { DB } from '@/db/types';
+import { bankHintFor, loadBankContext } from './bank-transactions';
 
 /** Prélèvements à venir déjà financés d'un abonnement (prévenir avant de modifier son échéancier). */
 export async function fundedFutureCharges(db: Kysely<DB>, subscriptionId: string, today: string) {
@@ -14,7 +15,7 @@ export async function fundedFutureCharges(db: Kysely<DB>, subscriptionId: string
     .execute();
 }
 
-/** Prélèvement à rapprocher, avec le nom et l'état de son abonnement (null s'il n'existe plus). */
+/** Prélèvement à rapprocher, avec le nom et l'état de son abonnement et ce qu'en dit la banque (null s'il n'existe plus). */
 export async function chargeToReview(db: Kysely<DB>, chargeId: string) {
   const row = await db
     .selectFrom('charge')
@@ -23,5 +24,5 @@ export async function chargeToReview(db: Kysely<DB>, chargeId: string) {
     .select(['subscription.name', 'subscription.status as subscription_status'])
     .where('charge.id', '=', chargeId)
     .executeTakeFirst();
-  return row ?? null;
+  return row ? { ...row, bankHint: bankHintFor(await loadBankContext(db), row) } : null;
 }

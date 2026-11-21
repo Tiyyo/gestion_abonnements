@@ -1,4 +1,4 @@
-import { dateShortYear } from '@/lib/dates';
+import { dateShort, dateShortYear } from '@/lib/dates';
 
 export type ServiceState = 'ok' | 'off' | 'warn';
 
@@ -17,6 +17,19 @@ export function remindersStatus(remindersOn: boolean, notificationsAllowed: bool
     return { state: 'off', status: 'coupés' };
   }
   return notificationsAllowed === false ? { state: 'warn', status: 'autorisation Android requise' } : { state: 'ok', status: 'activés' };
+}
+
+/** Rapprochement automatique : `syncedThrough` est le jour de la dernière lecture complète du compte. */
+export function reconcileStatus(included: boolean, on: boolean, syncedThrough: string | null): ServiceStatus {
+  if (!included) {
+    return { state: 'off', status: 'non inclus' };
+  }
+  if (!on) {
+    return { state: 'off', status: 'coupé' };
+  }
+  return syncedThrough
+    ? { state: 'ok', status: `compte relu le ${dateShort(syncedThrough)}` }
+    : { state: 'off', status: 'pas encore relu' };
 }
 
 export function aiSuggestionStatus(enrichIncluded: boolean, aiOn: boolean): ServiceStatus {

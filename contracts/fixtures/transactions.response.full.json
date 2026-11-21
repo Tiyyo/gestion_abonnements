@@ -1,0 +1,47 @@
+{
+  "from": "2026-11-10",
+  "complete": true,
+  "transactions": [
+    {
+      "id": "rev-001",
+      "bookingDate": "2026-11-12",
+      "amountCents": 1349,
+      "currency": "EUR",
+      "direction": "debit",
+      "status": "booked",
+      "label": "Netflix",
+      "remittance": "NETFLIX.COM 866-579-7172"
+    },
+    {
+      "id": "rev-002",
+      "bookingDate": "2026-11-11",
+      "amountCents": 1380,
+      "currency": "EUR",
+      "direction": "credit",
+      "status": "booked",
+      "label": "Steeve",
+      "remittance": "From EUR Coffre"
+    },
+    {
+      "id": "h-54768090001c4283d442fa32b0bdd473",
+      "bookingDate": "2026-11-19",
+      "amountCents": 299,
+      "currency": "EUR",
+      "direction": "debit",
+      "status": "pending",
+      "label": "APPLE.COM/BILL",
+      "remittance": null
+    },
+    {
+      "id": "h-ab38f72ff4aa1d0fe1e1e0af69bf8c6f",
+      "bookingDate": "2026-11-19",
+      "amountCents": 299,
+      "currency": "EUR",
+      "direction": "debit",
+      "status": "pending",
+      "label": "APPLE.COM/BILL",
+      "remittance": null
+    }
+  ],
+  "fetchedAt": "2026-11-19T15:00:00Z"
+}

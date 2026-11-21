@@ -3,12 +3,14 @@ import * as m001 from './001-init';
 import * as m002 from './002-transfer-rescheduled';
 import * as m003 from './003-settings-onboarding';
 import * as m004 from './004-settings-toggles';
+import * as m005 from './005-bank-sync';
 
 export const migrations: Record<string, Migration> = {
   '001_init': m001,
   '002_transfer_rescheduled': m002,
   '003_settings_onboarding': m003,
   '004_settings_toggles': m004,
+  '005_bank_sync': m005,
 };
 
 export const migrationProvider: MigrationProvider = {

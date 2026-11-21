@@ -71,12 +71,24 @@ describe('export / import', () => {
   it('importe un fichier d’une migration plus ancienne puis remonte à la dernière', async () => {
     const source = await seeded();
     const file = await exportData(source);
+    const { bank_transaction: _bank, ...tables } = file.tables;
     const old = {
       ...file,
       migration: '001_init',
       tables: {
-        ...file.tables,
-        settings: file.tables.settings.map(({ onboarding_done: _o, reminders_enabled: _r, ai_suggestion_enabled: _a, ...rest }) => rest),
+        ...tables,
+        settings: file.tables.settings.map(
+          ({
+            onboarding_done: _o,
+            reminders_enabled: _r,
+            ai_suggestion_enabled: _a,
+            auto_reconcile_enabled: _b,
+            bank_sync_from: _f,
+            bank_sync_through: _t,
+            bank_sync_at: _s,
+            ...rest
+          }) => rest,
+        ),
         transfer: file.tables.transfer.map(({ rescheduled_date: _r, ...rest }) => rest),
       },
     };
@@ -88,6 +100,26 @@ describe('export / import', () => {
       reminders_enabled: 1,
       ai_suggestion_enabled: 1,
     });
+    expect(await target.selectFrom('settings').select(['auto_reconcile_enabled', 'bank_sync_through']).executeTakeFirst()).toEqual({
+      auto_reconcile_enabled: 1,
+      bank_sync_through: null,
+    });
+  });
+
+  it('conserve les mouvements bancaires déjà traités, pour ne pas les appliquer deux fois après un import', async () => {
+    const source = await seeded();
+    await source
+      .insertInto('bank_transaction')
+      .values({ id: 'rev-001', booking_date: '2026-11-12', amount_cents: 1349, label: 'Netflix', outcome: 'dismissed' })
+      .execute();
+    await source.updateTable('settings').set({ bank_sync_from: '2026-11-10', bank_sync_through: '2026-11-17' }).execute();
+
+    const target = await freshDb();
+    await importData(target, parseExport(JSON.stringify(await exportData(source))), await exportData(target));
+    expect(await target.selectFrom('bank_transaction').select(['id', 'outcome']).execute()).toEqual([
+      { id: 'rev-001', outcome: 'dismissed' },
+    ]);
+    expect(await target.selectFrom('settings').select('bank_sync_through').executeTakeFirst()).toEqual({ bank_sync_through: '2026-11-17' });
   });
 
   it('refuse un fichier invalide ou plus récent que l’app, sans toucher à la base', () => {

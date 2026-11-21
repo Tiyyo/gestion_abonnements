@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { Kysely, SqliteDialect } from 'kysely';
+import { Migrator, NO_MIGRATIONS } from 'kysely/migration';
 import { initDb } from '@/db/client';
 import type { DB } from '@/db/types';
 
@@ -144,8 +145,8 @@ describe('migration 001_init', () => {
 
   it('supporte le retour arrière', async () => {
     const { migrationProvider } = await import('@/db/migrations');
-    const migrations = await migrationProvider.getMigrations();
-    await migrations['001_init'].down!(db);
+    const { error } = await new Migrator({ db, provider: migrationProvider }).migrateTo(NO_MIGRATIONS);
+    expect(error).toBeUndefined();
     const tables = await db
       .selectFrom('sqlite_master' as never)
       .select('name' as never)

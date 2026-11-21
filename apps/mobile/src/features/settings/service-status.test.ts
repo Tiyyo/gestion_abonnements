@@ -1,4 +1,4 @@
-import { aiSuggestionStatus, remindersStatus, revolutStatus } from './service-status';
+import { aiSuggestionStatus, reconcileStatus, remindersStatus, revolutStatus } from './service-status';
 
 describe('revolutStatus', () => {
   it('affiche la date de fin de l’accord', () => {
@@ -22,6 +22,18 @@ describe('remindersStatus', () => {
   it('considère les rappels activés tant que l’autorisation n’est pas lue', () => {
     expect(remindersStatus(true, null)).toEqual({ state: 'ok', status: 'activés' });
     expect(remindersStatus(true, true)).toEqual({ state: 'ok', status: 'activés' });
+  });
+});
+
+describe('reconcileStatus', () => {
+  it('indique un service non inclus ou coupé', () => {
+    expect(reconcileStatus(false, true, null)).toEqual({ state: 'off', status: 'non inclus' });
+    expect(reconcileStatus(true, false, '2026-11-20')).toEqual({ state: 'off', status: 'coupé' });
+  });
+
+  it('donne le jour de la dernière lecture du compte', () => {
+    expect(reconcileStatus(true, true, null)).toEqual({ state: 'off', status: 'pas encore relu' });
+    expect(reconcileStatus(true, true, '2026-11-20')).toEqual({ state: 'ok', status: 'compte relu le 20\u00a0nov.' });
   });
 });
 

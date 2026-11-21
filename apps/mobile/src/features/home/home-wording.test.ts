@@ -75,9 +75,25 @@ describe('libellés de l’Accueil', () => {
   });
 
   it('pose la bonne question sur un prélèvement à vérifier', () => {
-    const review = { chargeId: 'c1', subscriptionId: 's1', name: 'Netflix', dueDate: '2026-11-18', expectedAmountCents: 1399 };
+    const review = { chargeId: 'c1', subscriptionId: 's1', name: 'Netflix', dueDate: '2026-11-18', expectedAmountCents: 1399, bank: null };
     expect(reviewCaption({ ...review, wanted: true })).toMatch(/passé ou échoué \?$/);
     expect(reviewCaption({ ...review, wanted: false })).toMatch(/non financé, a-t-il échoué \?$/);
+  });
+
+  it('reprend ce que la banque a vu pour un prélèvement à vérifier', () => {
+    const review = {
+      chargeId: 'c1',
+      subscriptionId: 's1',
+      name: 'Netflix',
+      dueDate: '2026-11-18',
+      expectedAmountCents: 1399,
+      wanted: true,
+    };
+    const debit = { kind: 'debit' as const, transactionId: 't1', amountCents: 1499, date: '2026-11-19', label: 'NETFLIX.COM' };
+    expect(reviewCaption({ ...review, bank: debit })).toBe(`Débit de ${formatEuros(1499)} vu le 19\u00a0nov. · à confirmer`);
+    expect(reviewCaption({ ...review, bank: { kind: 'no_debit', through: '2026-11-25' } })).toBe(
+      'Prévu le 18\u00a0nov. · aucun débit vu, échoué ?',
+    );
   });
 
   it('résume le financement d’un prochain prélèvement', () => {

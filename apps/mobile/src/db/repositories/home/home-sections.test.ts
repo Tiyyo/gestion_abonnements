@@ -1,4 +1,5 @@
 import { RETRY_NOTE } from '@/db/reconcile/retry-note';
+import type { BankContext } from '@/db/repositories/bank-transactions';
 import type { PlanTransfer } from '@/db/repositories/plan/types';
 import { chargesToReview } from './reviews';
 import type { HomeChargeRow, HomeQuestion } from './types';
@@ -22,6 +23,7 @@ const charge = (id: string, dueDate: string, status: HomeChargeRow['status']): H
 });
 
 const today = '2026-11-20';
+const noBank: BankContext = { coverage: null, suggestions: new Map(), unexpected: [] };
 
 describe('chargesToReview', () => {
   const charges = [
@@ -42,12 +44,37 @@ describe('chargesToReview', () => {
   const postponed = JSON.stringify({ kind: RETRY_NOTE, chargeId: 'reporte', reviewAgainOn: '2026-11-22' });
 
   it('garde les échéances passées, hors questions et reports', () => {
-    expect(chargesToReview(charges, [question], [postponed], today).map((r) => r.chargeId)).toEqual(['passe']);
+    expect(chargesToReview(charges, [question], [postponed], today, noBank).map((r) => r.chargeId)).toEqual(['passe']);
   });
 
   it('signale un prélèvement non voulu', () => {
-    const [review] = chargesToReview([charges[1]], [], [], today);
-    expect(review).toMatchObject({ chargeId: 'essai', wanted: false, expectedAmountCents: 1000 });
+    const [review] = chargesToReview([charges[1]], [], [], today, noBank);
+    expect(review).toMatchObject({ chargeId: 'essai', wanted: false, expectedAmountCents: 1000, bank: null });
+  });
+
+  it('montre tout de suite un prélèvement dont la banque a vu le débit, même reporté ou pas encore échu', () => {
+    const hint = (transactionId: string) => ({ kind: 'debit' as const, transactionId, amountCents: 1000, date: '2026-11-19', label: 'X' });
+    const bank: BankContext = {
+      coverage: null,
+      suggestions: new Map([
+        ['reporte', hint('t1')],
+        ['aujourdhui', hint('t2')],
+        ['essai', hint('t3')],
+      ]),
+      unexpected: [],
+    };
+    const reviews = chargesToReview(charges, [question], [postponed], today, bank);
+    expect(reviews.map((r) => [r.chargeId, r.bank?.kind])).toEqual([
+      ['passe', undefined],
+      ['reporte', 'debit'],
+      ['aujourdhui', 'debit'],
+    ]);
+  });
+
+  it('suggère l’échec quand la fenêtre du prélèvement a été relue sans débit', () => {
+    const bank: BankContext = { coverage: { from: '2026-11-01', through: '2026-11-22' }, suggestions: new Map(), unexpected: [] };
+    const [review] = chargesToReview([charges[0]], [], [], '2026-11-22', bank);
+    expect(review?.bank).toEqual({ kind: 'no_debit', through: '2026-11-22' });
   });
 });
 

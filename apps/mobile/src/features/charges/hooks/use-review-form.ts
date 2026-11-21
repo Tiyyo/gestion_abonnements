@@ -3,9 +3,16 @@ import { defaultDebitDate, isReviewDirty, isValidAmountInput } from '@/features/
 import type { ChargeToReview } from '@/features/charges/types';
 import { centsToInput, parseAmountCents } from '@/features/subscriptions/subscription-form-schema';
 
-/** Saisie du rapprochement, initialisée depuis le prélèvement (le parent remonte le formulaire par `key` à chaque prélèvement). */
+/**
+ * Saisie du rapprochement, initialisée depuis le débit vu par la banque s'il y en a un, sinon depuis le prélèvement
+ * (le parent remonte le formulaire par `key` à chaque prélèvement).
+ */
 export function useReviewForm(row: ChargeToReview, today: string) {
-  const [initial] = useState(() => ({ amount: centsToInput(row.expected_amount_cents), date: defaultDebitDate(row.due_date, today) }));
+  const seen = row.bankHint?.kind === 'debit' ? row.bankHint : null;
+  const [initial] = useState(() => ({
+    amount: centsToInput(seen?.amountCents ?? row.expected_amount_cents),
+    date: defaultDebitDate(seen?.date ?? row.due_date, today),
+  }));
   const [amount, setAmount] = useState(initial.amount);
   const [date, setDate] = useState(initial.date);
   const validAmount = isValidAmountInput(amount);
