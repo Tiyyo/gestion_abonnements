@@ -266,3 +266,19 @@ func TestTransactionsLitLaSessionEnvoyeeParLApp(t *testing.T) {
 		t.Errorf("session sans comptes : statut %d, 400 attendu", rec.Code)
 	}
 }
+
+func TestTransactionsSeLitSansCoffreConfigure(t *testing.T) {
+	calls := &bankCalls{}
+	bank := fakeTransactionsBank(t, calls, map[string]string{"": `{"transactions":[]}`}, "AUTHORIZED")
+	defer bank.Close()
+	server := newTransactionsTestServer(t, bank.URL)
+	server.Bank.(*EnableBanking).VaultAccount = ""
+
+	rec := getTransactions(server, "Bearer s3cret", "?from=2026-11-10")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sans EB_ACCOUNT_VAULT : statut %d : %s", rec.Code, rec.Body)
+	}
+	if len(calls.queries) != 1 {
+		t.Errorf("appels aux mouvements : %v", calls.queries)
+	}
+}

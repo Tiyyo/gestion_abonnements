@@ -128,7 +128,7 @@ func normalize(raw ebTransaction, seen map[string]int) (Transaction, bool) {
 
 // Transactions lit les mouvements du compte principal depuis `from` (AAAA-MM-JJ), toutes pages confondues.
 func (b *EnableBanking) Transactions(ctx context.Context, psu PSU, target Target, from string) (Transactions, error) {
-	target, err := b.resolve(target)
+	target, err := b.resolve(target, Target.readsCurrent)
 	if err != nil {
 		return Transactions{}, err
 	}

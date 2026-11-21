@@ -52,6 +52,9 @@ func (t Target) empty() bool { return t.SessionID == "" && t.Current == "" && t.
 
 func (t Target) complete() bool { return validID(t.SessionID) && validID(t.Current) && validID(t.Vault) }
 
+// readsCurrent : assez pour lire les mouvements du compte principal, le coffre n'y sert pas.
+func (t Target) readsCurrent() bool { return validID(t.SessionID) && validID(t.Current) }
+
 // validID : les identifiants finissent dans un chemin d'URL, seule la forme d'un UUID est acceptée.
 func validID(id string) bool {
 	if id == "" || len(id) > 64 {
@@ -206,11 +209,12 @@ func (b *EnableBanking) get(ctx context.Context, path, label string, psu PSU, ou
 }
 
 // resolve rend la cible envoyée par l'app, ou celle des variables d'environnement si l'app n'en envoie pas.
-func (b *EnableBanking) resolve(target Target) (Target, error) {
+// `usable` dit ce que la lecture demande : les trois identifiants pour les soldes, session et compte principal pour les mouvements.
+func (b *EnableBanking) resolve(target Target, usable func(Target) bool) (Target, error) {
 	if target.empty() {
 		target = Target{SessionID: b.SessionID, Current: b.CurrentAccount, Vault: b.VaultAccount}
 	}
-	if !target.complete() {
+	if !usable(target) {
 		return Target{}, fmt.Errorf("%w (aucune session connue)", ErrConsent)
 	}
 	return target, nil
@@ -234,7 +238,7 @@ func (b *EnableBanking) consentValidUntil(ctx context.Context, sessionID string)
 }
 
 func (b *EnableBanking) Balances(ctx context.Context, psu PSU, target Target) (Balances, error) {
-	target, err := b.resolve(target)
+	target, err := b.resolve(target, Target.complete)
 	if err != nil {
 		return Balances{}, err
 	}
