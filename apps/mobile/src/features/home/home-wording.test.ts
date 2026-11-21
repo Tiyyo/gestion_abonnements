@@ -7,10 +7,13 @@ import {
   pendingTransfersCents,
   priceAlertBody,
   priceAlertTitle,
+  reviewAccessibilityLabel,
   reviewCaption,
+  spoken,
   transferPurpose,
   trialBody,
   trialEndLabel,
+  upcomingAccessibilityLabel,
   upcomingCaption,
   whenLabel,
 } from './home-wording';
@@ -135,5 +138,30 @@ describe('libellés de l’Accueil', () => {
     expect(pendingTransfersCents(data)).toBe(1000);
     expect(pendingTransfersCents({ ...data, next: null })).toBe(800);
     expect(pendingTransfersCents(undefined)).toBe(0);
+  });
+});
+
+describe('libellés TalkBack de l’Accueil', () => {
+  it('lit un prochain prélèvement avec son financement, sans point médian', () => {
+    expect(upcomingAccessibilityLabel(upcoming({ funded: true }))).toBe(
+      `Netflix, prélevé le samedi\u00a021\u00a0novembre, ${formatEuros(1399)}. Alimenté, ${formatEuros(1441)}`,
+    );
+  });
+
+  it('lit un prélèvement à vérifier avec son montant et la question', () => {
+    const review = {
+      chargeId: 'c1',
+      subscriptionId: 's1',
+      name: 'Netflix',
+      dueDate: '2026-11-18',
+      expectedAmountCents: 1399,
+      wanted: true,
+      bank: null,
+    };
+    expect(reviewAccessibilityLabel(review)).toBe(`Netflix, ${formatEuros(1399)}. Prévu le 18\u00a0nov., passé ou échoué ?`);
+  });
+
+  it('remplace les points médians par des virgules', () => {
+    expect(spoken('a · b · c')).toBe('a, b, c');
   });
 });

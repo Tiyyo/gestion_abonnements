@@ -34,6 +34,8 @@ export function LogoOptions({
             haptic.select();
             onSelect(key);
           }}
+          accessible
+          tabIndex={0}
           accessibilityRole="radio"
           accessibilityState={{ checked: shown === key }}
           accessibilityLabel={BRAND_ICONS[key]?.title ?? 'Initiale du nom'}

@@ -51,6 +51,7 @@ export function SubscriptionAvatar({ name, iconKey, size = 44 }: { name: string;
         borderWidth={1}
         borderColor="borderColor"
         accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
       >
         <Svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24">
           <Path d={brand.path} fill={logoColor(brand.hex)} />
@@ -60,7 +61,16 @@ export function SubscriptionAvatar({ name, iconKey, size = 44 }: { name: string;
   }
   const [bg, fg] = name.trim() && name !== '?' ? pairFor(name) : (['#ECEEF0', '#3B4650'] as const);
   return (
-    <YStack w={size} h={size} rounded="xl" items="center" justify="center" style={{ backgroundColor: bg }} accessibilityElementsHidden>
+    <YStack
+      w={size}
+      h={size}
+      rounded="xl"
+      items="center"
+      justify="center"
+      style={{ backgroundColor: bg }}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       <Text fontSize={size * 0.4} fontWeight="700" style={{ color: fg }}>
         {name.trim().charAt(0).toUpperCase()}
       </Text>

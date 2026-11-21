@@ -1,7 +1,23 @@
 import { Button } from 'tamagui';
 import { haptic } from '@/ui/motion/haptics';
 
-export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+/**
+ * Puce de choix. `mode="multiple"` (défaut) : case à cocher, plusieurs puces cochées à la fois ;
+ * `mode="single"` : bouton radio d'un groupe. `accessibilityLabel` : libellé lu à la place d'une abréviation (« J-1 »).
+ */
+export function Chip({
+  label,
+  selected,
+  onPress,
+  mode = 'multiple',
+  accessibilityLabel,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  mode?: 'multiple' | 'single';
+  accessibilityLabel?: string;
+}) {
   return (
     <Button
       minH={44}
@@ -16,8 +32,10 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
         haptic.select();
         onPress();
       }}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessible
+      accessibilityRole={mode === 'single' ? 'radio' : 'checkbox'}
+      accessibilityState={{ checked: selected }}
+      accessibilityLabel={accessibilityLabel}
     >
       <Button.Text color={selected ? 'onSecondary' : 'color'} fontSize={15} fontWeight={selected ? '700' : '500'}>
         {label}

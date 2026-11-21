@@ -30,6 +30,7 @@ export function IconButton({
       scale="1 press:0.985"
       transition="fast"
       onPress={onPress}
+      accessibilityRole="button"
       accessibilityLabel={label}
     >
       <Icon color={primary || glass ? colors.onPrimary : colors.text} size={22} strokeWidth={2} />

@@ -33,11 +33,11 @@ const palette = {
   glassEdge: 'rgba(255, 255, 255, 0.20)',
   glassSkeleton: 'rgba(255, 255, 255, 0.16)',
   onGlass: '#FFFFFF',
-  onGlassMuted: 'rgba(255, 255, 255, 0.72)',
+  onGlassMuted: 'rgba(255, 255, 255, 0.78)',
   onGlassOk: '#CDEFD6',
   onGlassWarn: '#FFD9A8',
   onGlassDanger: '#FFC9C9',
-  barFill: 'rgba(255, 255, 255, 0.78)',
+  barFill: 'rgba(255, 255, 255, 0.88)',
   barEdge: 'rgba(255, 255, 255, 0.90)',
 };
 

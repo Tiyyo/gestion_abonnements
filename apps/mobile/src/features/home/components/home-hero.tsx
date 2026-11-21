@@ -27,7 +27,7 @@ export function HomeHero({
         onHero
         overline={heroDateLabel(today)}
         title="À venir"
-        trailing={<IconButton icon={ChartColumn} label="Statistiques" variant="glass" onPress={() => router.push('/stats')} />}
+        trailing={<IconButton icon={ChartColumn} label="Ouvrir les statistiques" variant="glass" onPress={() => router.push('/stats')} />}
       />
       {showBalances ? (
         <YStack px="4">

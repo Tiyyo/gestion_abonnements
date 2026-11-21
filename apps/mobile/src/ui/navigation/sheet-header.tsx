@@ -6,7 +6,7 @@ export function SheetHeader({ title, onCancel }: { title: string; onCancel: () =
   return (
     <XStack px="2" minH={56} items="center" gap="1" bg="heroFrom">
       <ActionButton label="Annuler" variant="glassGhost" onPress={onCancel} />
-      <Heading flex={1} fontSize={18} color="onGlass" numberOfLines={1}>
+      <Heading flex={1} fontSize={18} color="onGlass" numberOfLines={2}>
         {title}
       </Heading>
     </XStack>

@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { XStack, YStack } from 'tamagui';
 import type { SubscriptionRow } from '@/db/repositories/subscriptions';
 import { SubscriptionAvatar } from '@/features/subscriptions/components/subscription-avatar';
-import { lineSubtitle, periodSuffix } from '@/features/subscriptions/subscription-groups';
+import { lineAccessibilityLabel, lineSubtitle, periodSuffix } from '@/features/subscriptions/subscription-groups';
 import { Amount, Caption, Label } from '@/ui/text/typography';
 
 export function SubscriptionLine({ row, globalMarginBp, last }: { row: SubscriptionRow; globalMarginBp: number; last: boolean }) {
@@ -19,12 +19,15 @@ export function SubscriptionLine({ row, globalMarginBp, last }: { row: Subscript
       onPress={() => router.push(`/subscriptions/${row.id}`)}
       opacity="1 press:0.6"
       transition="fast"
+      accessible
+      tabIndex={0}
       accessibilityRole="button"
-      accessibilityLabel={`${row.name}, ${formatEuros(row.amount_cents)} ${periodSuffix(row)}`}
+      accessibilityLabel={lineAccessibilityLabel(row, globalMarginBp)}
+      accessibilityHint="Ouvre la fiche"
     >
       <SubscriptionAvatar name={row.name} iconKey={row.icon_key} />
       <YStack flex={1} gap="0.5">
-        <Label fontSize={16} numberOfLines={1} color={color}>
+        <Label fontSize={16} numberOfLines={2} color={color}>
           {row.name}
         </Label>
         <Caption numberOfLines={2}>

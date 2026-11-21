@@ -18,7 +18,13 @@ export function PaydayCard({ plan, busy, onDone, onUndo }: { plan: MonthPlan; bu
       <Caption>Banque → Revolut → coffre</Caption>
       <YStack borderTopWidth={1} borderColor="borderColor" mt="1" pt="3" gap="2">
         {payday.lines.map((line) => (
-          <XStack key={`${line.kind}-${line.subscriptionId ?? ''}`} justify="space-between" gap="3">
+          <XStack
+            key={`${line.kind}-${line.subscriptionId ?? ''}`}
+            justify="space-between"
+            gap="3"
+            accessible
+            accessibilityLabel={`${paydayLineLabel(line, plan.globalMarginBp)} : ${formatEuros(line.amountCents)}`}
+          >
             <Body color="colorMuted" shrink={1}>
               {paydayLineLabel(line, plan.globalMarginBp)}
             </Body>

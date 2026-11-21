@@ -52,3 +52,17 @@ export function lineSubtitle(row: SubscriptionRow, globalMarginBp: number): stri
     }
   }
 }
+
+/** Périodicité en toutes lettres pour TalkBack : « par mois », « tous les 3 mois », « toutes les 2 semaines ». */
+export function periodWords(row: Pick<SubscriptionRow, 'period_unit' | 'period_count'>): string {
+  const { period_unit: unit, period_count: count } = row;
+  if (count === 1) {
+    return unit === 'week' ? 'par semaine' : unit === 'month' ? 'par mois' : 'par an';
+  }
+  return unit === 'week' ? `toutes les ${count} semaines` : `tous les ${count} ${unit === 'month' ? 'mois' : 'ans'}`;
+}
+
+/** Ligne de la liste lue d'un bloc : nom, montant, catégorie et état. */
+export function lineAccessibilityLabel(row: SubscriptionRow, globalMarginBp: number): string {
+  return `${row.name}, ${formatEuros(row.amount_cents)} ${periodWords(row)}. ${row.category_name}, ${lineSubtitle(row, globalMarginBp)}`;
+}

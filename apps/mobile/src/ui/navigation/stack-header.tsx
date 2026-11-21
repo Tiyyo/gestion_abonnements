@@ -21,7 +21,7 @@ export function StackHeader({
       <IconButton icon={ChevronLeft} label="Retour" variant={onHero ? 'glass' : 'ghost'} onPress={onBack ?? (() => router.back())} />
       <YStack flex={1}>
         {title ? (
-          <Heading numberOfLines={1} fontSize={22} color={onHero ? 'onGlass' : 'color'}>
+          <Heading numberOfLines={2} fontSize={22} color={onHero ? 'onGlass' : 'color'}>
             {title}
           </Heading>
         ) : null}

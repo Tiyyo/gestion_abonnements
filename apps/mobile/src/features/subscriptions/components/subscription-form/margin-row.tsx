@@ -34,7 +34,7 @@ export function MarginRow({ overrideBp, globalMarginBp, onChange }: Props) {
         )}
       </YStack>
       <StepButton icon={Minus} label="Diminuer la marge" onPress={() => onChange(stepMargin(effective, -1))} />
-      <Amount minW={56} text="center" fontWeight="700">
+      <Amount minW={56} text="center" fontWeight="700" accessibilityLiveRegion="polite">
         {marginLabel(effective)}
       </Amount>
       <StepButton icon={Plus} label="Augmenter la marge" onPress={() => onChange(stepMargin(effective, 1))} />

@@ -34,8 +34,11 @@ export function SheetOption({
       }}
       opacity="1 press:0.6"
       transition="fast"
+      accessible
+      tabIndex={0}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
+      accessibilityLabel={hint ? `${label}, ${hint}` : label}
     >
       {leading}
       <YStack flex={1} gap="0.5">

@@ -28,7 +28,7 @@ export function UnknownDebitHero({ form }: { form: UnknownDebitForm }) {
             returnKeyType="next"
             accessibilityLabel="Nom du marchand"
           />
-          <Caption color="onGlassMuted" numberOfLines={1}>
+          <Caption color="onGlassMuted" numberOfLines={2}>
             Tel qu’il apparaît sur le relevé
           </Caption>
         </YStack>

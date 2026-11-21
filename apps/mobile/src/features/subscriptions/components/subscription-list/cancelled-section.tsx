@@ -27,8 +27,11 @@ export function CancelledSection({ rows, globalMarginBp }: { rows: readonly Subs
           }}
           opacity="1 press:0.6"
           transition="fast"
+          accessible
+          tabIndex={0}
           accessibilityRole="button"
           accessibilityState={{ expanded }}
+          accessibilityLabel={`${expanded ? 'Masquer' : 'Afficher'} les abonnements résiliés, ${rows.length}`}
         >
           <GroupHeader title="Résiliés" count={rows.length} />
           <XStack items="center" gap="1">

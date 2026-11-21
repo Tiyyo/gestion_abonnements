@@ -48,8 +48,11 @@ export function Segmented<T extends string>({
                 onChange(o.key);
               }
             }}
+            accessible
+            tabIndex={0}
             accessibilityRole="radio"
             accessibilityState={{ checked: selected }}
+            accessibilityLabel={o.label}
           >
             <Text
               fontSize={15}

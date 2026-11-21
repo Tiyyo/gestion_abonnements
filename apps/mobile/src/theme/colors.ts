@@ -18,7 +18,7 @@ export const colors = {
   glassSkeleton: String(palette.glassSkeleton?.val ?? 'rgba(255, 255, 255, 0.16)'),
   scrim: String(palette.scrim?.val ?? 'rgba(20, 24, 27, 0.5)'),
   onGlass: String(palette.onGlass?.val ?? '#FFFFFF'),
-  onGlassMuted: String(palette.onGlassMuted?.val ?? 'rgba(255, 255, 255, 0.72)'),
+  onGlassMuted: String(palette.onGlassMuted?.val ?? 'rgba(255, 255, 255, 0.78)'),
   onGlassOk: String(palette.onGlassOk?.val ?? '#CDEFD6'),
   onGlassWarn: String(palette.onGlassWarn?.val ?? '#FFD9A8'),
   onGlassDanger: String(palette.onGlassDanger?.val ?? '#FFC9C9'),

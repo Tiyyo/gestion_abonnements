@@ -1,6 +1,6 @@
 import { XStack, YStack } from 'tamagui';
 import { readBalancesConfig } from '@/config/function-config';
-import { daysUntil, freshness, vaultShortfallCents } from '@/features/balances/balances-derivations';
+import { daysUntil, freshness, refreshAccessibilityLabel, vaultShortfallCents } from '@/features/balances/balances-derivations';
 import { ConsentExpiredError } from '@/features/balances/consent-expired-error';
 import { useBalances } from '@/features/balances/hooks/use-balances';
 import { BUSY_A11Y } from '@/ui/feedback/busy-a11y';
@@ -22,13 +22,19 @@ export function BalancesCard({ pendingTransfersCents }: { pendingTransfersCents:
   const data = balances.data;
   // Premier chargement (ou nouvel essai sans aucune valeur) : blocs fantômes. Une actualisation garde les valeurs précédentes.
   const loading = !data && balances.isFetching;
-  const status = balances.isFetching ? 'Actualisation…' : data ? freshness(data.fetchedAt, now) : 'Actualiser';
+  const fresh = data ? freshness(data.fetchedAt, now) : null;
+  const status = balances.isFetching ? 'Actualisation…' : (fresh ?? 'Actualiser');
 
   return (
-    <GlassCard accessibilityLabel="Soldes Revolut">
+    <GlassCard>
       <XStack items="center" justify="space-between" gap="3">
         <Caption color="onGlassMuted">Dans le coffre Revolut</Caption>
-        <RefreshChip status={status} onRefresh={() => balances.refetch()} />
+        <RefreshChip
+          status={status}
+          busy={balances.isFetching}
+          accessibilityLabel={refreshAccessibilityLabel(balances.isFetching, fresh)}
+          onRefresh={() => balances.refetch()}
+        />
       </XStack>
 
       <YStack gap="3" {...(loading ? BUSY_A11Y : null)}>

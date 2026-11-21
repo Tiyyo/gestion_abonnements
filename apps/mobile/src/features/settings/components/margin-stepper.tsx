@@ -51,7 +51,7 @@ export function MarginStepper({ value, onChange, onGlass }: { value: number; onC
         onGlass={onGlass}
         onPress={() => onChange(Math.max(0, value - STEP_BP))}
       />
-      <Amount minW={72} text="center" fontSize={17} fontWeight="700" color={onGlass ? 'onGlass' : 'color'}>
+      <Amount minW={72} text="center" fontSize={17} fontWeight="700" color={onGlass ? 'onGlass' : 'color'} accessibilityLiveRegion="polite">
         {marginLabel(value)}
       </Amount>
       <StepButton

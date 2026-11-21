@@ -41,7 +41,12 @@ export function IrisPill({ active, left, width, children }: { active: boolean; l
   }));
 
   return (
-    <View pointerEvents="none" style={[styles.pillSlot, { left, width }]}>
+    <View
+      pointerEvents="none"
+      style={[styles.pillSlot, { left, width }]}
+      importantForAccessibility="no-hide-descendants"
+      accessibilityElementsHidden
+    >
       <Animated.View style={[styles.pillGlow, { width }, glow]} />
       <Animated.View style={[styles.pill, outline, motion]} />
       <Animated.View style={[styles.pillClip, outline, motion]}>

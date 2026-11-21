@@ -29,6 +29,8 @@ export function TabPressTargets({
               }
             }}
             onLongPress={() => emitter.emit({ type: 'tabLongPress', target: route.key })}
+            accessible
+            tabIndex={0}
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
             accessibilityLabel={options.tabBarAccessibilityLabel ?? label}

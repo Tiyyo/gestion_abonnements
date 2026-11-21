@@ -1,4 +1,4 @@
-import { daysUntil, freshness, vaultShortfallCents } from './balances-derivations';
+import { daysUntil, freshness, refreshAccessibilityLabel, vaultShortfallCents } from './balances-derivations';
 
 describe('calculs', () => {
   it('compte les jours restants avant la fin de l’accord', () => {
@@ -24,5 +24,13 @@ describe('freshness', () => {
 
   it('donne le jour et l’heure les jours précédents', () => {
     expect(freshness(new Date(2026, 10, 18, 12, 0).toISOString(), now)).toMatch(/^le .+ à \d{2}:\d{2}$/);
+  });
+});
+
+describe('refreshAccessibilityLabel', () => {
+  it('nomme l’action, puis la fraîcheur', () => {
+    expect(refreshAccessibilityLabel(false, 'à 14:02')).toBe('Actualiser les soldes, mis à jour à 14:02');
+    expect(refreshAccessibilityLabel(false, null)).toBe('Actualiser les soldes');
+    expect(refreshAccessibilityLabel(true, 'à 14:02')).toBe('Actualisation des soldes en cours');
   });
 });

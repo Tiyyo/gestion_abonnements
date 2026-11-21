@@ -20,6 +20,7 @@ export function ListCard({ children, onPress, accessibilityLabel, ...props }: YS
       transition="fast"
       accessibilityRole={onPress ? 'button' : undefined}
       accessible={onPress ? true : undefined}
+      tabIndex={onPress ? 0 : undefined}
       accessibilityLabel={accessibilityLabel}
       {...(props as object)}
     >

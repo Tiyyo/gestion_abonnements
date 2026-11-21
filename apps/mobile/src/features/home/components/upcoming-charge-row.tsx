@@ -12,6 +12,7 @@ export function UpcomingChargeRow({ upcoming }: { upcoming: HomeUpcoming }) {
     <ListCard
       onPress={() => router.push(`/subscriptions/${upcoming.subscriptionId}`)}
       accessibilityLabel={upcomingAccessibilityLabel(upcoming)}
+      accessibilityHint="Ouvre la fiche de l’abonnement"
     >
       <YStack w={44} items="center">
         <Amount fontSize={20} fontWeight="700">

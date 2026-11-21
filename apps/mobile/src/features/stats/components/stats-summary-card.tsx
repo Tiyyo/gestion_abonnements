@@ -43,11 +43,14 @@ export function StatsSummaryCard({ stats, period }: { stats: Stats | undefined; 
         </SkeletonLine>
       )}
       <XStack gap="2">
-        <GlassPanel>
+        <GlassPanel
+          accessible
+          accessibilityLabel={`${figures.otherLabel} : ${figures.otherCents === null ? 'indisponible' : formatEuros(figures.otherCents)}`}
+        >
           <Caption color="onGlassMuted">{figures.otherLabel}</Caption>
           <PanelValue value={figures.otherCents === null ? null : formatEuros(figures.otherCents)} skeleton={skeleton} />
         </GlassPanel>
-        <GlassPanel>
+        <GlassPanel accessible accessibilityLabel={`Exclus du total : ${stats ? subscriptionCount(stats.excludedCount) : 'indisponible'}`}>
           <Caption color="onGlassMuted">Exclus du total</Caption>
           <PanelValue value={stats ? subscriptionCount(stats.excludedCount) : null} skeleton={skeleton} />
         </GlassPanel>

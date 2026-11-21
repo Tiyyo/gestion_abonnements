@@ -30,6 +30,8 @@ export function Expandable({ open, onToggle, label, value, children, last }: Exp
             onToggle();
           }}
           opacity="1 press:0.7"
+          accessible
+          tabIndex={0}
           accessibilityRole="button"
           accessibilityState={{ expanded: open }}
           accessibilityLabel={`${label} : ${value}`}

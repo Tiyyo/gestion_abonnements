@@ -4,8 +4,9 @@ import { YStack, type YStackProps } from 'tamagui';
 import { colors } from '@/theme/colors';
 
 // Fond aubergine des en-têtes : dégradé + lueur pêche (haut droite) + lueur violette (bas gauche), en `backgroundImage` natif (RN 0.88).
-// Intensités mesurées : le blanc reste au-dessus de 5:1 sous la lueur pêche, même à travers un bouton en verre.
-const WARM = 'rgba(246, 213, 196, 0.30)';
+// Intensité mesurée (scripts/a11y-contrast.mjs) : à 0,14, tout texte onGlass* reste ≥ 4,5:1 au cœur de la lueur pêche,
+// y compris dans un panneau en verre posé sur une carte en verre (à 0,30, la légende y tombait à 3,1:1).
+const WARM = 'rgba(246, 213, 196, 0.14)';
 const WARM_CLEAR = 'rgba(246, 213, 196, 0)';
 const COOL = 'rgba(156, 72, 160, 0.40)';
 const COOL_CLEAR = 'rgba(156, 72, 160, 0)';

@@ -20,7 +20,8 @@ export function GlassAmountInput({ value, ...props }: Props) {
         style={styles.amount}
         {...props}
       />
-      <Text style={styles.currency} color={value ? 'onGlass' : 'onGlassMuted'}>
+      {/* Le champ annonce déjà « en euros » : le symbole seul serait un arrêt de plus pour TalkBack. */}
+      <Text style={styles.currency} color={value ? 'onGlass' : 'onGlassMuted'} importantForAccessibility="no" accessibilityElementsHidden>
         €
       </Text>
     </XStack>

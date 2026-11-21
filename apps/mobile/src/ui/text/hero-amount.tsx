@@ -4,7 +4,11 @@ import { Display } from './typography';
 /** Grand montant en verre : euros en blanc, « ,27 € » plus petit et atténué. */
 export function HeroAmount({ cents }: { cents: number | null }) {
   if (cents === null) {
-    return <Display color="onGlassMuted">—</Display>;
+    return (
+      <Display color="onGlassMuted" accessibilityLabel="Montant indisponible">
+        —
+      </Display>
+    );
   }
   const text = formatEuros(cents);
   const comma = text.lastIndexOf(',');

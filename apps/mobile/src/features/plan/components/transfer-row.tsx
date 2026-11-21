@@ -2,7 +2,7 @@ import { formatEuros } from '@abonnements/core';
 import { XStack, YStack } from 'tamagui';
 import { TransferCheck } from './transfer-check';
 import type { PlanTransfer } from '@/db/repositories/plan/types';
-import { chargeLine } from '@/features/plan/plan-labels';
+import { chargeLine, transferAccessibilityLabel } from '@/features/plan/plan-labels';
 import { capitalize, dateLong, dateShort, dateWithWeekday } from '@/lib/dates';
 import { Card } from '@/ui/surfaces/card';
 import { Amount, Caption, Label } from '@/ui/text/typography';
@@ -25,7 +25,7 @@ export function TransferRow({
         <TransferCheck
           done={transfer.done}
           disabled={busy}
-          label={`Transfert du ${dateLong(transfer.effectiveDate)}, ${names}`}
+          label={`Transfert du ${dateLong(transfer.effectiveDate)}, ${names}, ${formatEuros(transfer.amountCents)}`}
           onPress={onToggle}
         />
         <YStack
@@ -33,7 +33,10 @@ export function TransferRow({
           py="3"
           gap="0.5"
           onPress={onMore}
+          accessible
+          tabIndex={0}
           accessibilityRole="button"
+          accessibilityLabel={transferAccessibilityLabel(transfer)}
           accessibilityHint="Reporter, annuler ou ouvrir Revolut"
         >
           <Label color={transfer.done ? 'colorMuted' : 'color'} textDecorationLine={transfer.done ? 'line-through' : 'none'}>
@@ -44,7 +47,13 @@ export function TransferRow({
             <Caption key={`${c.name}-${c.dueDate}`}>{chargeLine(c)}</Caption>
           ))}
         </YStack>
-        <Amount px="4" fontSize={16} color={transfer.done ? 'colorMuted' : 'color'}>
+        <Amount
+          px="4"
+          fontSize={16}
+          color={transfer.done ? 'colorMuted' : 'color'}
+          importantForAccessibility="no"
+          accessibilityElementsHidden
+        >
           {formatEuros(transfer.amountCents)}
         </Amount>
       </XStack>

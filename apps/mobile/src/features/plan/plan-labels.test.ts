@@ -1,7 +1,14 @@
 import { formatEuros } from '@abonnements/core';
 import type { PlanTransfer, PlanTrial } from '@/db/repositories/plan/types';
 import { formatPercentBp } from '@/lib/format';
-import { chargeLine, hasTrialRisk, paydayLineLabel, remainingTransfersCents, trialMessage } from './plan-labels';
+import {
+  chargeLine,
+  hasTrialRisk,
+  paydayLineLabel,
+  remainingTransfersCents,
+  transferAccessibilityLabel,
+  trialMessage,
+} from './plan-labels';
 
 const transfer = (overrides: Partial<PlanTransfer> = {}): PlanTransfer => ({
   id: 't1',
@@ -76,5 +83,21 @@ describe('essais', () => {
     expect(trialMessage(trial({ risk: false, projectedCents: -300 }))).toBe(
       `Netflix (${formatEuros(1399)}) dépasse le solde prévu de ${formatEuros(0)}, il échouera.`,
     );
+  });
+});
+
+describe('transferAccessibilityLabel', () => {
+  const charges = [{ name: 'Netflix', dueDate: '2026-11-10', expectedAmountCents: 1000, marginBp: 300 }];
+
+  it('lit date, prélèvements, montant et état', () => {
+    expect(transferAccessibilityLabel(transfer({ charges }))).toBe(
+      `Transfert du lundi\u00a09\u00a0novembre, Netflix, ${formatEuros(1030)}. À faire.`,
+    );
+  });
+
+  it('mentionne un report et un transfert fait', () => {
+    const label = transferAccessibilityLabel(transfer({ charges, rescheduled: true, plannedDate: '2026-11-06', done: true }));
+    expect(label).toContain('Reporté, prévu le vendredi\u00a06\u00a0novembre.');
+    expect(label).toMatch(/Fait\.$/);
   });
 });

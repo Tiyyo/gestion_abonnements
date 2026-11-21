@@ -61,8 +61,17 @@ export function upcomingCaption(upcoming: HomeUpcoming): string {
     : 'Pas de transfert prévu';
 }
 
+/** Les « · » de mise en page deviennent des virgules : TalkBack les lirait « point » ou les sauterait sans pause. */
+export function spoken(text: string): string {
+  return text.replaceAll(' · ', ', ');
+}
+
 export function upcomingAccessibilityLabel(upcoming: HomeUpcoming): string {
-  return `${upcoming.name}, prélevé le ${dateLong(upcoming.dueDate)}, ${formatEuros(upcoming.amountCents)}. Ouvrir la fiche`;
+  return `${upcoming.name}, prélevé le ${dateLong(upcoming.dueDate)}, ${formatEuros(upcoming.amountCents)}. ${spoken(upcomingCaption(upcoming))}`;
+}
+
+export function reviewAccessibilityLabel(review: HomeReview): string {
+  return `${review.name}, ${formatEuros(review.expectedAmountCents)}. ${spoken(reviewCaption(review))}`;
 }
 
 export function dayOfMonth(date: string): number {

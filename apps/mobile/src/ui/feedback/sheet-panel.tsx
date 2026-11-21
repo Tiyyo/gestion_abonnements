@@ -24,13 +24,18 @@ export function SheetPanel({ onDismiss, dismissLabel, children }: { onDismiss: (
 
   return (
     <YStack flex={1} justify="flex-end">
-      <Animated.View style={StyleSheet.absoluteFill} entering={FadeIn.duration(SHEET_ENTER_MS)} exiting={FadeOut.duration(SHEET_EXIT_MS)}>
-        <Pressable
-          style={[StyleSheet.absoluteFill, styles.backdrop]}
-          onPress={onDismiss}
-          accessibilityRole="button"
-          accessibilityLabel={dismissLabel}
-        />
+      {/*
+        Voile : fermeture au toucher pour la vue, invisible pour TalkBack. Sinon il recevrait le premier focus à l'ouverture
+        (« Fermer, bouton » avant le titre). Au lecteur d'écran, on ferme par les boutons du panneau ou par Retour (onRequestClose).
+      */}
+      <Animated.View
+        style={StyleSheet.absoluteFill}
+        entering={FadeIn.duration(SHEET_ENTER_MS)}
+        exiting={FadeOut.duration(SHEET_EXIT_MS)}
+        importantForAccessibility="no-hide-descendants"
+        accessibilityElementsHidden
+      >
+        <Pressable style={[StyleSheet.absoluteFill, styles.backdrop]} onPress={onDismiss} accessibilityLabel={dismissLabel} />
       </Animated.View>
       <Animated.View
         style={styles.limit}

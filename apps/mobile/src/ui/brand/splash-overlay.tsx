@@ -68,7 +68,12 @@ export function SplashOverlay({ ready, onDone }: { ready: boolean; onDone: () =>
   const [left, right] = mark.gates;
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, styles.root, rootStyle]} onLayout={start} accessibilityLabel="Sluis, chargement">
+    <Animated.View
+      style={[StyleSheet.absoluteFill, styles.root, rootStyle]}
+      onLayout={start}
+      accessible
+      accessibilityLabel="Sluis, chargement"
+    >
       <StatusBar style="light" />
       <Animated.View style={[styles.mark, markStyle]}>
         <Animated.View

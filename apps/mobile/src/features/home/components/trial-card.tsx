@@ -21,8 +21,22 @@ export function TrialCard({ trial, today, busy, onKeep, onCancel }: Props) {
       body={trialBody(trial)}
       actions={
         <>
-          <ActionButton flex={1} label="Garder" variant="outline" disabled={busy} onPress={onKeep} />
-          <ActionButton flex={1} label="Résilier" variant="warn" disabled={busy} onPress={onCancel} />
+          <ActionButton
+            flex={1}
+            label="Garder"
+            accessibilityLabel={`Garder ${trial.name}`}
+            variant="outline"
+            disabled={busy}
+            onPress={onKeep}
+          />
+          <ActionButton
+            flex={1}
+            label="Résilier"
+            accessibilityLabel={`Résilier ${trial.name}`}
+            variant="warn"
+            disabled={busy}
+            onPress={onCancel}
+          />
         </>
       }
     />
