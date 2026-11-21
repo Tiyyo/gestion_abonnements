@@ -107,7 +107,7 @@ func decode(t *testing.T, rec *httptest.ResponseRecorder) map[string]any {
 	return out
 }
 
-func TestConsentStartDemandeUnAccordEnLectureDesSoldes(t *testing.T) {
+func TestConsentStartDemandeUnAccordEnLectureDesSoldesEtDesMouvements(t *testing.T) {
 	var sent map[string]any
 	server := newConsentServer(t, http.StatusOK, &sent)
 
@@ -125,7 +125,7 @@ func TestConsentStartDemandeUnAccordEnLectureDesSoldes(t *testing.T) {
 	}
 	aspsp, _ := sent["aspsp"].(map[string]any)
 	access, _ := sent["access"].(map[string]any)
-	if aspsp["name"] != "Revolut" || aspsp["country"] != "FR" || access["balances"] != true || access["transactions"] != false {
+	if aspsp["name"] != "Revolut" || aspsp["country"] != "FR" || access["balances"] != true || access["transactions"] != true {
 		t.Errorf("banque ou accès inattendus : %v", sent)
 	}
 	if want := fixedNow.Add(180*24*time.Hour - time.Hour).Format(time.RFC3339); access["valid_until"] != want {

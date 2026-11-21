@@ -6,7 +6,11 @@ import { Card } from '@/ui/surfaces/card';
 import { Body, Caption, Overline } from '@/ui/text/typography';
 
 const STEPS: { icon: LucideIcon; title: string; detail: string }[] = [
-  { icon: Landmark, title: 'Revolut s’ouvre dans le navigateur', detail: 'Connecte-toi et autorise la lecture des soldes, rien d’autre.' },
+  {
+    icon: Landmark,
+    title: 'Revolut s’ouvre dans le navigateur',
+    detail: 'Connecte-toi et autorise la lecture des soldes et des mouvements, rien d’autre.',
+  },
   { icon: Undo2, title: 'Retour automatique dans Sluis', detail: 'Si rien ne se passe, touche « Revenir dans Sluis ».' },
   { icon: KeyRound, title: 'Le nouvel accord reste sur ce téléphone', detail: 'Il n’est ni dans la sauvegarde JSON ni sur le serveur.' },
 ];
