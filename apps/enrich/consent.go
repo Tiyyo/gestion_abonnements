@@ -52,7 +52,7 @@ type ConsentBank interface {
 	FinishConsent(ctx context.Context, code string) (ConsentSession, error)
 }
 
-// StartConsent demande un accord en lecture des soldes seulement, pour Revolut France, compte personnel.
+// StartConsent demande un accord en lecture des soldes et des mouvements (rapprochement automatique), pour Revolut France, compte personnel.
 func (b *EnableBanking) StartConsent(ctx context.Context, state, redirectURL string) (string, error) {
 	days := b.ConsentDays
 	if days <= 0 {
@@ -61,7 +61,7 @@ func (b *EnableBanking) StartConsent(ctx context.Context, state, redirectURL str
 	// Une heure de moins que la durée maximale : un accord demandé à la seconde près serait refusé au moindre écart d'horloge.
 	validUntil := b.Now().UTC().Add(time.Duration(days)*24*time.Hour - time.Hour)
 	body := map[string]any{
-		"access":       map[string]any{"valid_until": validUntil.Format(time.RFC3339), "balances": true, "transactions": false},
+		"access":       map[string]any{"valid_until": validUntil.Format(time.RFC3339), "balances": true, "transactions": true},
 		"aspsp":        map[string]string{"name": "Revolut", "country": "FR"},
 		"state":        state,
 		"redirect_url": redirectURL,

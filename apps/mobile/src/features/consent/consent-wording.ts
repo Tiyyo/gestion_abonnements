@@ -5,7 +5,7 @@ export type ConsentMessage = { title: string; message: string };
 const ERRORS: Record<ConsentErrorKind, ConsentMessage> = {
   cancelled: {
     title: 'Autorisation annulée',
-    message: 'Tu as quitté Revolut avant d’autoriser la lecture des soldes. L’accord actuel n’a pas changé.',
+    message: 'Tu as quitté Revolut avant d’autoriser la lecture des comptes. L’accord actuel n’a pas changé.',
   },
   state_mismatch: {
     title: 'Retour inattendu',
