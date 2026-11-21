@@ -1,13 +1,18 @@
-// Contrastes WCAG 2.x des paires texte / fond réellement utilisées (jetons de src/theme/tamagui.config.ts).
+// Contrastes WCAG 2.x des paires texte / fond réellement utilisées, en clair et en sombre (jetons de src/theme/palette.ts).
 // Usage : node scripts/a11y-contrast.mjs [--md]   (code de sortie 1 si une paire passe sous son seuil)
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const source = readFileSync(join(root, 'src/theme/tamagui.config.ts'), 'utf8');
-const block = source.slice(source.indexOf('const palette = {'), source.indexOf('};') + 1);
-const palette = Object.fromEntries([...block.matchAll(/^\s+(\w+): '([^']+)'/gm)].map((m) => [m[1], m[2]]));
+const source = readFileSync(join(root, 'src/theme/palette.ts'), 'utf8');
+const tokensOf = (start) => {
+  const block = source.slice(source.indexOf(start), source.indexOf('};', source.indexOf(start)) + 1);
+  return Object.fromEntries([...block.matchAll(/^\s+(\w+): '([^']+)'/gm)].map((m) => [m[1], m[2]]));
+};
+const lightTokens = tokensOf('export const lightPalette = {');
+// La palette sombre reprend la claire (`...lightPalette`) et n'en remplace que certains jetons.
+const darkTokens = { ...lightTokens, ...tokensOf('export const darkPalette: Palette = {') };
 
 function parse(value) {
   if (value.startsWith('#')) {
@@ -16,12 +21,6 @@ function parse(value) {
   const [r, g, b, a = 1] = value.match(/[\d.]+/g).map(Number);
   return { r, g, b, a };
 }
-const token = (name) => {
-  if (!(name in palette)) {
-    throw new Error(`Jeton inconnu : ${name}`);
-  }
-  return parse(palette[name]);
-};
 /** Couleur `top` (éventuellement translucide) posée sur un fond opaque. */
 const over = (top, bottom) => ({
   r: top.r * top.a + bottom.r * (1 - top.a),
@@ -41,114 +40,120 @@ function contrast(fg, bg) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const t = Object.fromEntries(Object.keys(palette).map((k) => [k, token(k)]));
 // Dégradé du Hero (ui/surfaces/hero.tsx) : pire cas = lueur pêche à pleine intensité sur le départ du dégradé (le plus clair).
 const heroSource = readFileSync(join(root, 'src/ui/surfaces/hero.tsx'), 'utf8');
-const warmAlpha = Number(heroSource.match(/const WARM = 'rgba\([^)]*,\s*([\d.]+)\)'/)[1]);
-const heroPeach = over(alpha(t.heroGlowWarm, warmAlpha), t.heroFrom);
-const heroCool = over(alpha(t.heroGlowCool, 0.4), t.heroTo);
-const glassCard = (hero) => over(t.glassFill, hero);
-const glassPanel = (hero) => stack(t.glassInner, t.glassFill, hero);
-const glassChip = (hero) => stack(t.glassFill, t.glassFill, hero);
+const warmAlpha = Number(heroSource.match(/const WARM_ALPHA = ([\d.]+);/)[1]);
+const coolAlpha = Number(heroSource.match(/const COOL_ALPHA = ([\d.]+);/)[1]);
 const white = parse('#FFFFFF');
-const barOver = (content) => over(t.barFill, content);
 const splashBg = parse(JSON.parse(readFileSync(join(root, 'src/ui/brand/sluis-mark.json'), 'utf8')).colors.bg);
 
 // [zone, texte, fond, couleur du texte, couleur du fond, seuil, usage]
-const pairs = [
-  ['Clair', 'color', 'background', t.color, t.background, 4.5, 'texte courant'],
-  ['Clair', 'color', 'surface', t.color, t.surface, 4.5, 'cartes, listes'],
-  ['Clair', 'color', 'subtle', t.color, t.subtle, 4.5, 'aperçu du financement'],
-  ['Clair', 'colorMuted', 'background', t.colorMuted, t.background, 4.5, 'légendes, surtitres'],
-  ['Clair', 'colorMuted', 'surface', t.colorMuted, t.surface, 4.5, 'légendes dans les cartes, texte indicatif des champs'],
-  ['Clair', 'colorMuted', 'subtle', t.colorMuted, t.subtle, 4.5, 'segment non choisi, badge « Résilié », bouton désactivé'],
-  ['Clair', 'primary', 'surface', t.primary, t.surface, 4.5, 'montant du prochain transfert, bouton fantôme'],
-  ['Clair', 'primary', 'background', t.primary, t.background, 4.5, 'bouton fantôme, « Afficher »'],
-  ['Clair', 'primary', 'primarySoft', t.primary, t.primarySoft, 4.5, 'bouton doux'],
-  ['Clair', 'onSecondary', 'secondary', t.onSecondary, t.secondary, 4.5, 'bouton pêche, puce choisie'],
-  ['Clair', 'onPrimary', 'primary', t.onPrimary, t.primary, 4.5, 'bouton principal, capsule d’onglet, verrou'],
-  ['Clair', 'onPrimary', 'warnText', t.onPrimary, t.warnText, 4.5, 'bouton d’alerte plein'],
-  ['Clair', 'onPrimary', 'dangerText', t.onPrimary, t.dangerText, 4.5, 'bouton destructif plein'],
-  ['États', 'warnText', 'warnBg', t.warnText, t.warnBg, 4.5, 'cartes d’alerte, badge « Essai »'],
-  ['États', 'color', 'warnBg', t.color, t.warnBg, 4.5, 'titre et corps des cartes d’alerte'],
-  ['États', 'warnText', 'surface', t.warnText, t.surface, 4.5, '« Reporté » dans une ligne de transfert'],
-  ['États', 'warnText', 'background', t.warnText, t.background, 4.5, 'couverture du coffre (Plan), refus des notifications'],
-  ['États', 'okText', 'okBg', t.okText, t.okBg, 4.5, 'carte « aucun risque », badge « Actif »'],
-  ['États', 'okText', 'surface', t.okText, t.surface, 4.5, '« Alimenté », « Virement fait »'],
-  ['États', 'okText', 'background', t.okText, t.background, 4.5, 'couverture du coffre (Plan)'],
-  ['États', 'dangerText', 'dangerBg', t.dangerText, t.dangerBg, 4.5, 'transfert en retard, badge « À résilier »'],
-  ['États', 'dangerText', 'surface', t.dangerText, t.surface, 4.5, 'bouton destructif contour'],
-  ['États', 'dangerText', 'background', t.dangerText, t.background, 4.5, 'erreurs de champ'],
-  ['Non textuel', 'onPrimary', 'okText', t.onPrimary, t.okText, 3, 'coche du transfert fait'],
-  ['Non textuel', 'borderControl', 'surface', t.borderControl, t.surface, 3, 'bordure des champs et puces, piste d’interrupteur coupé'],
-  ['Non textuel', 'borderControl', 'background', t.borderControl, t.background, 3, 'bordure des champs sur le fond'],
-  ['Non textuel', 'surface', 'borderControl', t.surface, t.borderControl, 3, 'pastille de l’interrupteur coupé'],
-  ['Non textuel', 'primary', 'subtle', t.primary, t.subtle, 3, 'barres de catégorie, progression du premier lancement'],
-  ['Barre d’onglets', 'colorMuted', 'barFill sur background', t.colorMuted, barOver(t.background), 4.5, 'libellé d’onglet inactif'],
-  [
-    'Barre d’onglets',
-    'colorMuted',
-    'barFill sur primary',
-    t.colorMuted,
-    barOver(t.primary),
-    4.5,
-    'libellé inactif, bouton principal derrière (sans flou)',
-  ],
-  [
-    'Barre d’onglets',
-    'colorMuted',
-    'barFill sur heroTo',
-    t.colorMuted,
-    barOver(t.heroTo),
-    4.5,
-    'libellé inactif, contenu le plus sombre derrière (sans flou)',
-  ],
-  ['Hero', 'onGlass', 'heroFrom', t.onGlass, t.heroFrom, 4.5, 'titre d’écran, en-tête de feuille'],
-  ['Hero', 'onGlass', 'hero + lueur pêche', t.onGlass, heroPeach, 4.5, 'titre sous la lueur (pire cas)'],
-  ['Hero', 'onGlassMuted', 'heroFrom', t.onGlassMuted, t.heroFrom, 4.5, 'surtitre, légende'],
-  ['Hero', 'onGlassMuted', 'hero + lueur pêche', t.onGlassMuted, heroPeach, 4.5, 'surtitre sous la lueur (pire cas)'],
-  ['Hero', 'onGlassMuted', 'hero + lueur violette', t.onGlassMuted, heroCool, 4.5, 'titre de section sur le bas du Hero'],
-  ['Hero', 'onGlassDanger', 'hero + lueur pêche', t.onGlassDanger, heroPeach, 4.5, 'erreur du formulaire sur le Hero'],
-  ['Verre', 'onGlass', 'glassFill + lueur pêche', t.onGlass, glassCard(heroPeach), 4.5, 'montant, bouton d’icône en verre'],
-  [
-    'Verre',
-    'onGlassMuted',
-    'glassFill sur heroFrom',
-    t.onGlassMuted,
-    glassCard(t.heroFrom),
-    4.5,
-    'légende de carte en verre (cas courant)',
-  ],
-  [
-    'Verre',
-    'onGlassMuted',
-    'glassFill + lueur pêche',
-    t.onGlassMuted,
-    glassCard(heroPeach),
-    4.5,
-    'légende de carte en verre, texte indicatif (pire cas)',
-  ],
-  ['Verre', 'onGlass', 'glassInner + glassFill + lueur', t.onGlass, glassPanel(heroPeach), 4.5, 'montant d’un panneau'],
-  [
-    'Verre',
-    'onGlassMuted',
-    'glassInner + glassFill + lueur',
-    t.onGlassMuted,
-    glassPanel(heroPeach),
-    4.5,
-    'légende d’un panneau, état « coupé » (pire cas)',
-  ],
-  ['Verre', 'onGlassMuted', 'glassInner + lueur pêche', t.onGlassMuted, over(t.glassInner, heroPeach), 4.5, 'segment non choisi'],
-  ['Verre', 'onGlass', 'glassFill ×2 + lueur pêche', t.onGlass, glassChip(heroPeach), 4.5, 'pastille d’actualisation'],
-  ['Verre', 'onGlassOk', 'glassFill + lueur pêche', t.onGlassOk, glassCard(heroPeach), 4.5, 'message « le coffre couvre »'],
-  ['Verre', 'onGlassOk', 'glassInner + glassFill + lueur', t.onGlassOk, glassPanel(heroPeach), 4.5, 'état d’un service'],
-  ['Verre', 'onGlassWarn', 'glassFill + lueur pêche', t.onGlassWarn, glassCard(heroPeach), 4.5, 'message d’alerte'],
-  ['Verre', 'onGlassWarn', 'glassInner + glassFill + lueur', t.onGlassWarn, glassPanel(heroPeach), 4.5, 'état d’un service'],
-  ['Verre', 'onGlassDanger', 'glassFill + lueur pêche', t.onGlassDanger, glassCard(heroPeach), 4.5, 'accord expiré'],
-  ['Désactivé', 'colorMuted', 'subtle', t.colorMuted, t.subtle, 3, 'libellé de bouton désactivé (exempté par WCAG, indicatif)'],
-  ['Désactivé', 'onGlassMuted', 'heroFrom', t.onGlassMuted, t.heroFrom, 3, '« Annuler » désactivé sur le Hero (exempté, indicatif)'],
-  ['Marque', 'blanc', 'fond de l’écran de démarrage', white, splashBg, 4.5, 'mot « Sluis »'],
-];
+function pairsFor(tokens) {
+  const t = Object.fromEntries(Object.entries(tokens).map(([k, v]) => [k, parse(v)]));
+  const heroPeach = over(alpha(t.heroGlowWarm, warmAlpha), t.heroFrom);
+  const heroCool = over(alpha(t.heroGlowCool, coolAlpha), t.heroTo);
+  const glassCard = (hero) => over(t.glassFill, hero);
+  const glassPanel = (hero) => stack(t.glassInner, t.glassFill, hero);
+  const glassChip = (hero) => stack(t.glassFill, t.glassFill, hero);
+  const barOver = (content) => over(t.barFill, content);
+
+  return [
+    ['Clair', 'color', 'background', t.color, t.background, 4.5, 'texte courant'],
+    ['Clair', 'color', 'surface', t.color, t.surface, 4.5, 'cartes, listes'],
+    ['Clair', 'color', 'subtle', t.color, t.subtle, 4.5, 'aperçu du financement'],
+    ['Clair', 'colorMuted', 'background', t.colorMuted, t.background, 4.5, 'légendes, surtitres'],
+    ['Clair', 'colorMuted', 'surface', t.colorMuted, t.surface, 4.5, 'légendes dans les cartes, texte indicatif des champs'],
+    ['Clair', 'colorMuted', 'subtle', t.colorMuted, t.subtle, 4.5, 'segment non choisi, badge « Résilié », bouton désactivé'],
+    ['Clair', 'primaryText', 'surface', t.primaryText, t.surface, 4.5, 'montant du prochain transfert, bouton fantôme'],
+    ['Clair', 'primaryText', 'background', t.primaryText, t.background, 4.5, 'bouton fantôme, « Afficher »'],
+    ['Clair', 'primaryText', 'primarySoft', t.primaryText, t.primarySoft, 4.5, 'bouton doux'],
+    ['Clair', 'onSecondary', 'secondary', t.onSecondary, t.secondary, 4.5, 'bouton pêche, puce choisie'],
+    ['Clair', 'onPrimary', 'primary', t.onPrimary, t.primary, 4.5, 'bouton principal, capsule d’onglet, verrou'],
+    ['Clair', 'onPrimary', 'warnSolid', t.onPrimary, t.warnSolid, 4.5, 'bouton d’alerte plein'],
+    ['Clair', 'onPrimary', 'dangerSolid', t.onPrimary, t.dangerSolid, 4.5, 'bouton destructif plein'],
+    ['États', 'warnText', 'warnBg', t.warnText, t.warnBg, 4.5, 'cartes d’alerte, badge « Essai »'],
+    ['États', 'color', 'warnBg', t.color, t.warnBg, 4.5, 'titre et corps des cartes d’alerte'],
+    ['États', 'warnText', 'surface', t.warnText, t.surface, 4.5, '« Reporté » dans une ligne de transfert'],
+    ['États', 'warnText', 'background', t.warnText, t.background, 4.5, 'couverture du coffre (Plan), refus des notifications'],
+    ['États', 'okText', 'okBg', t.okText, t.okBg, 4.5, 'carte « aucun risque », badge « Actif »'],
+    ['États', 'okText', 'surface', t.okText, t.surface, 4.5, '« Alimenté », « Virement fait »'],
+    ['États', 'okText', 'background', t.okText, t.background, 4.5, 'couverture du coffre (Plan)'],
+    ['États', 'dangerText', 'dangerBg', t.dangerText, t.dangerBg, 4.5, 'transfert en retard, badge « À résilier »'],
+    ['États', 'dangerText', 'surface', t.dangerText, t.surface, 4.5, 'bouton destructif contour'],
+    ['États', 'dangerText', 'background', t.dangerText, t.background, 4.5, 'erreurs de champ'],
+    ['Non textuel', 'surface', 'okText', t.surface, t.okText, 3, 'coche du transfert fait (calendrier)'],
+    ['Non textuel', 'borderControl', 'surface', t.borderControl, t.surface, 3, 'bordure des champs et puces, piste d’interrupteur coupé'],
+    ['Non textuel', 'borderControl', 'background', t.borderControl, t.background, 3, 'bordure des champs sur le fond'],
+    ['Non textuel', 'surface', 'borderControl', t.surface, t.borderControl, 3, 'pastille de l’interrupteur coupé'],
+    ['Non textuel', 'primary', 'subtle', t.primary, t.subtle, 3, 'barres de catégorie, progression du premier lancement'],
+    ['Barre d’onglets', 'colorMuted', 'barFill sur background', t.colorMuted, barOver(t.background), 4.5, 'libellé d’onglet inactif'],
+    [
+      'Barre d’onglets',
+      'colorMuted',
+      'barFill sur primary',
+      t.colorMuted,
+      barOver(t.primary),
+      4.5,
+      'libellé inactif, bouton principal derrière (sans flou)',
+    ],
+    [
+      'Barre d’onglets',
+      'colorMuted',
+      'barFill sur heroTo',
+      t.colorMuted,
+      barOver(t.heroTo),
+      4.5,
+      'libellé inactif, contenu le plus sombre derrière (sans flou)',
+    ],
+    ['Hero', 'onGlass', 'heroFrom', t.onGlass, t.heroFrom, 4.5, 'titre d’écran, en-tête de feuille'],
+    ['Hero', 'onGlass', 'hero + lueur pêche', t.onGlass, heroPeach, 4.5, 'titre sous la lueur (pire cas)'],
+    ['Hero', 'onGlassMuted', 'heroFrom', t.onGlassMuted, t.heroFrom, 4.5, 'surtitre, légende'],
+    ['Hero', 'onGlassMuted', 'hero + lueur pêche', t.onGlassMuted, heroPeach, 4.5, 'surtitre sous la lueur (pire cas)'],
+    ['Hero', 'onGlassMuted', 'hero + lueur violette', t.onGlassMuted, heroCool, 4.5, 'titre de section sur le bas du Hero'],
+    ['Hero', 'onGlassDanger', 'hero + lueur pêche', t.onGlassDanger, heroPeach, 4.5, 'erreur du formulaire sur le Hero'],
+    ['Verre', 'onGlass', 'glassFill + lueur pêche', t.onGlass, glassCard(heroPeach), 4.5, 'montant, bouton d’icône en verre'],
+    [
+      'Verre',
+      'onGlassMuted',
+      'glassFill sur heroFrom',
+      t.onGlassMuted,
+      glassCard(t.heroFrom),
+      4.5,
+      'légende de carte en verre (cas courant)',
+    ],
+    [
+      'Verre',
+      'onGlassMuted',
+      'glassFill + lueur pêche',
+      t.onGlassMuted,
+      glassCard(heroPeach),
+      4.5,
+      'légende de carte en verre, texte indicatif (pire cas)',
+    ],
+    ['Verre', 'onGlass', 'glassInner + glassFill + lueur', t.onGlass, glassPanel(heroPeach), 4.5, 'montant d’un panneau'],
+    [
+      'Verre',
+      'onGlassMuted',
+      'glassInner + glassFill + lueur',
+      t.onGlassMuted,
+      glassPanel(heroPeach),
+      4.5,
+      'légende d’un panneau, état « coupé » (pire cas)',
+    ],
+    ['Verre', 'onGlassMuted', 'glassInner + lueur pêche', t.onGlassMuted, over(t.glassInner, heroPeach), 4.5, 'segment non choisi'],
+    ['Verre', 'onGlass', 'glassFill ×2 + lueur pêche', t.onGlass, glassChip(heroPeach), 4.5, 'pastille d’actualisation'],
+    ['Verre', 'onGlassOk', 'glassFill + lueur pêche', t.onGlassOk, glassCard(heroPeach), 4.5, 'message « le coffre couvre »'],
+    ['Verre', 'onGlassOk', 'glassInner + glassFill + lueur', t.onGlassOk, glassPanel(heroPeach), 4.5, 'état d’un service'],
+    ['Verre', 'onGlassWarn', 'glassFill + lueur pêche', t.onGlassWarn, glassCard(heroPeach), 4.5, 'message d’alerte'],
+    ['Verre', 'onGlassWarn', 'glassInner + glassFill + lueur', t.onGlassWarn, glassPanel(heroPeach), 4.5, 'état d’un service'],
+    ['Verre', 'onGlassDanger', 'glassFill + lueur pêche', t.onGlassDanger, glassCard(heroPeach), 4.5, 'accord expiré'],
+    ['Désactivé', 'colorMuted', 'subtle', t.colorMuted, t.subtle, 3, 'libellé de bouton désactivé (exempté par WCAG, indicatif)'],
+    ['Désactivé', 'onGlassMuted', 'heroFrom', t.onGlassMuted, t.heroFrom, 3, '« Annuler » désactivé sur le Hero (exempté, indicatif)'],
+    ['Marque', 'blanc', 'fond de l’écran de démarrage', white, splashBg, 4.5, 'mot « Sluis »'],
+  ];
+}
+
+const pairs = [...pairsFor(lightTokens), ...pairsFor(darkTokens).map(([group, ...rest]) => [`Sombre · ${group}`, ...rest])];
 
 // Initiales des avatars (features/subscriptions/components/subscription-avatar.tsx).
 const avatar = readFileSync(join(root, 'src/features/subscriptions/components/subscription-avatar.tsx'), 'utf8');
