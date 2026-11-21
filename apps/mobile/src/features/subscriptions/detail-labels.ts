@@ -1,13 +1,6 @@
-import { formatEuros, type PeriodUnit, suggestedPeriodEnd } from '@abonnements/core';
+import { formatEuros, suggestedPeriodEnd } from '@abonnements/core';
 import { dateShort, relativeDay } from '@/lib/dates';
 import { formatPercentBp } from '@/lib/format';
-
-const PERIOD_LABELS: Record<string, string> = { week: 'semaine', month: 'mois', year: 'an' };
-
-/** Montant et rythme : « 9,99 € / mois », « 59,00 € / 2 ans ». */
-export function rhythmLabel(amountCents: number, unit: PeriodUnit, count: number): string {
-  return `${formatEuros(amountCents)} / ${count > 1 ? `${count} ` : ''}${PERIOD_LABELS[unit]}${unit === 'year' && count > 1 ? 's' : ''}`;
-}
 
 /** Échéance relative d'une fin d'essai à `days` jours. */
 export function trialWhenLabel(days: number): string {

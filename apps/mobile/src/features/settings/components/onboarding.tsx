@@ -1,15 +1,21 @@
+import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ScrollView, XStack, YStack } from 'tamagui';
+import { ScrollView, XStack } from 'tamagui';
 import { useSettings } from '@/features/settings/hooks/use-settings';
 import { useUpdateSettings } from '@/features/settings/hooks/use-update-settings';
 import { ONBOARDING_STEPS } from '@/features/settings/onboarding-steps';
+import { BrandMark } from '@/ui/brand/brand-mark';
 import { ActionButton } from '@/ui/controls/action-button';
+import { GlassCard } from '@/ui/surfaces/glass-card';
+import { Hero } from '@/ui/surfaces/hero';
+import { CardTitle } from '@/ui/text/typography';
 import { OnboardingMarginStep } from './onboarding-margin-step';
 import { OnboardingPaydayStep } from './onboarding-payday-step';
 import { OnboardingProgress } from './onboarding-progress';
 import { type NotificationRequest, OnboardingRemindersStep } from './onboarding-reminders-step';
 
+/** Premier lancement, plein écran sur le dégradé : marque, avancement, étape dans une carte en verre, boutons en pilule. */
 export function Onboarding() {
   const insets = useSafeAreaInsets();
   const settings = useSettings();
@@ -26,25 +32,33 @@ export function Onboarding() {
   const finish = () => update.mutate({ payday_day: paydayDay, global_margin_bp: marginBp, onboarding_done: 1 });
 
   return (
-    <YStack flex={1} bg="background" pt={insets.top + 24} pb={insets.bottom + 16}>
+    <Hero flex={1} pt={insets.top + 24} pb={insets.bottom + 16} gap="5">
+      <StatusBar style="light" />
+      <XStack px="4" gap="2.5" items="center">
+        <BrandMark size={36} />
+        <CardTitle color="onGlass">Sluis</CardTitle>
+      </XStack>
       <OnboardingProgress step={step} />
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-        {step === 0 && <OnboardingPaydayStep value={paydayDay} onChange={setPayday} />}
-        {step === 1 && <OnboardingMarginStep value={marginBp} onChange={setMargin} />}
-        {step === 2 && <OnboardingRemindersStep notif={notif} setNotif={setNotif} />}
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+        <GlassCard gap="4">
+          {step === 0 && <OnboardingPaydayStep value={paydayDay} onChange={setPayday} />}
+          {step === 1 && <OnboardingMarginStep value={marginBp} onChange={setMargin} />}
+          {step === 2 && <OnboardingRemindersStep notif={notif} setNotif={setNotif} />}
+        </GlassCard>
       </ScrollView>
 
       <XStack px="4" gap="3">
-        {step > 0 && <ActionButton flex={1} size="lg" label="Retour" variant="outline" onPress={() => setStep(step - 1)} />}
+        {step > 0 && <ActionButton flex={1} size="lg" label="Retour" variant="glass" onPress={() => setStep(step - 1)} />}
         <ActionButton
           flex={1}
           size="lg"
           label={lastStep ? 'Commencer' : 'Continuer'}
+          variant="secondary"
           loading={update.isPending}
           onPress={() => (lastStep ? finish() : setStep(step + 1))}
         />
       </XStack>
-    </YStack>
+    </Hero>
   );
 }

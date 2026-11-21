@@ -1,62 +1,50 @@
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CalendarDays } from 'lucide-react-native';
 import { ScrollView, YStack } from 'tamagui';
-import { BankHintNotice } from './bank-hint-notice';
-import { DebitDateField } from './debit-date-field';
-import { ModalFooter } from './modal-footer';
-import { ReviewAmountField } from './review-amount-field';
-import { ReviewChargeSummary } from './review-charge-summary';
 import { useReviewActions } from '@/features/charges/hooks/use-review-actions';
 import { useReviewForm } from '@/features/charges/hooks/use-review-form';
+import { pickDebitDate } from '@/features/charges/pick-debit-date';
 import type { ChargeToReview } from '@/features/charges/types';
-import { dateLong } from '@/lib/dates';
-import { TOP_GAP } from '@/theme/layout';
-import { ActionButton } from '@/ui/controls/action-button';
-import { ModalHeader } from '@/ui/navigation/modal-header';
+import { dateShort } from '@/lib/dates';
 import { useDiscardGuard } from '@/ui/navigation/use-discard-guard';
+import { PickerRow } from '@/ui/controls/picker-row';
+import { FormGroup } from '@/ui/surfaces/form-group';
+import { SheetFooter } from '@/ui/surfaces/sheet-footer';
+import { BankHintNotice } from './bank-hint-notice';
+import { ReviewChargeHero } from './review-charge-hero';
+import { ReviewOutcomes } from './review-outcomes';
 
 /**
- * Rapprochement d'un prélèvement : montant et date réellement débités, puis « passé » ou « échoué ».
- * Si la lecture du compte n'a vu aucun débit, « échoué » devient la réponse mise en avant.
+ * Rapprochement d'un prélèvement (contenu de la feuille) : montant et date réellement débités, puis « passé » ou « échoué ».
+ * Si la lecture du compte n'a vu aucun débit, « échoué » devient la réponse mise en avant (bouton plein).
  */
 export function ReviewChargeForm({ row, today }: { row: ChargeToReview; today: string }) {
-  const insets = useSafeAreaInsets();
   const form = useReviewForm(row, today);
   const guard = useDiscardGuard(form.dirty, 'Le montant et la date que tu as modifiés ne seront pas enregistrés.');
   const actions = useReviewActions(row, guard.leave);
   const failedSuggested = row.bankHint?.kind === 'no_debit';
+  const paid = { label: 'Il est passé', onPress: () => actions.paid(form.amountCents, form.date), disabled: !form.validAmount };
+  const failed = { label: 'Il a échoué', onPress: () => actions.failed(form.amountCents), disabled: false };
+  const [primary, secondary] = failedSuggested ? [failed, paid] : [paid, failed];
 
   return (
-    <YStack flex={1} bg="background" pt={insets.top + TOP_GAP.stack}>
-      <ModalHeader />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, gap: 18 }}>
-        <ReviewChargeSummary row={row} />
-        {row.bankHint ? <BankHintNotice hint={row.bankHint} /> : null}
-        <ReviewAmountField unfunded={row.status === 'unfunded'} value={form.amount} valid={form.validAmount} onChange={form.setAmount} />
-        <DebitDateField
-          date={form.date}
-          today={today}
-          onChange={form.setDate}
-          accessibilityLabel={`Date du débit : ${dateLong(form.date, today)}. Modifier`}
-        />
+    <>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
+        <ReviewChargeHero row={row} form={form} />
+        <YStack px="4" pt="5" gap="5">
+          {row.bankHint ? <BankHintNotice hint={row.bankHint} /> : null}
+          <FormGroup title="Débit">
+            <PickerRow
+              icon={CalendarDays}
+              label="Date du débit"
+              value={dateShort(form.date, today)}
+              onPress={() => pickDebitDate(form.date, today, form.setDate)}
+              last
+            />
+          </FormGroup>
+          <ReviewOutcomes row={row} />
+        </YStack>
       </ScrollView>
-      <ModalFooter>
-        <ActionButton
-          flex={1}
-          size="lg"
-          label="Il a échoué"
-          variant={failedSuggested ? 'primary' : 'outline'}
-          disabled={actions.busy}
-          onPress={() => actions.failed(form.amountCents)}
-        />
-        <ActionButton
-          flex={1}
-          size="lg"
-          label="Il est passé"
-          variant={failedSuggested ? 'outline' : 'primary'}
-          disabled={actions.busy || !form.validAmount}
-          onPress={() => actions.paid(form.amountCents, form.date)}
-        />
-      </ModalFooter>
-    </YStack>
+      <SheetFooter label={primary.label} busy={actions.busy} disabled={primary.disabled} onPress={primary.onPress} secondary={secondary} />
+    </>
   );
 }

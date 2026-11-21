@@ -3,7 +3,7 @@ import { elevated, RADIUS, type ShadowLevel } from '@/theme/elevation';
 import { haptic } from '@/ui/motion/haptics';
 
 export type ButtonVariant =
-  'primary' | 'secondary' | 'soft' | 'outline' | 'onAccent' | 'danger' | 'dangerSolid' | 'warn' | 'ghost' | 'glassGhost';
+  'primary' | 'secondary' | 'soft' | 'outline' | 'onAccent' | 'danger' | 'dangerSolid' | 'warn' | 'ghost' | 'glassGhost' | 'glass';
 
 const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }> = {
   primary: { bg: 'primary', border: 'primary', fg: 'onPrimary' },
@@ -16,9 +16,12 @@ const BUTTONS: Record<ButtonVariant, { bg: string; border: string; fg: string }>
   warn: { bg: 'warnText', border: 'warnText', fg: 'onPrimary' },
   ghost: { bg: 'transparent', border: 'transparent', fg: 'primary' },
   glassGhost: { bg: 'transparent', border: 'transparent', fg: 'onGlass' },
+  glass: { bg: 'glassFill', border: 'glassEdge', fg: 'onGlass' },
 };
 
 const FILLED = new Set<ButtonVariant>(['primary', 'secondary', 'warn', 'dangerSolid']);
+// Variantes posées sur le dégradé ou sur l'aubergine : inactives, elles gardent leur fond et atténuent seulement le texte.
+const ON_DARK = new Set<ButtonVariant>(['onAccent', 'glassGhost', 'glass']);
 
 // Gabarit mobile : pilule pleine largeur possible, cible tactile ≥ 44 px même en petite taille.
 const SIZES = {
@@ -50,10 +53,10 @@ export function ActionButton({
 }) {
   const inactive = disabled || loading;
   const v = BUTTONS[variant];
-  const ghostOrAccent = variant === 'ghost' || variant === 'onAccent' || variant === 'glassGhost';
+  const ghostOrAccent = variant === 'ghost' || ON_DARK.has(variant);
   const bg = inactive && !ghostOrAccent ? 'subtle' : v.bg;
   const border = inactive && !ghostOrAccent ? 'subtle' : v.border;
-  const fg = inactive ? (variant === 'onAccent' || variant === 'glassGhost' ? 'onGlassMuted' : 'colorMuted') : v.fg;
+  const fg = inactive ? (ON_DARK.has(variant) ? 'onGlassMuted' : 'colorMuted') : v.fg;
   const dims = SIZES[size];
   return (
     <Button

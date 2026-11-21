@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { AppGate } from '@/features/app-shell/components/app-gate';
 import { AppShell } from '@/features/app-shell/components/app-shell';
 import { NotificationRouting } from '@/features/app-shell/components/notification-routing';
-import { MODAL, SHEET, STACK_OPTIONS } from '@/features/app-shell/screen-options';
+import { SHEET, STACK_OPTIONS } from '@/features/app-shell/screen-options';
 import { ConsentReturnRouting } from '@/features/consent/components/consent-return-routing';
 import { startConsentInbox } from '@/features/consent/consent-inbox';
 
@@ -20,7 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="subscriptions/new" options={SHEET} />
           <Stack.Screen name="subscriptions/edit/[id]" options={SHEET} />
-          <Stack.Screen name="charges/[id]" options={MODAL} />
+          <Stack.Screen name="charges/[id]" options={SHEET} />
           <Stack.Screen name="charges/unknown" options={SHEET} />
           <Stack.Screen name="consent" options={SHEET} dangerouslySingular />
         </Stack>

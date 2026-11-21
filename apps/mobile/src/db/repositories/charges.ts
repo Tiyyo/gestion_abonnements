@@ -21,7 +21,7 @@ export async function chargeToReview(db: Kysely<DB>, chargeId: string) {
     .selectFrom('charge')
     .innerJoin('subscription', 'subscription.id', 'charge.subscription_id')
     .selectAll('charge')
-    .select(['subscription.name', 'subscription.status as subscription_status'])
+    .select(['subscription.name', 'subscription.status as subscription_status', 'subscription.icon_key'])
     .where('charge.id', '=', chargeId)
     .executeTakeFirst();
   return row ? { ...row, bankHint: bankHintFor(await loadBankContext(db), row) } : null;
