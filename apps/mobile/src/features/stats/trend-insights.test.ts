@@ -22,6 +22,7 @@ const stats: Stats = {
   excludedCount: 0,
   spentLast12MonthsCents: 0,
   topSubscription: { name: 'Netflix', annualCents: 16188 },
+  priceIncreases: { count: 0, annualImpactCents: 0 },
 };
 
 describe('libellés de la tendance', () => {

@@ -1,5 +1,6 @@
 import { formatEuros } from '@abonnements/core';
-import type { CategoryCost, Stats } from '@/db/repositories/stats';
+import type { CategoryCost, PriceIncreases, Stats } from '@/db/repositories/stats';
+import { formatSignedEuros } from '@/features/subscriptions/price-history';
 import type { StatsPeriod } from './types';
 
 export const subscriptionCount = (n: number) => `${n} abonnement${n > 1 ? 's' : ''}`;
@@ -20,6 +21,11 @@ export function categoryAmountLabel(row: CategoryCost, pct: number): string {
 
 export function categoryAccessibilityLabel(row: CategoryCost, pct: number): string {
   return `${row.category} : ${formatEuros(row.cents)}, ${pct} %`;
+}
+
+/** Valeur de la ligne « Hausses sur 12 mois » : nombre de hausses et surcoût cumulé par an. */
+export function priceIncreasesLabel(increases: PriceIncreases): string {
+  return increases.count === 0 ? 'Aucune' : `${increases.count} · ${formatSignedEuros(increases.annualImpactCents)} par an`;
 }
 
 /** Chiffres affichés pour la période choisie (mensuelle ou annuelle). */

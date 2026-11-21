@@ -1,4 +1,4 @@
-import { formatEuros } from '@abonnements/core';
+import { formatEuros, parsePriceChange } from '@abonnements/core';
 
 const STATUS_LABELS: Record<string, string> = {
   trial: 'en essai',
@@ -6,6 +6,17 @@ const STATUS_LABELS: Record<string, string> = {
   to_cancel: 'à résilier',
   cancelled: 'résilié',
 };
+
+/** Changement de prix appliqué, ou écart ponctuel constaté au rapprochement sans mise à jour du montant. */
+function priceChangeLabel(payloadJson: string): string {
+  const change = parsePriceChange(payloadJson);
+  if (!change) {
+    return 'Prix modifié';
+  }
+  return change.applied
+    ? `Prix modifié : ${formatEuros(change.from)} → ${formatEuros(change.to)}`
+    : `Prélevé ${formatEuros(change.to)} au lieu de ${formatEuros(change.from)}`;
+}
 
 export function eventLabel(type: string, payloadJson: string, amountCents: number | null): string {
   const payload = JSON.parse(payloadJson) as { from?: string | null; to?: string; chargeId?: string };
@@ -22,7 +33,7 @@ export function eventLabel(type: string, payloadJson: string, amountCents: numbe
       }
       return `Passé ${STATUS_LABELS[payload.to ?? ''] ?? payload.to}`;
     case 'price_change':
-      return `Prix modifié : ${formatEuros(Number(payload.from))} → ${formatEuros(Number(payload.to))}`;
+      return priceChangeLabel(payloadJson);
     case 'unexpected_charge':
       return `Prélèvement inattendu${amountCents !== null ? ` de ${formatEuros(amountCents)}` : ''}`;
     case 'duplicate':

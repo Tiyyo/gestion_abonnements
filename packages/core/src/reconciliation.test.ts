@@ -34,7 +34,7 @@ describe('markPaid', () => {
     const outcome = markPaid(charge(), 1299, '2026-11-21');
     expect(outcome.proposeAmountUpdate).toBe(true);
     expect(outcome.events).toEqual([
-      expect.objectContaining({ type: 'price_change', payload: { chargeId: 'c1', from: 1199, to: 1299 } }),
+      expect.objectContaining({ type: 'price_change', payload: { chargeId: 'c1', from: 1199, to: 1299, source: 'reconciliation', applied: false } }),
     ]);
   });
 
