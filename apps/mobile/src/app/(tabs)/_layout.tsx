@@ -19,10 +19,12 @@ export default function TabsLayout() {
   return (
     <YStack flex={1} bg="background">
       <BlurTargetView ref={blurTarget} style={{ flex: 1 }}>
+        {/* Pas de transition entre onglets : un fondu enchaîné rend les deux écrans à moitié transparents
+            et le fond clair perce sous le Hero aubergine (éclair blanc). La capsule de la barre garde son mouvement. */}
         <Tabs
           tabBar={renderBar}
           screenListeners={{ tabPress: () => haptic.select() }}
-          screenOptions={{ headerShown: false, animation: 'shift', lazy: false }}
+          screenOptions={{ headerShown: false, animation: 'none', lazy: false }}
         >
           {TABS.map(({ name, title, icon: Icon, testID }) => (
             <Tabs.Screen
